@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "EditorUI.h"
 #include "EditorPlayer.h"
 
 // Sets default values
@@ -25,6 +26,12 @@ AEditorPlayer::AEditorPlayer()
 	// Set Gravity scale to 0 on this character
 	GetCharacterMovement()->GravityScale = 0;
 
+	// Find UI object and store it
+	static ConstructorHelpers::FClassFinder<UUserWidget>EditorClass(TEXT("/Game/UI/WBP_EditorPlayer"));
+	if (EditorClass.Succeeded()) {
+		EditorUI = CreateWidget<UEditorUI>(GetWorld(), EditorClass.Class);
+	};
+
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +42,10 @@ void AEditorPlayer::BeginPlay()
 	// Complete the reference to the player controller and show the mouse cursor
 	PC = Cast<APlayerController>(GetController());
 	PC->bShowMouseCursor = true;
+
+	// Add the widget to the players viewport
+	EditorUI->AddToViewport();
+	EditorUI->EditorPlayer = this;
 }
 
 
@@ -55,8 +66,17 @@ void AEditorPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveY", this, &AEditorPlayer::MoveY);
 	PlayerInputComponent->BindAxis("RotateX", this, &AEditorPlayer::RotateX);
 	PlayerInputComponent->BindAxis("ZoomCamera", this, &AEditorPlayer::ZoomCamera);
+
+	// Add Action Binds
+	PlayerInputComponent->BindAction("UseToolPrimary", IE_Released, this, &AEditorPlayer::UseToolPrimary);
+	PlayerInputComponent->BindAction("UseToolSecondary", IE_Released, this, &AEditorPlayer::UseToolSecondary);
+	PlayerInputComponent->BindAction("ExploreTool", IE_Released, this, &AEditorPlayer::ExploreTool);
+	PlayerInputComponent->BindAction("SelectTool", IE_Released, this, &AEditorPlayer::SelectTool);
+	PlayerInputComponent->BindAction("BuildTool", IE_Released, this, &AEditorPlayer::UseToolPrimary);
+	PlayerInputComponent->BindAction("ItemTool", IE_Released, this, &AEditorPlayer::ItemTool);
 }
 
+// -- Controls
 void AEditorPlayer::MoveX(float AxisValue)
 {
 	if (GetHasAxisValue(AxisValue))
@@ -110,11 +130,106 @@ void AEditorPlayer::ZoomCamera(float AxisValue)
 	}
 }
 
+void AEditorPlayer::ModifyRotationDegree(bool bIncrease)
+{
+	if (bIncrease == true) {
+		if (RotationDegree + 1 >= RotationMax) {
+			RotationDegree = RotationMax;
+		}
+		else {
+			RotationDegree++;
+		}
+	}
+	else {
+		if (RotationDegree - 1 <= RotationMin) {
+			RotationDegree = RotationMin;
+		}
+		else {
+			RotationDegree--;
+		}
+	}
+}
+
+void AEditorPlayer::ModifyMovementStep(bool bIncrease)
+{
+	if (bIncrease == true) {
+		if (MovementStep + 1 >= MovementMax) {
+			MovementStep = MovementMax;
+		}
+		else {
+			MovementStep++;
+		}
+	}
+	else {
+		if (MovementStep - 1 <= MovementMin) {
+			MovementStep = MovementMin;
+		}
+		else {
+			MovementStep--;
+		}
+	}
+}
+
+void AEditorPlayer::UseToolPrimary()
+{
+	// Find returns ** pointer (which points to the maps memory location that then points to the ParentTool memory location), while FindRef returns * pointer.
+	// See https://www.quora.com/What-does-the-pointer-**-mean-in-C++ for more
+	ToolMap.FindRef(CurrentTool)->ToolPrimary();
+}
+
+void AEditorPlayer::UseToolSecondary()
+{
+	// See UseToolPrimary
+	ToolMap.FindRef(CurrentTool)->ToolSecondary();
+}
+
+// -- Swap Tools
+void AEditorPlayer::SwapTool(TEnumAsByte<EToolType> NewTool)
+{
+	// First, check if the current tool isn't the same as the new tool
+	if (NewTool != CurrentTool) {
+		// If it's different, check if the player has that tool in ToolMap
+		if (ToolMap.Contains(NewTool) == true) {
+			// If they do, set the new tool as the current tool
+			CurrentTool = NewTool;
+		}
+	}
+}
+
+void AEditorPlayer::ExploreTool()
+{
+	SwapTool(EToolType::Explore);
+}
+
+void AEditorPlayer::SelectTool()
+{
+	SwapTool(EToolType::Select);
+}
+
+void AEditorPlayer::BuildTool()
+{
+	SwapTool(EToolType::Build);
+}
+
+void AEditorPlayer::ItemTool()
+{
+	SwapTool(EToolType::Item);
+}
+
+// -- Helpers
 bool AEditorPlayer::GetHasAxisValue(float AxisValue)
 {
 	if (AxisValue != 0) {
 		return true;
 	}
 	else return false;
+}
+
+void AEditorPlayer::AddNewTool(UParentTool* NewTool)
+{
+	// First, check if the tool already exists in the map
+	if (ToolMap.Contains(NewTool->ToolType) == false) {
+		ToolMap.Add(NewTool->ToolType, NewTool);
+	}
 }
 
