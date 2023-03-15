@@ -8,8 +8,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Blueprint/UserWidget.h"
-#include "ParentTool.h"
+#include "Kismet/GameplayStatics.h"
 
+#include "ParentTool.h"
 #include "ToolLibrary.h"
 
 #include "EditorPlayer.generated.h"
@@ -41,7 +42,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ModifyMovementStep(bool bIncrease);
 
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -60,8 +60,6 @@ protected:
 	void BuildTool();
 	void ItemTool();
 
-
-
 private:
 	// Check if there is any axis value on input
 	bool GetHasAxisValue(float AxisValue);
@@ -71,6 +69,11 @@ private:
 public:	
 	// References
 	APlayerController* PC;
+	class ABuildingManager* BM;
+
+	// Money
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float Money;
 
 protected:
 	// Components

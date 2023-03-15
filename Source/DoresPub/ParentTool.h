@@ -36,5 +36,11 @@ public:
 	// The tools type
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		TEnumAsByte<EToolType> ToolType;
+
+	class AEditorPlayer* ToolOwner;
+
+protected:
+	//
+	
 	
 };

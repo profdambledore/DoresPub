@@ -2,6 +2,8 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EditorUI.h"
+#include "BuildingManager.h"
+
 #include "EditorPlayer.h"
 
 // Sets default values
@@ -46,6 +48,20 @@ void AEditorPlayer::BeginPlay()
 	// Add the widget to the players viewport
 	EditorUI->AddToViewport();
 	EditorUI->EditorPlayer = this;
+
+	// Find and store pointer to BuildingManager
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildingManager::StaticClass(), FoundActors);
+	if (FoundActors.Num() == 0){
+		// If an interior cannot be found, give a warning
+		UE_LOG(LogTemp, Warning, TEXT("Manager not found"));
+	}
+	else{
+		// Set the pointer to the world manager
+		UE_LOG(LogTemp, Warning, TEXT("Manager found"));
+		BM = Cast<ABuildingManager>(FoundActors[0]);
+		BM->EditorPlayer = this;
+	}
 }
 
 
@@ -230,6 +246,7 @@ void AEditorPlayer::AddNewTool(UParentTool* NewTool)
 	// First, check if the tool already exists in the map
 	if (ToolMap.Contains(NewTool->ToolType) == false) {
 		ToolMap.Add(NewTool->ToolType, NewTool);
+		NewTool->ToolOwner = this;
 	}
 }
 
