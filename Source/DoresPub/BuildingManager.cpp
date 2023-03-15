@@ -60,5 +60,6 @@ bool ABuildingManager::SpawnFurnishingAtLocation(FName FurnishingID, FVector Wor
 	newFurnishing->Data.Mesh = nullptr;
 	newFurnishing->Data.Class = nullptr;
 
+	// Return true
 	return true;
 }
