@@ -34,6 +34,7 @@ void UParentTool::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 void UParentTool::ToolPrimary()
 {
+	
 }
 
 void UParentTool::ToolSecondary()

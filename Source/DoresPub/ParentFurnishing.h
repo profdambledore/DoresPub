@@ -8,11 +8,12 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "ItemDataLibrary.h"
+#include "FurnishingInterface.h"
 
 #include "ParentFurnishing.generated.h"
 
 UCLASS()
-class DORESPUB_API AParentFurnishing : public AActor
+class DORESPUB_API AParentFurnishing : public AActor, public IFurnishingInterface
 {
 	GENERATED_BODY()
 	
@@ -22,6 +23,8 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual FString GetObjectData();
 
 protected:
 	// Called when the game starts or when spawned

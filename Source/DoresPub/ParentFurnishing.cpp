@@ -28,3 +28,8 @@ void AParentFurnishing::Tick(float DeltaTime)
 
 }
 
+FString AParentFurnishing::GetObjectData()
+{
+	return Data.Name;
+}
+

@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ParentTool.h"
+#include "SelectTool.h"
+#include "ToolInterface.h"
 #include "EditorUI.h"
 #include "BuildingManager.h"
 
@@ -22,6 +25,10 @@ AEditorPlayer::AEditorPlayer()
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
 	PlayerCamera->SetupAttachment(PlayerCameraSpringArm, USpringArmComponent::SocketName);
 
+	// Setup Tools
+	SelectTool = CreateDefaultSubobject<USelectTool>(TEXT("Select Tool"));
+	AddNewTool(SelectTool);
+
 	// Remove Controller Yaw
 	bUseControllerRotationYaw = false;
 
@@ -34,6 +41,8 @@ AEditorPlayer::AEditorPlayer()
 		EditorUI = CreateWidget<UEditorUI>(GetWorld(), EditorClass.Class);
 	};
 
+	// Set the current tool (test purpose only, otherwise this should be EToolType::ExploreTool)
+	CurrentTool = EToolType::Select;
 }
 
 // Called when the game starts or when spawned
@@ -86,10 +95,10 @@ void AEditorPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// Add Action Binds
 	PlayerInputComponent->BindAction("UseToolPrimary", IE_Released, this, &AEditorPlayer::UseToolPrimary);
 	PlayerInputComponent->BindAction("UseToolSecondary", IE_Released, this, &AEditorPlayer::UseToolSecondary);
-	PlayerInputComponent->BindAction("ExploreTool", IE_Released, this, &AEditorPlayer::ExploreTool);
-	PlayerInputComponent->BindAction("SelectTool", IE_Released, this, &AEditorPlayer::SelectTool);
-	PlayerInputComponent->BindAction("BuildTool", IE_Released, this, &AEditorPlayer::UseToolPrimary);
-	PlayerInputComponent->BindAction("ItemTool", IE_Released, this, &AEditorPlayer::ItemTool);
+	PlayerInputComponent->BindAction("ExploreTool", IE_Released, this, &AEditorPlayer::SwapToExploreTool);
+	PlayerInputComponent->BindAction("SelectTool", IE_Released, this, &AEditorPlayer::SwapToSelectTool);
+	PlayerInputComponent->BindAction("BuildTool", IE_Released, this, &AEditorPlayer::SwapToBuildTool);
+	PlayerInputComponent->BindAction("ItemTool", IE_Released, this, &AEditorPlayer::SwapToItemTool);
 }
 
 // -- Controls
@@ -188,9 +197,11 @@ void AEditorPlayer::ModifyMovementStep(bool bIncrease)
 
 void AEditorPlayer::UseToolPrimary()
 {
+	UE_LOG(LogTemp, Warning, TEXT("AEditorPlayer::UseToolPrimary"));
 	// Find returns ** pointer (which points to the maps memory location that then points to the ParentTool memory location), while FindRef returns * pointer.
 	// See https://www.quora.com/What-does-the-pointer-**-mean-in-C++ for more
-	ToolMap.FindRef(CurrentTool)->ToolPrimary();
+	IToolInterface* inf = Cast<IToolInterface>(ToolMap.FindRef(CurrentTool));
+	if (inf) { inf->ToolPrimary(); };
 }
 
 void AEditorPlayer::UseToolSecondary()
@@ -212,22 +223,22 @@ void AEditorPlayer::SwapTool(TEnumAsByte<EToolType> NewTool)
 	}
 }
 
-void AEditorPlayer::ExploreTool()
+void AEditorPlayer::SwapToExploreTool()
 {
 	SwapTool(EToolType::Explore);
 }
 
-void AEditorPlayer::SelectTool()
+void AEditorPlayer::SwapToSelectTool()
 {
 	SwapTool(EToolType::Select);
 }
 
-void AEditorPlayer::BuildTool()
+void AEditorPlayer::SwapToBuildTool()
 {
 	SwapTool(EToolType::Build);
 }
 
-void AEditorPlayer::ItemTool()
+void AEditorPlayer::SwapToItemTool()
 {
 	SwapTool(EToolType::Item);
 }

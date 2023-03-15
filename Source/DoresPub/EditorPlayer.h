@@ -10,12 +10,12 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "ParentTool.h"
 #include "ToolLibrary.h"
 
 #include "EditorPlayer.generated.h"
 
 class UParentTool;
+class USelectTool;
 
 UCLASS()
 class DORESPUB_API AEditorPlayer : public ACharacter
@@ -55,10 +55,10 @@ protected:
 	// Action Binds
 	void UseToolPrimary();
 	void UseToolSecondary();
-	void ExploreTool();
-	void SelectTool();
-	void BuildTool();
-	void ItemTool();
+	void SwapToExploreTool();
+	void SwapToSelectTool();
+	void SwapToBuildTool();
+	void SwapToItemTool();
 
 private:
 	// Check if there is any axis value on input
@@ -82,6 +82,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		USpringArmComponent* PlayerCameraSpringArm;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+		USelectTool* SelectTool;
 
 	// UI
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "User Interface")

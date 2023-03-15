@@ -6,12 +6,13 @@
 #include "Components/ActorComponent.h"
 
 #include "ToolLibrary.h"
+#include "ToolInterface.h"
 
 #include "ParentTool.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class DORESPUB_API UParentTool : public UActorComponent
+class DORESPUB_API UParentTool : public UActorComponent, public IToolInterface
 {
 	GENERATED_BODY()
 
@@ -23,10 +24,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-		void ToolPrimary();
+		virtual void ToolPrimary();
 
 	UFUNCTION(BlueprintCallable)
-		void ToolSecondary();
+		virtual void ToolSecondary();
 
 protected:
 	// Called when the game starts

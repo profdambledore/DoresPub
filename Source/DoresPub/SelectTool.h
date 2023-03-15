@@ -16,13 +16,13 @@ class DORESPUB_API USelectTool : public UParentTool
 public:
 	USelectTool();
 
-	void ToolPrimary();
-	void ToolSecondary();
+	virtual void ToolPrimary();
+	virtual void ToolSecondary();
 
 protected:
 	FVector	MouseWorldLocation;
 	FVector MouseWorldDirection;
 	FHitResult TraceHit = FHitResult(ForceInit);
-	ECollisionChannel TraceChannel = ECC_GameTraceChannel1;
+	ETraceTypeQuery TraceChannel = TraceTypeQuery1;
 
 };
