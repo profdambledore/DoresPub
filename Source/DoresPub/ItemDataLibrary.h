@@ -18,14 +18,14 @@ class DORESPUB_API UItemDataLibrary : public UBlueprintFunctionLibrary
 	
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum EFurnishingType
 {
 	DefaultType UMETA(Display Name = "Default"),
 	Seating UMETA(Display Name = "Seating"),
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum EFurnishingSubType
 {
 	DefaultSubType UMETA(Display Name = "Default"),
@@ -63,4 +63,49 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Price;
+};
+
+USTRUCT(BlueprintType)
+struct FCategoryBtn
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TEnumAsByte<EFurnishingType> Category;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* Icon;
+};
+
+USTRUCT(BlueprintType)
+struct FSubCategoryBtn
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TEnumAsByte<EFurnishingSubType> SubCategory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* Icon;
+};
+
+USTRUCT(BlueprintType)
+struct FFurnishingSlot
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName ID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* Icon;
 };
