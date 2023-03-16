@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "ParentTool.h"
 #include "SelectTool.h"
 #include "ToolInterface.h"
@@ -14,6 +15,10 @@ AEditorPlayer::AEditorPlayer()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Remove collision on the mesh and capsule
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Setup Camera and Sprint Arm
 	PlayerCameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
