@@ -4,6 +4,7 @@
 #include "Components/CapsuleComponent.h"
 #include "ParentTool.h"
 #include "SelectTool.h"
+#include "ItemTool.h"
 #include "ToolInterface.h"
 #include "EditorUI.h"
 #include "BuildingManager.h"
@@ -33,6 +34,9 @@ AEditorPlayer::AEditorPlayer()
 	// Setup Tools
 	SelectTool = CreateDefaultSubobject<USelectTool>(TEXT("Select Tool"));
 	AddNewTool(SelectTool);
+
+	ItemTool = CreateDefaultSubobject<UItemTool>(TEXT("Item Tool"));
+	AddNewTool(ItemTool);
 
 	// Remove Controller Yaw
 	bUseControllerRotationYaw = false;
@@ -224,6 +228,7 @@ void AEditorPlayer::SwapTool(TEnumAsByte<EToolType> NewTool)
 		if (ToolMap.Contains(NewTool) == true) {
 			// If they do, set the new tool as the current tool
 			CurrentTool = NewTool;
+			EditorUI->SwapUIState(NewTool);
 		}
 	}
 }

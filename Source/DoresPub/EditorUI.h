@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 
 #include "Components/WidgetSwitcher.h"
+#include "ToolLibrary.h"
 
 #include "EditorUI.generated.h"
 
@@ -22,6 +23,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateMovementElement();
+
+	void SwapUIState(EToolType NewState);
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

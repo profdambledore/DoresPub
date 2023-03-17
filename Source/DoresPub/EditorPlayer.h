@@ -86,6 +86,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		USelectTool* SelectTool;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+		class UItemTool* ItemTool;
+
 	// UI
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "User Interface")
 		class UEditorUI* EditorUI;
