@@ -16,6 +16,7 @@
 #include "EditorPlayer.generated.h"
 
 class UParentTool;
+class UExploreTool;
 class USelectTool;
 class UItemTool;
 
@@ -88,6 +89,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		USpringArmComponent* PlayerCameraSpringArm;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+		UExploreTool* ExploreTool;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		USelectTool* SelectTool;

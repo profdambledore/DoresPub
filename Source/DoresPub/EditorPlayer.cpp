@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "ParentTool.h"
+#include "ExploreTool.h"
 #include "SelectTool.h"
 #include "ItemTool.h"
 #include "ToolInterface.h"
@@ -32,6 +33,10 @@ AEditorPlayer::AEditorPlayer()
 	PlayerCamera->SetupAttachment(PlayerCameraSpringArm, USpringArmComponent::SocketName);
 
 	// Setup Tools
+	// Explore
+	ExploreTool = CreateDefaultSubobject<UExploreTool>(TEXT("Explore Tool"));
+	AddNewTool(ExploreTool);
+	
 	// Select
 	SelectTool = CreateDefaultSubobject<USelectTool>(TEXT("Select Tool"));
 	AddNewTool(SelectTool);
@@ -57,7 +62,7 @@ AEditorPlayer::AEditorPlayer()
 	};
 
 	// Set the current tool (test purpose only, otherwise this should be EToolType::ExploreTool)
-	CurrentTool = EToolType::Select;
+	CurrentTool = EToolType::Explore;
 }
 
 // Called when the game starts or when spawned
@@ -72,6 +77,7 @@ void AEditorPlayer::BeginPlay()
 	// Add the widget to the players viewport
 	EditorUI->AddToViewport();
 	EditorUI->EditorPlayer = this;
+	EditorUI->SetupGlobalState();
 	EditorUI->SetupItemState();
 
 	// Find and store pointer to BuildingManager
@@ -213,11 +219,14 @@ void AEditorPlayer::ModifyMovementStep(bool bIncrease)
 
 void AEditorPlayer::UseToolPrimary()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AEditorPlayer::UseToolPrimary"));
 	// Find returns ** pointer (which points to the maps memory location that then points to the ParentTool memory location), while FindRef returns * pointer.
 	// See https://www.quora.com/What-does-the-pointer-**-mean-in-C++ for more
-	IToolInterface* inf = Cast<IToolInterface>(ToolMap.FindRef(CurrentTool));
-	if (inf) { inf->ToolPrimary(); };
+	// 
+	// No longer need interface cast, found bug
+	//IToolInterface* inf = Cast<IToolInterface>(ToolMap.FindRef(CurrentTool));
+	//if (inf) { inf->ToolPrimary(); };
+
+	ToolMap.FindRef(CurrentTool)->ToolPrimary();
 }
 
 void AEditorPlayer::UseToolSecondary()
@@ -234,6 +243,7 @@ void AEditorPlayer::SwapTool(TEnumAsByte<EToolType> NewTool)
 		// If it's different, check if the player has that tool in ToolMap
 		if (ToolMap.Contains(NewTool) == true) {
 			// If they do, set the new tool as the current tool
+			ToolMap.FindRef(CurrentTool)->ClearTool();
 			CurrentTool = NewTool;
 			EditorUI->SwapUIState(NewTool);
 		}

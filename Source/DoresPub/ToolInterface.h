@@ -21,4 +21,5 @@ class DORESPUB_API IToolInterface
 public:
 	virtual void ToolPrimary();
 	virtual void ToolSecondary();
+	virtual void ClearTool();
 };

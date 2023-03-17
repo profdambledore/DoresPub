@@ -48,6 +48,10 @@ void UItemTool::ToolSecondary() {
 	bRotateMode = !bRotateMode;
 }
 
+void UItemTool::ClearTool(){
+	ClearFurnishingToPlace();
+}
+
 void UItemTool::SetFurnishingToPlace(FName ID, FFurnishingItem ItemToPlace)
 {
 	// If there isn't a static mesh component already, create one now

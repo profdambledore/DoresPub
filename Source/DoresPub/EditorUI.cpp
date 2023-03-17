@@ -12,12 +12,16 @@ void UEditorUI::SynchronizeProperties()
 void UEditorUI::SwapUIState(EToolType NewState)
 {
 	switch (NewState) {
-	case Select: //Explore
+	case Explore: //Explore
 		ToolState->SetActiveWidgetIndex(0);
 		break;
 
-	case Item:
+	case Select: //Select
 		ToolState->SetActiveWidgetIndex(1);
+		break;
+
+	case Item:
+		ToolState->SetActiveWidgetIndex(2);
 		break;
 
 	default:

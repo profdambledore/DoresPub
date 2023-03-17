@@ -41,3 +41,7 @@ void UParentTool::ToolSecondary()
 {
 }
 
+void UParentTool::ClearTool()
+{
+}
+

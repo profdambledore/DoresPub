@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void ToolSecondary();
 
+	UFUNCTION(BlueprintCallable)
+		virtual void ClearTool();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

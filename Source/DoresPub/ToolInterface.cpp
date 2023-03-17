@@ -10,3 +10,7 @@ void IToolInterface::ToolPrimary() {
 void IToolInterface::ToolSecondary() {
 
 }
+
+void IToolInterface::ClearTool() {
+
+}

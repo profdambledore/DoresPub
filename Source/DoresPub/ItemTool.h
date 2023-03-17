@@ -22,6 +22,7 @@ public:
 
 	virtual void ToolPrimary();
 	virtual void ToolSecondary();
+	virtual void ClearTool();
 
 	UFUNCTION(BlueprintCallable)
 		void SetFurnishingToPlace(FName ID, FFurnishingItem ItemToPlace);
