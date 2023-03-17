@@ -20,8 +20,8 @@ void ABuildingManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bool test = SpawnFurnishingAtLocation(FName("SEA_SOF_001"), FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
-	if (test == false) {UE_LOG(LogTemp, Warning, TEXT("Not Spawned")) }
+	//bool test = SpawnFurnishingAtLocation(FName("SEA_SOF_001"), FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
+	//if (test == false) {UE_LOG(LogTemp, Warning, TEXT("Not Spawned")) }
 }
 
 // Called every frame

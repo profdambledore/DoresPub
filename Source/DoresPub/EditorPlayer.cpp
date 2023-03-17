@@ -32,11 +32,17 @@ AEditorPlayer::AEditorPlayer()
 	PlayerCamera->SetupAttachment(PlayerCameraSpringArm, USpringArmComponent::SocketName);
 
 	// Setup Tools
+	// Select
 	SelectTool = CreateDefaultSubobject<USelectTool>(TEXT("Select Tool"));
 	AddNewTool(SelectTool);
 
+	// Item
+	ItemPlacerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Item Mesh"));
+	ItemPlacerMesh->SetCollisionProfileName(FName("ItemPlacer"));
+
 	ItemTool = CreateDefaultSubobject<UItemTool>(TEXT("Item Tool"));
 	AddNewTool(ItemTool);
+	ItemTool->FurnishingMesh = ItemPlacerMesh;
 
 	// Remove Controller Yaw
 	bUseControllerRotationYaw = false;
@@ -66,6 +72,7 @@ void AEditorPlayer::BeginPlay()
 	// Add the widget to the players viewport
 	EditorUI->AddToViewport();
 	EditorUI->EditorPlayer = this;
+	EditorUI->SetupItemState();
 
 	// Find and store pointer to BuildingManager
 	TArray<AActor*> FoundActors;

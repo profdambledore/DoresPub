@@ -7,6 +7,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -16,6 +17,7 @@
 
 class UParentTool;
 class USelectTool;
+class UItemTool;
 
 UCLASS()
 class DORESPUB_API AEditorPlayer : public ACharacter
@@ -75,6 +77,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float Money;
 
+	// Components
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+		UStaticMeshComponent* ItemPlacerMesh;
+
 protected:
 	// Components
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
@@ -87,7 +93,7 @@ protected:
 		USelectTool* SelectTool;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-		class UItemTool* ItemTool;
+		UItemTool* ItemTool;
 
 	// UI
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "User Interface")

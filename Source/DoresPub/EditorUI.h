@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateMovementElement();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void SetupItemState();
+
 	void SwapUIState(EToolType NewState);
 
 public:
