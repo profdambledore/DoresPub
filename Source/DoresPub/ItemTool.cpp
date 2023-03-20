@@ -39,7 +39,7 @@ void UItemTool::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UItemTool::ToolPrimary() {
 	UE_LOG(LogTemp, Warning, TEXT("Item Tool Primary"));
-	ToolOwner->BM->SpawnFurnishingAtLocation(CurrentID, FurnishingMesh->GetComponentLocation(), FurnishingMesh->GetComponentRotation());
+	ToolOwner->BM->SpawnFurnishingAtLocation(ToolOwner->CurrentFloor, CurrentID, FurnishingMesh->GetComponentLocation(), FurnishingMesh->GetComponentRotation());
 
 }
 

@@ -31,7 +31,7 @@ void ABuildingManager::Tick(float DeltaTime)
 
 }
 
-bool ABuildingManager::SpawnFurnishingAtLocation(FName FurnishingID, FVector WorldLocation, FRotator WorldRotation)
+bool ABuildingManager::SpawnFurnishingAtLocation(int Floor, FName FurnishingID, FVector WorldLocation, FRotator WorldRotation)
 {
 	// Get Object from Data Table
 	FFurnishingItem* item = FurnishingDataTable->FindRow<FFurnishingItem>(FurnishingID, "", false);
@@ -60,6 +60,19 @@ bool ABuildingManager::SpawnFurnishingAtLocation(FName FurnishingID, FVector Wor
 	newFurnishing->Data.Mesh = nullptr;
 	newFurnishing->Data.Class = nullptr;
 
+	// Add the data to the map (update with floor)
+	AddFurnishingToFloorData(Floor, newFurnishing);
+
 	// Return true
 	return true;
+}
+
+void ABuildingManager::AddFurnishingToFloorData(int Floor, AParentFurnishing* Object){
+	// Clear the NewData Struct and get the data already in the map
+	NewData = {};	
+	NewData = FloorData.FindRef(Floor);
+
+	// Add the new furnishing to the data, and re-set it in the map
+	NewData.Furnishings.Add(Object);
+	FloorData.Add(Floor, NewData);
 }

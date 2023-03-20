@@ -109,3 +109,45 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTexture2D* Icon;
 };
+
+USTRUCT(BlueprintType)
+struct FBuildingFloorData
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// WallParent
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// CeilingParent
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// FloorParent
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<AParentFurnishing*> Furnishings;
+};
+
+USTRUCT(BlueprintType)
+struct FWorldFloorData
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<bool> Column;
+};
+
+USTRUCT(BlueprintType)
+struct FLevelData : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<FWorldFloorData> WorldData;
+};

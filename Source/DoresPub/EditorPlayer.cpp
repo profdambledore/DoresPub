@@ -2,11 +2,14 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+
 #include "ParentTool.h"
 #include "ExploreTool.h"
 #include "SelectTool.h"
+#include "BuildTool.h"
 #include "ItemTool.h"
 #include "ToolInterface.h"
+
 #include "EditorUI.h"
 #include "BuildingManager.h"
 
@@ -40,6 +43,10 @@ AEditorPlayer::AEditorPlayer()
 	// Select
 	SelectTool = CreateDefaultSubobject<USelectTool>(TEXT("Select Tool"));
 	AddNewTool(SelectTool);
+
+	// Build
+	BuildTool = CreateDefaultSubobject<UBuildTool>(TEXT("Build Tool"));
+	AddNewTool(BuildTool);
 
 	// Item
 	ItemPlacerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Item Mesh"));

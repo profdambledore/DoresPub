@@ -26,7 +26,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-		bool SpawnFurnishingAtLocation(FName FurnishingID, FVector WorldLocation, FRotator WorldRotation);
+		bool SpawnFurnishingAtLocation(int Floor, FName FurnishingID, FVector WorldLocation, FRotator WorldRotation);
+
+	UFUNCTION(BlueprintCallable)
+		void AddFurnishingToFloorData(int Floor, AParentFurnishing* Object);
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,7 +43,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
 	UDataTable* FurnishingDataTable = nullptr;
 
-	// Array of all objects in the world
+	// Array of world data (the area where the player can build)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	TArray<FWorldFloorData> WorldData;
+
+	// Map of each floor's data
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		TArray<AParentFurnishing*> FurnishingInWorld;
+		TMap<int, FBuildingFloorData> FloorData;
+
+private:
+	// Struct used when adding new data (may not be needed)
+	FBuildingFloorData NewData;
 };

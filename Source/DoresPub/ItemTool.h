@@ -34,28 +34,31 @@ public:
 		void FlipObject();
 
 public:
+	// Materials
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UMaterial* FurnishingMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UMaterial* ErrorMaterial;
 
+	// Pointer to mesh on EditorPlayer
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* FurnishingMesh;
 
+	// Item Data
 	FName CurrentID = FName("");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		FFurnishingItem CurrentItemData;
-
+	
+	// Trace Data
 	FVector	MouseWorldLocation;
 	FVector MouseWorldDirection;
 	FHitResult TraceHit = FHitResult(ForceInit);
-	ETraceTypeQuery TraceChannel = TraceTypeQuery1;
 	float PlacementDistance = 3000;
 
+	// Tool Controls
 	bool bHasItem = false;
 	bool bRotateMode = false;
 	bool bObjectFlipped = false;
-	
 };

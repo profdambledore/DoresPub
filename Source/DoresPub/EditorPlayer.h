@@ -18,6 +18,7 @@
 class UParentTool;
 class UExploreTool;
 class USelectTool;
+class UBuildTool;
 class UItemTool;
 
 UCLASS()
@@ -78,6 +79,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float Money;
 
+	//
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Control Properties")
+		int CurrentFloor = 0; 
+
 	// Components
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		UStaticMeshComponent* ItemPlacerMesh;
@@ -95,6 +100,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		USelectTool* SelectTool;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+		UBuildTool* BuildTool;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 		UItemTool* ItemTool;
