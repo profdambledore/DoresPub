@@ -3,3 +3,8 @@
 
 #include "GridWidget.h"
 
+void UGridWidget::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+
+}

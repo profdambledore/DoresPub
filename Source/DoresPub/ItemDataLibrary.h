@@ -111,6 +111,19 @@ public:
 };
 
 USTRUCT(BlueprintType)
+struct FWorldFloorData
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int GridX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int GridY;
+};
+
+USTRUCT(BlueprintType)
 struct FBuildingFloorData
 {
 	GENERATED_USTRUCT_BODY();
@@ -127,16 +140,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<AParentFurnishing*> Furnishings;
-};
 
-USTRUCT(BlueprintType)
-struct FWorldFloorData
-{
-	GENERATED_USTRUCT_BODY();
-
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<bool> Column;
+		TArray<FWorldFloorData> FloorGrid;
 };
 
 USTRUCT(BlueprintType)
@@ -149,5 +155,5 @@ public:
 		FString Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<FWorldFloorData> WorldData;
+		TArray<FWorldFloorData> BaseFloorGrid;
 };
