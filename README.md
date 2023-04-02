@@ -6,7 +6,7 @@ Image
  
  ## Project Support Document:
 
-[Link](readMeData/Docs/DevDoc.pdf)
+[Link](https://github.com/profdambledore/DoresPub/blob/main/DocsAndImages/Doc/DevDoc.pdf)
 
 ## Assets Used:
 - Polygon Nightclubs by SyntyStudios 
