@@ -24,7 +24,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-		virtual void ToolPrimary();
+		virtual void PressToolPrimary();
+
+	UFUNCTION(BlueprintCallable)
+		virtual void ReleaseToolPrimary();
 
 	UFUNCTION(BlueprintCallable)
 		virtual void ToolSecondary();

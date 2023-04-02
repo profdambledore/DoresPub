@@ -57,7 +57,8 @@ protected:
 	void ZoomCamera(float AxisValue);
 
 	// Action Binds
-	void UseToolPrimary();
+	void PressToolPrimary();
+	void ReleaseToolPrimary();
 	void UseToolSecondary();
 	void SwapToExploreTool();
 	void SwapToSelectTool();

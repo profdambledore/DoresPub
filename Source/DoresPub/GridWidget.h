@@ -20,10 +20,10 @@ class DORESPUB_API UGridWidget : public UUserWidget
 public:
 	virtual void SynchronizeProperties() override;
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 		void SetupGridWidget(int GridX, int GridY);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateGridWidget(int GridX, int GridY);
 
 public:

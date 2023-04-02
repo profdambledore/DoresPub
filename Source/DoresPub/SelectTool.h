@@ -16,7 +16,7 @@ class DORESPUB_API USelectTool : public UParentTool
 public:
 	USelectTool();
 
-	virtual void ToolPrimary();
+	virtual void PressToolPrimary();
 	virtual void ToolSecondary();
 
 protected:

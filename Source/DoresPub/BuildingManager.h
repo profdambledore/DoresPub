@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "Components/WidgetComponent.h"
+
 #include "Engine/DataTable.h"
 
 #include "ItemDataLibrary.h"
@@ -12,6 +14,7 @@
 #include "BuildingManager.generated.h"
 
 class AParentFurnishing;
+class UGridWidget;
 
 UCLASS()
 class DORESPUB_API ABuildingManager : public AActor
@@ -31,11 +34,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void AddFurnishingToFloorData(int Floor, AParentFurnishing* Object);
 
+	UFUNCTION(BlueprintCallable)
+		void SetupGrid(int Width, int Height, FVector Origin);
+
+	UFUNCTION(BlueprintCallable)
+		void UpdateGridSize(int Width, int Height, float NewZ);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
+	// Grid Widget Component
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UWidgetComponent* GridWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UGridWidget* WidgetClass;
+
+	TSubclassOf<UGridWidget> foundclass;
+
 	// Player Reference
 	class AEditorPlayer* EditorPlayer = nullptr;
 

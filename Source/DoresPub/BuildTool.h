@@ -17,7 +17,10 @@ class DORESPUB_API UBuildTool : public UParentTool
 public:
 	UBuildTool();
 
-	virtual void ToolPrimary();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void PressToolPrimary();
+	virtual void ReleaseToolPrimary();
 	virtual void ToolSecondary();
 
 public:

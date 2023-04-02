@@ -20,7 +20,7 @@ public:
 	UItemTool();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual void ToolPrimary();
+	virtual void PressToolPrimary();
 	virtual void ToolSecondary();
 	virtual void ClearTool();
 

@@ -10,7 +10,7 @@ USelectTool::USelectTool() {
 	ToolType = EToolType::Select;
 }
 
-void USelectTool::ToolPrimary() {
+void USelectTool::PressToolPrimary() {
 	UE_LOG(LogTemp, Warning, TEXT("Select Tool Primary"));
 
 	// Get object under mouse

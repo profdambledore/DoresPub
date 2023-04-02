@@ -122,7 +122,8 @@ void AEditorPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("ZoomCamera", this, &AEditorPlayer::ZoomCamera);
 
 	// Add Action Binds
-	PlayerInputComponent->BindAction("UseToolPrimary", IE_Released, this, &AEditorPlayer::UseToolPrimary);
+	PlayerInputComponent->BindAction("UseToolPrimary", IE_Pressed, this, &AEditorPlayer::PressToolPrimary);
+	PlayerInputComponent->BindAction("UseToolPrimary", IE_Released, this, &AEditorPlayer::ReleaseToolPrimary);
 	PlayerInputComponent->BindAction("UseToolSecondary", IE_Released, this, &AEditorPlayer::UseToolSecondary);
 	PlayerInputComponent->BindAction("ExploreTool", IE_Released, this, &AEditorPlayer::SwapToExploreTool);
 	PlayerInputComponent->BindAction("SelectTool", IE_Released, this, &AEditorPlayer::SwapToSelectTool);
@@ -224,7 +225,7 @@ void AEditorPlayer::ModifyMovementStep(bool bIncrease)
 	}
 }
 
-void AEditorPlayer::UseToolPrimary()
+void AEditorPlayer::PressToolPrimary()
 {
 	// Find returns ** pointer (which points to the maps memory location that then points to the ParentTool memory location), while FindRef returns * pointer.
 	// See https://www.quora.com/What-does-the-pointer-**-mean-in-C++ for more
@@ -233,7 +234,11 @@ void AEditorPlayer::UseToolPrimary()
 	//IToolInterface* inf = Cast<IToolInterface>(ToolMap.FindRef(CurrentTool));
 	//if (inf) { inf->ToolPrimary(); };
 
-	ToolMap.FindRef(CurrentTool)->ToolPrimary();
+	ToolMap.FindRef(CurrentTool)->PressToolPrimary();
+}
+
+void AEditorPlayer::ReleaseToolPrimary()
+{
 }
 
 void AEditorPlayer::UseToolSecondary()
