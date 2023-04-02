@@ -1,6 +1,8 @@
 # Dore's Pub
 
-![Icon Iteration One](https://github.com/profdambledore/DoresPub/blob/main/DocsAndImages/DoresPubIconOne.png)
+<p align="center">
+  <img src="https://github.com/profdambledore/DoresPub/blob/main/DocsAndImages/DoresPubIconOne.png" />
+</p>
  
  Taking inspiration from games such as the Sims series and Project Architect, Dore's Pub allows the player to create and run their own pub or bar.  With some experience in the industry and with a friend as a Shift Manager working at one of Norwich's busiest Wetherspoon's, the game will give the player a good experience of the ups and downs of running a pub, while also giving them good creative freedom to design it too their will.
  
