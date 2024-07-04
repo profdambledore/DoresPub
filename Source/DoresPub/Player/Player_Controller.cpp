@@ -25,6 +25,9 @@ APlayer_Controller::APlayer_Controller()
 void APlayer_Controller::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Enable the mouse cursor on screen
+	bShowMouseCursor = true;
 }
 
 void APlayer_Controller::SetupInputComponent()
@@ -50,6 +53,10 @@ void APlayer_Controller::SetupInputComponent()
 		EnhancedInputComponent->BindAction(InputConfig->ZoomCamera, ETriggerEvent::Triggered, this, &APlayer_Controller::ZoomCamera);
 		EnhancedInputComponent->BindAction(InputConfig->PrimaryActionInput, ETriggerEvent::Triggered, this, &APlayer_Controller::PrimaryAction);
 		EnhancedInputComponent->BindAction(InputConfig->SecondaryActionInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SecondaryAction);
+		EnhancedInputComponent->BindAction(InputConfig->IncreaseGridSnapInput, ETriggerEvent::Triggered, this, &APlayer_Controller::IncreaseGridSnap);
+		EnhancedInputComponent->BindAction(InputConfig->DecreaseGridSnapInput, ETriggerEvent::Triggered, this, &APlayer_Controller::DecreaseGridSnap);
+		EnhancedInputComponent->BindAction(InputConfig->DefaultToolInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SwapToDefaultTool);
+		EnhancedInputComponent->BindAction(InputConfig->BuildingToolInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SwapToBuildingTool);
 	}
 }
 
@@ -83,12 +90,7 @@ void APlayer_Controller::RotateCamera(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
 	if (Character) {
-		if (Value.Get<float>() > -1) {
-			Character->RotateCameraByStep(false);
-		}
-		else {
-			Character->RotateCameraByStep(true);
-		}
+		Character->RotateCameraByStep(GetInputValueIsPositive(Value.Get<float>()));
 	}
 }
 
@@ -96,12 +98,8 @@ void APlayer_Controller::ZoomCamera(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
 	if (Character) {
-		if (Value.Get<float>() > -1) {
-			Character->ZoomCameraByStep(true);
-		}
-		else {
-			Character->ZoomCameraByStep(false);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("%f"), Value.Get<float>());
+		Character->ZoomCameraByStep(GetInputValueIsPositive(Value.Get<float>()));
 	}
 }
 
@@ -120,3 +118,45 @@ void APlayer_Controller::SecondaryAction(const FInputActionValue& Value)
 		Character->SecondaryActionTrace();
 	}
 }
+
+void APlayer_Controller::IncreaseGridSnap(const FInputActionValue& Value)
+{
+	// Check if the Character Pointer has been created successfully.  If so...
+	if (Character) {
+		Character->ChangeGridSnapSize(true);
+	}
+}
+
+void APlayer_Controller::DecreaseGridSnap(const FInputActionValue& Value)
+{
+	// Check if the Character Pointer has been created successfully.  If so...
+	if (Character) {
+		Character->ChangeGridSnapSize(false);
+	}
+}
+
+void APlayer_Controller::SwapToDefaultTool(const FInputActionValue& Value)
+{
+	// Check if the Character Pointer has been created successfully.  If so...
+	if (Character) {
+		Character->SwapCurrentActiveTool(0);
+	}
+}
+
+void APlayer_Controller::SwapToBuildingTool(const FInputActionValue& Value)
+{
+	// Check if the Character Pointer has been created successfully.  If so...
+	if (Character) {
+		Character->SwapCurrentActiveTool(1);
+	}
+}
+
+bool APlayer_Controller::GetInputValueIsPositive(float InInputValue)
+{
+	if (InInputValue == 1) {
+		return false;
+	}
+	return true;
+}
+
+

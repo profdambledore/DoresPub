@@ -15,7 +15,6 @@ class DORESPUB_API UInput_ConfigData : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	/// -- Movement Inputs --
 	// Pointer to the forward/backwards player input
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Inputs")
 	class UInputAction* MoveXInput = nullptr;
@@ -39,4 +38,20 @@ public:
 	// Pointer to the secondary action player input
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Action Inputs")
 	class UInputAction* SecondaryActionInput = nullptr;
+
+	// Pointer to the modify grid snapping input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grid Inputs")
+	class UInputAction* IncreaseGridSnapInput = nullptr;
+
+	// Pointer to the modify grid snapping input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grid Inputs")
+	class UInputAction* DecreaseGridSnapInput = nullptr;
+
+	// Pointer to the default tool input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tools Inputs")
+	class UInputAction* DefaultToolInput = nullptr;
+
+	// Pointer to the building tool input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tools Inputs")
+	class UInputAction* BuildingToolInput = nullptr;
 };

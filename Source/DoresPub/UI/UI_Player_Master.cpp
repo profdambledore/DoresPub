@@ -3,14 +3,67 @@
 
 #include "UI/UI_Player_Master.h"
 
+#include "Kismet/KismetTextLibrary.h"
+
+#include "Player/Player_Character.h"
+
 void UUI_Player_Master::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	// Setup the button binds
+	// Grid Snap Button Binds
+	IncrementGridSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnIGSButtonReleased);
+	DecrementGridSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnDGSButtonReleased);
 }
 
 void UUI_Player_Master::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
+}
+
+/// -- Global Functions --
+void UUI_Player_Master::UpdateGridSnapText(int NewGridSnap)
+{
+	GridSnapText->SetText(FText::FromString(FString::Printf(TEXT("%i"), NewGridSnap)));
+}
+
+void UUI_Player_Master::UpdateMoneyText(float NewMoney)
+{
+	//UKismetTextLibrary::Conv_DoubleToText(NewMoney, ERoundingMode::ToZero, false, true, 1, 324, 2, 2))
+	PlayerMoneyText->SetText(FText::AsCurrencyBase(NewMoney, "£"));
+}
+
+void UUI_Player_Master::UpdateUIToCurrentTool(int NewTool)
+{
+	// Swap to the new tool based on the input
+	switch (NewTool) {
+	case 0: // Default Tool
+		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Default Tool"))));
+		break;
+
+	case 1: // Build Tool
+		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Building Tool"))));
+		break;
+
+	default:
+		break;
+	}
+}
+
+// -- Global Button Functions --
+void UUI_Player_Master::OnIGSButtonReleased()
+{
+	if (PC) {
+		PC->ChangeGridSnapSize(true);
+	}
+}
+
+void UUI_Player_Master::OnDGSButtonReleased()
+{
+	if (PC) {
+		PC->ChangeGridSnapSize(false);
+	}
 }
 
 void UUI_Player_Master::SwapActiveState(int Index)
@@ -43,3 +96,5 @@ void UUI_Player_Master::SwapActiveState(int Index)
 void UUI_Player_Master::SwapActiveState(FString StateName)
 {
 }
+
+

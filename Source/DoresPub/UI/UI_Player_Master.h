@@ -7,6 +7,7 @@
 
 #include "Components/WidgetSwitcher.h"
 #include "Components/TextBlock.h"
+#include "Components/Button.h"
 
 #include "UI_Player_Master.generated.h"
 
@@ -20,11 +21,31 @@ public:
 
 	virtual void SynchronizeProperties() override;
 
-	/// -- UI Functions --
+	/// -- Global Functions --
+	// Called to update the GridSnapText
+	void UpdateGridSnapText(int NewGridSnap);
+
+	// Called to update the MoneyText
+	void UpdateMoneyText(float NewMoney);
+
+	// Called to update the current active tool
+	void UpdateUIToCurrentTool(int NewTool);
+
+	/// -- State Functions --
 	UFUNCTION(BlueprintCallable)
 	void SwapActiveState(int Index);
 
 	void SwapActiveState(FString StateName);
+
+protected:
+	/// -- Global Button Functions --
+	// Button event to increase the grid snap size
+	UFUNCTION()
+	void OnIGSButtonReleased();
+
+	// Button event to decrease the grid snap size
+	UFUNCTION()
+	void OnDGSButtonReleased();
 
 public:
 	/// -- Components --
@@ -37,6 +58,26 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* PlayerMoneyText = nullptr;
 
+	// Text Box to display the player's current grid snap
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* GridSnapText = nullptr;
+
+	// Button to increase the grid snap size
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UButton* IncrementGridSnapButton = nullptr;
+
+	// Button to decrease the grid snap size
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UButton* DecrementGridSnapButton = nullptr;
+
+	// Text Box to display the player's active tool
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* CurrentToolText = nullptr;
+
 	/// -- UI States --
 	
+
+	/// -- Player Pointer --
+	// Pointer to the player class which uses this UI
+	class APlayer_Character* PC = nullptr;
 };
