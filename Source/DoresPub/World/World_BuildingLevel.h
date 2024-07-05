@@ -22,6 +22,10 @@ public:
 	// Called to add an array of building meshes to the level
 	void AddBuildingObjects(TArray<struct FBuildingData> DataToBuild);
 
+	// Called to return the mesh of a static mesh component at a location and rotation
+// If returned nullptr, then none was found
+	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, FVector ForwardVector, UStaticMesh* Mesh);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

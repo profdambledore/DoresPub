@@ -88,6 +88,9 @@ protected:
 	// Called to create a pillar at a series of points
 	void CreatePillars(FVector Start, FVector End);
 
+	// Called to check if the component is overlapping a matching static mesh
+	bool GetOverlappingPlacedMesh(UStaticMeshComponent* BuildToolComponent);
+
 public:	
 	/// -- Components --
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Global Components")
@@ -121,6 +124,10 @@ protected:
 	/// -- Spawned Components --
 	// TArray of all spawned StaticMeshComponents, used for displaying the building before it is built
 	TArray<UStaticMeshComponent*> SMCPool;
+
+	// TEMP
+	// Pointer to the World Building Level
+	class AWorld_BuildingLevel* GroundFloor = nullptr;
 
 private:
 	// Bool denoting if the helper is currently visible

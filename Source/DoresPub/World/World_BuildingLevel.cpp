@@ -39,14 +39,14 @@ void AWorld_BuildingLevel::AddBuildingObjects(TArray<struct FBuildingData> DataT
 	}
 	Required = Current + DataToBuild.Num();
 
-	UE_LOG(LogTemp, Warning, TEXT("Current = %i / Required (Current + AmnNew) = %i"), Current, Required);
+	//UE_LOG(LogTemp, Warning, TEXT("Current = %i / Required (Current + AmnNew) = %i"), Current, Required);
 
 	// Spawn in any required SMC's
 	if (Required > SMCPool.Num()) {
 		AddNewStaticMeshComponent(Required);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Spawned = %i"), SMCPool.Num());
+	//UE_LOG(LogTemp, Warning, TEXT("Spawned = %i"), SMCPool.Num());
 
 	// Then add the data to the building
 	for (int i = 0; i < DataToBuild.Num(); i++) {
@@ -62,12 +62,36 @@ void AWorld_BuildingLevel::AddNewStaticMeshComponent(int Target)
 
 	UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Wall Mesh %i"), NewNumber)));
 	NewMeshComp->RegisterComponent();
-	NewMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	NewMeshComp->SetCollisionProfileName(FName("Building"));
 	SMCPool.Add(NewMeshComp);
 
 	// Check if there is now enough component sets added.  If not, recurse
 	if (SMCPool.Num() < Target) {
 		AddNewStaticMeshComponent(Target);
 	}
+}
+
+UStaticMeshComponent* AWorld_BuildingLevel::GetWallObjectMeshAtPosition(FVector Location, FVector ForwardVector, UStaticMesh* Mesh)
+{
+	for (UStaticMeshComponent* i : SMCPool) {
+		if (i->GetStaticMesh() != nullptr) {
+			if (i->GetComponentLocation() == Location) {
+				if (Mesh == i->GetStaticMesh()) {
+					// Find the dot prod between the two rotators
+					FVector VecA = i->GetForwardVector();
+					VecA.Normalize();
+
+					FVector VecB = ForwardVector;
+					VecB.Normalize();
+
+					float OutAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(VecA, VecB)));
+					if (OutAngle == 0.0) {
+						return i;
+					}
+				}
+			}
+		}
+	}
+	return nullptr;
 }
 

@@ -2,6 +2,10 @@
 
 #include "Player/Player_BuildToolDisplay.h"
 
+#include "Kismet/GameplayStatics.h"
+
+#include "World/World_BuildingLevel.h"
+
 FBuildingData::FBuildingData()
 {
 }
@@ -35,6 +39,9 @@ void APlayer_BuildToolDisplay::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeMaterial();
+
+	// TEMP -- Find the ground floor and store a pointer to it
+	GroundFloor = Cast<AWorld_BuildingLevel>(UGameplayStatics::GetActorOfClass(GetWorld(), AWorld_BuildingLevel::StaticClass()));
 }
 
 // Called every frame
@@ -115,13 +122,11 @@ void APlayer_BuildToolDisplay::GenerateNewBuildDisplay(FVector StartPosition, FV
 	// Check if the X axis requires 0 SMC while Y requires some (build a wall on the Y axis only)
 	if (XRequires == 0 && YRequires != 0) {
 		CreateYWall(StartPosition.Y, EndPosition.Y, StartPosition.X, YRequires, 0);
-		CreatePillars(StartPosition, EndPosition);
 	}
 
 	// Check if the Y axis requires 0 SMC while X requires some (build a wall on the X axis only)
 	else if (XRequires != 0 && YRequires == 0) {
 		CreateXWall(StartPosition.X, EndPosition.X, StartPosition.Y, XRequires, 0);
-		CreatePillars(StartPosition, EndPosition);
 	}
 
 	// Else, check that both are not 0
@@ -132,7 +137,9 @@ void APlayer_BuildToolDisplay::GenerateNewBuildDisplay(FVector StartPosition, FV
 
 		CreateYWall(StartPosition.Y, EndPosition.Y, StartPosition.X, YRequires, (XRequires * 2));
 		CreateYWall(StartPosition.Y, EndPosition.Y, EndPosition.X, YRequires, (XRequires * 2) + YRequires);
-		
+	}
+
+	if (Total != 0) {
 		CreatePillars(StartPosition, EndPosition);
 	}
 
@@ -158,7 +165,7 @@ void APlayer_BuildToolDisplay::AddNewStaticMeshComponent(int Target)
 	NewMeshComp->RegisterComponent();
 	NewMeshComp->SetMaterial(0, BuildToolMaterial);
 	NewMeshComp->SetMaterial(1, BuildToolMaterial);
-	NewMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	NewMeshComp->SetCollisionProfileName(FName("BuildingTool"));
 	SMCPool.Add(NewMeshComp);
 
 	// Check if there is now enough component sets added.  If not, recurse
@@ -178,12 +185,25 @@ void APlayer_BuildToolDisplay::CreateXWall(float Start, float End, float Y, int 
 		SMCPool[StartWallSegment + i]->SetRelativeLocation(FVector(WallStart + (WallSize * i), Y, 1.0f));
 		SMCPool[StartWallSegment + i]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		SMCPool[StartWallSegment + i]->SetStaticMesh(WallMesh);
+
+		if (i == WallSegments - 1) {
+			// For the final wall, check if it needs to be a half wall
+			// If it hasent been cleared 
+			if (fabs((WallEnd - WallStart) - ((WallSegments - 1) * (WallSize))) == WallSize / 2) {
+				SMCPool[StartWallSegment + WallSegments - 1]->SetStaticMesh(HalfWallMesh);
+			}
+		}
+
+		UStaticMeshComponent* overlapSMC = GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), SMCPool[StartWallSegment + i]->GetForwardVector(), SMCPool[StartWallSegment + i]->GetStaticMesh());
+
+		if (overlapSMC) {
+			if (overlapSMC->GetStaticMesh() == WallMesh) {
+				SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+			}
+		}
 	}
 
-	// For the final wall, check if it needs to be a half wall
-	if (fabs((WallEnd - WallStart) - ((WallSegments - 1) * (WallSize))) == WallSize / 2) {
-		SMCPool[StartWallSegment + WallSegments - 1]->SetStaticMesh(HalfWallMesh);
-	}
+	
 }
 
 void APlayer_BuildToolDisplay::CreateYWall(float Start, float End, float X, int WallSegments, int StartWallSegment)
@@ -197,11 +217,20 @@ void APlayer_BuildToolDisplay::CreateYWall(float Start, float End, float X, int 
 		SMCPool[StartWallSegment + i]->SetRelativeLocation(FVector(X, WallStart + (WallSize * i), 1.0f));
 		SMCPool[StartWallSegment + i]->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 		SMCPool[StartWallSegment + i]->SetStaticMesh(WallMesh);
-	}
 
-	// For the final wall, check if it needs to be a half wall
-	if (fabs((WallEnd - WallStart) - ((WallSegments - 1) * WallSize)) == WallSize / 2) {
-		SMCPool[StartWallSegment + WallSegments - 1]->SetStaticMesh(HalfWallMesh);
+		if (i == WallSegments - 1) {
+			// For the final wall, check if it needs to be a half wall
+			if (fabs((WallEnd - WallStart) - ((WallSegments - 1) * WallSize)) == WallSize / 2) {
+				SMCPool[StartWallSegment + WallSegments - 1]->SetStaticMesh(HalfWallMesh);
+			}
+		}
+
+		UStaticMeshComponent* overlapSMC = GroundFloor->GetWallObjectMeshAtPosition(FVector(X, WallStart + (WallSize * i), 1.0f), SMCPool[StartWallSegment + i]->GetForwardVector(), SMCPool[StartWallSegment + i]->GetStaticMesh());
+		if (overlapSMC) {
+			if (overlapSMC->GetStaticMesh() == SMCPool[StartWallSegment + i]->GetStaticMesh()) {
+				SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+			}
+		}
 	}
 }
 
@@ -209,30 +238,68 @@ void APlayer_BuildToolDisplay::CreatePillars(FVector Start, FVector End)
 {
 	int used = 4;
 
+	UStaticMeshComponent* overlapSMC;
+
 	// Create a pillar at the start point
 	SMCPool[Total - used]->SetRelativeLocation(FVector(Start.X, Start.Y, 1.0f));
+	SMCPool[Total - used]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 	SMCPool[Total - used]->SetStaticMesh(PillarWallMesh);
+
+	overlapSMC = GroundFloor->GetWallObjectMeshAtPosition(FVector(Start.X, Start.Y, 1.0f), SMCPool[Total - used]->GetForwardVector(), PillarWallMesh);
+	if (overlapSMC) {
+		if (overlapSMC->GetStaticMesh() == SMCPool[Total - used]->GetStaticMesh()) {
+			SMCPool[Total - used]->SetStaticMesh(nullptr);
+		}
+	}
 
 	used--;
 
 	// If End.X != Start.X, then create a pillar at End.X, Start.Y
 	if (End.X != Start.X) {
 		SMCPool[Total - used]->SetRelativeLocation(FVector(End.X, Start.Y, 1.0f));
+		SMCPool[Total - used]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		SMCPool[Total - used]->SetStaticMesh(PillarWallMesh);
+
+		overlapSMC = GroundFloor->GetWallObjectMeshAtPosition(FVector(End.X, Start.Y, 1.0f), SMCPool[Total - used]->GetForwardVector(), PillarWallMesh);
+		if (overlapSMC) {
+			if (overlapSMC->GetStaticMesh() == SMCPool[Total - used]->GetStaticMesh()) {
+				SMCPool[Total - used]->SetStaticMesh(nullptr);
+			}
+		}
+
 		used--;
 	}
 
 	// If End.Y != Start.Y, then create a pillar at End.Y, Start.X
 	if (Start.Y != End.Y) {
 		SMCPool[Total - used]->SetRelativeLocation(FVector(Start.X, End.Y, 1.0f));
+		SMCPool[Total - used]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		SMCPool[Total - used]->SetStaticMesh(PillarWallMesh);
+
+		overlapSMC = GroundFloor->GetWallObjectMeshAtPosition(FVector(Start.X, End.Y, 1.0f), SMCPool[Total - used]->GetForwardVector(), PillarWallMesh);
+		if (overlapSMC) {
+			if (overlapSMC->GetStaticMesh() == SMCPool[Total - used]->GetStaticMesh()) {
+				SMCPool[Total - used]->SetStaticMesh(nullptr);
+			}
+		}
+
 		used--;
 	}
 
 	// Finally, if used is now 1 (3 pillars have been placed), then place the final pillar at the End
 	if (used == 1) {
-		SMCPool[Total - 1]->SetRelativeLocation(FVector(End.X, End.Y, 1.0f));
-		SMCPool[Total - 1]->SetStaticMesh(PillarWallMesh);
+		SMCPool[Total - used]->SetRelativeLocation(FVector(End.X, End.Y, 1.0f));
+		SMCPool[Total - used]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+		SMCPool[Total - used]->SetStaticMesh(PillarWallMesh);
+
+		overlapSMC = GroundFloor->GetWallObjectMeshAtPosition(FVector(End.X, End.Y, 1.0f), SMCPool[Total - used]->GetForwardVector(), PillarWallMesh);
+		if (overlapSMC) {
+			if (overlapSMC->GetStaticMesh() == SMCPool[Total - used]->GetStaticMesh()) {
+				SMCPool[Total - used]->SetStaticMesh(nullptr);
+			}
+		}
+
+		used--;
 	}
 	// Else, clear the remaining pillar SMC
 	else {
@@ -241,20 +308,30 @@ void APlayer_BuildToolDisplay::CreatePillars(FVector Start, FVector End)
 	}
 }
 
-/// v1 - build in a circle
-// v2 - walls are always build in the same direction (always positive on the axis)
-///// Calculate the direction the SMC's need to be placed in
-//int DirectionMulti = (End.Y - Start.Y < -1) ? -1 : 1;
-
-// For the amount X requires, place a SMC every 250 uu
-//for (int i = 0; i < WallSegments; i++) {
-//	SMCPool[StartWallSegment + i]->SetRelativeLocation(FVector(Start.X, Start.Y + ((WallSize * i) * DirectionMulti), 1.0f));
-//	SMCPool[StartWallSegment + i]->SetRelativeRotation(FRotator(0.0f, 90.0f * DirectionMulti, 0.0f));
-//	SMCPool[StartWallSegment + i]->SetStaticMesh(WallMesh);
+// -- Attempt 1 - Fail --
+//bool APlayer_BuildToolDisplay::GetOverlappingPlacedMesh(UStaticMeshComponent* BuildToolComponent)
+//{
+//	TArray<UPrimitiveComponent*> OverlapComps;
+//
+//	// Check if this is now colliding with a already placed mesh.
+//	BuildToolComponent->GetOverlappingComponents(OverlapComps);
+//	if (!OverlapComps.IsEmpty()) {
+//		for (UPrimitiveComponent* i : OverlapComps) {
+//			if (i->IsA<UStaticMeshComponent>()) {
+//				// If it is a StaticMeshcComponent, cast it to SMC
+//				UStaticMeshComponent* OverlapMesh = Cast<UStaticMeshComponent>(i);
+//
+//				UE_LOG(LogTemp, Warning, TEXT("Overlaps Found = %i"), OverlapComps.Num());
+//				UE_LOG(LogTemp, Warning, TEXT("BuildTool Mesh = %s, Overlap Mesh = %s"), *BuildToolComponent->GetStaticMesh()->GetName(), *OverlapMesh->GetStaticMesh()->GetName());
+//
+//				// Compare if the two meshes are the same.  If they are, then clear this mesh
+//				if (BuildToolComponent->GetStaticMesh() == OverlapMesh->GetStaticMesh() && BuildToolComponent->GetOwner() != OverlapMesh->GetOwner()) {
+//					UE_LOG(LogTemp, Warning, TEXT("The two meshes are the same"));
+//					BuildToolComponent->SetStaticMesh(nullptr);
+//					return true;
+//				}
+//			}
+//		}
+//	}
+//	return false;
 //}
-
-// For the final wall, check if it needs to be a half wall
-//if (fabs((End.Y - Start.Y) - ((WallSegments - 1) * (WallSize * DirectionMulti))) == WallSize / 2) {
-//	SMCPool[StartWallSegment + WallSegments - 1]->SetStaticMesh(HalfWallMesh);
-//}
-/// 
