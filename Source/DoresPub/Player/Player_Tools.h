@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 
 #include "Components/WidgetComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "Player_Tools.generated.h"
 
@@ -50,6 +51,13 @@ public:
 	// Called to fire the primary tool release function of the selected tool
 	void SelectedToolPrimaryReleased();
 
+	/// -- Object Tool Functions --
+	// Called to update the current mesh shown (leave blank to clear)
+	void UpdateObjectMesh(UStaticMesh* NewStaticMesh = nullptr);
+
+	// Called to toggle the from rotation mode to normal mode (and vice versa)
+	void ToggleRotationMode();
+
 	/// -- Utility Functions --
 	// Called to fire a trace to hit an object, returning FHitResult from the trace
 	FHitResult FireTraceToActor();
@@ -72,6 +80,11 @@ public:
 	// Widget is set in BP as it has little to no functionallity
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Building Tool Components")
 	UWidgetComponent* BuildToolWidgetComponent;
+
+	/// -- Object Tool Components --
+	// StaticMeshComponent used to show the player where they're placing the new object
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Building Tool Components")
+	UStaticMeshComponent* ObjectToolMeshComponent;
 
 protected:
 	/// -- Pointers --
@@ -108,4 +121,8 @@ protected:
 	// Int denoting the price of a wall (half for a half wall)
 	// Add 2 zeros at end, as currency is int
 	int HalfWallCost = 1500;
+
+	/// -- Object Tool Properties --
+	// bool denoting if the player is in rotation mode
+	bool bInRotationMode = false;
 };

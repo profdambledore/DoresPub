@@ -9,6 +9,8 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 
+#include "UI/UI_Player_Object.h"
+
 #include "UI_Player_Master.generated.h"
 
 UCLASS()
@@ -25,6 +27,9 @@ public:
 	// Called to update the GridSnapText
 	void UpdateGridSnapText(int NewGridSnap);
 
+	// Called to update the GridSnapText
+	void UpdateRotationSnapText(int NewGridSnap);
+
 	// Called to update the MoneyText
 	void UpdateMoneyText(float NewMoney);
 
@@ -37,6 +42,10 @@ public:
 
 	void SwapActiveState(FString StateName);
 
+	/// -- Utility Functions --
+	// Called to return a pointer to the PlayerTools class spawned by the PC
+	class APlayer_Tools* GetPlayerTools();
+
 protected:
 	/// -- Global Button Functions --
 	// Button event to increase the grid snap size
@@ -46,6 +55,14 @@ protected:
 	// Button event to decrease the grid snap size
 	UFUNCTION()
 	void OnDGSButtonReleased();
+
+	// Button event to increase the rotation snap size
+	UFUNCTION()
+	void OnIRSButtonReleased();
+
+	// Button event to decrease the rotation snap size
+	UFUNCTION()
+	void OnDRSButtonReleased();
 
 public:
 	/// -- Components --
@@ -59,7 +76,7 @@ public:
 	UTextBlock* PlayerMoneyText = nullptr;
 
 	// Text Box to display the player's current grid snap
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
 	UTextBlock* GridSnapText = nullptr;
 
 	// Button to increase the grid snap size
@@ -70,12 +87,25 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
 	UButton* DecrementGridSnapButton = nullptr;
 
+	// Text Box to display the player's current grid snap
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UTextBlock* RotationSnapText = nullptr;
+
+	// Button to increase the grid snap size
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UButton* IncrementRotationSnapButton = nullptr;
+
+	// Button to decrease the grid snap size
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UButton* DecrementRotationSnapButton = nullptr;
+
 	// Text Box to display the player's active tool
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* CurrentToolText = nullptr;
 
 	/// -- UI States --
-	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "States")
+	UUI_Player_Object* ObjectState = nullptr;
 
 	/// -- Player Pointer --
 	// Pointer to the player class which uses this UI

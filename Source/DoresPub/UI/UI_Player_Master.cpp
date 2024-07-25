@@ -6,6 +6,7 @@
 #include "Kismet/KismetTextLibrary.h"
 
 #include "Player/Player_Character.h"
+#include "Player/Player_Tools.h"
 
 void UUI_Player_Master::NativeConstruct()
 {
@@ -15,6 +16,12 @@ void UUI_Player_Master::NativeConstruct()
 	// Grid Snap Button Binds
 	IncrementGridSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnIGSButtonReleased);
 	DecrementGridSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnDGSButtonReleased);
+
+	// Rotation Snap Button Binds
+	IncrementRotationSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnIRSButtonReleased);
+	DecrementRotationSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnDRSButtonReleased);
+
+	ObjectState->MUI = this;
 }
 
 void UUI_Player_Master::SynchronizeProperties()
@@ -26,6 +33,11 @@ void UUI_Player_Master::SynchronizeProperties()
 void UUI_Player_Master::UpdateGridSnapText(int NewGridSnap)
 {
 	GridSnapText->SetText(FText::FromString(FString::Printf(TEXT("%i"), NewGridSnap)));
+}
+
+void UUI_Player_Master::UpdateRotationSnapText(int NewGridSnap)
+{
+	RotationSnapText->SetText(FText::FromString(FString::Printf(TEXT("%i"), NewGridSnap)));
 }
 
 void UUI_Player_Master::UpdateMoneyText(float NewMoney)
@@ -40,10 +52,17 @@ void UUI_Player_Master::UpdateUIToCurrentTool(int NewTool)
 	switch (NewTool) {
 	case 0: // Default Tool
 		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Default Tool"))));
+		SwapActiveState(0);
 		break;
 
 	case 1: // Build Tool
 		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Building Tool"))));
+		SwapActiveState(0);
+		break;
+
+	case 2:
+		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Object Tool"))));
+		SwapActiveState(1);
 		break;
 
 	default:
@@ -63,6 +82,20 @@ void UUI_Player_Master::OnDGSButtonReleased()
 {
 	if (PC) {
 		PC->ChangeGridSnapSize(false);
+	}
+}
+
+void UUI_Player_Master::OnIRSButtonReleased()
+{
+	if (PC) {
+		PC->ChangeRotationSnapSize(true);
+	}
+}
+
+void UUI_Player_Master::OnDRSButtonReleased()
+{
+	if (PC) {
+		PC->ChangeRotationSnapSize(false);
 	}
 }
 
@@ -95,6 +128,12 @@ void UUI_Player_Master::SwapActiveState(int Index)
 
 void UUI_Player_Master::SwapActiveState(FString StateName)
 {
+}
+
+/// -- Utility Functions --
+APlayer_Tools* UUI_Player_Master::GetPlayerTools()
+{
+	return PC->GetPT();
 }
 
 

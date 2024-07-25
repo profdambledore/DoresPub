@@ -56,6 +56,15 @@ void AWorld_BuildingLevel::AddBuildingObjects(TArray<struct FBuildingData> DataT
 	}
 }
 
+void AWorld_BuildingLevel::AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Spawning a new object at %s"), *MeshTransform.GetLocation().ToString());
+	UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Object Mesh"))));
+	NewMeshComp->RegisterComponent();
+	NewMeshComp->SetStaticMesh(MeshToSpawn);
+	NewMeshComp->SetWorldTransform(MeshTransform);
+}
+
 void AWorld_BuildingLevel::AddNewStaticMeshComponent(int Target)
 {
 	int NewNumber = SMCPool.Num() + 1;

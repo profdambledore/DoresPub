@@ -20,9 +20,15 @@ APlayer_Tools::APlayer_Tools()
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	RootComponent = Root;
 
-	BuildToolWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Menu Widget Component"));
+	// Build Tool Components
+	BuildToolWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Build Tool Widget"));
 	BuildToolWidgetComponent->SetGenerateOverlapEvents(false);
+	BuildToolWidgetComponent->SetVisibility(false, false);
 	BuildToolWidgetComponent->SetupAttachment(Root, "");
+
+	// Object Tool Components
+	ObjectToolMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Object Tool Mesh"));
+	ObjectToolMeshComponent->SetupAttachment(Root, "");
 
 	// Also find and store the build tools display class
 	static ConstructorHelpers::FClassFinder<APlayer_BuildToolDisplay>BTDClass(TEXT("/Game/Player/BP_BuildToolDisplay"));
@@ -88,7 +94,40 @@ void APlayer_Tools::Tick(float DeltaTime)
 			}
 		}
 	}
+	// If the current tool is the Object tool, then...
+	else if (CurrentTool == EToolType::Object) {
+		// Check what mode the Object tool is in
+		// If they are in Normal Mode
+		if (!bInRotationMode) {
+			// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
+			// Also snap it to the building snapping distance (half of a wall size)
+			FVector MouseLocation = FireTraceToActor().Location;
 
+			MouseLocation.X = GetNearestMultiple(MouseLocation.X, PC->GetCurrentGridSnapValue());
+			MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, PC->GetCurrentGridSnapValue());
+			MouseLocation.Z = 1.0f;
+			SetActorLocation(MouseLocation);
+
+			// Update the LastPosition and call any related functions
+			if (MouseLocation != LastPosition) {
+				LastPosition = MouseLocation;
+
+				// Set the ObjectToolMeshComponent to the MouseLocation
+			}
+		}
+		// Else, if they are in Rotation Mode
+		else {
+			FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(ObjectToolMeshComponent->GetComponentLocation(), FireTraceToActor().Location);
+
+			// Snap the rotation's yaw to the bounds, while also nullifying the roll and pitch
+			ObjectRotation.Yaw = GetNearestMultiple(ObjectRotation.Yaw, PC->GetCurrentRotationSnapValue());
+			ObjectRotation.Pitch = 0.0f;
+			ObjectRotation.Roll = 0.0f;
+
+			ObjectToolMeshComponent->SetWorldRotation(ObjectRotation);
+		}
+		
+	}
 }
 
 void APlayer_Tools::SetupTools(APlayer_Character* NewPC)
@@ -102,11 +141,20 @@ void APlayer_Tools::SwapTool(TEnumAsByte<EToolType> NewTool)
 	CurrentTool = NewTool;
 	ClickPosition = FVector(-1, -1, -1);
 	BTD->ClearBuildDisplay();
+	BuildToolWidgetComponent->SetVisibility(false, false);
+
+	// Update what components are no longer hidden based on the new tool
+	if (CurrentTool == EToolType::Building) {
+		BuildToolWidgetComponent->SetVisibility(true, false);
+	}
+	else if (CurrentTool == EToolType::Object) {
+		ObjectToolMeshComponent->SetVisibility(true, false);
+	}
 }
 
 void APlayer_Tools::UpdateToolRotation()
 {
-	SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PC->Camera->GetComponentLocation()));
+	BuildToolWidgetComponent->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PC->Camera->GetComponentLocation()));
 }
 
 void APlayer_Tools::SelectedToolPrimary()
@@ -157,6 +205,27 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 		// Also clear the BTD 
 		BTD->ClearBuildDisplay();
 	}
+
+	// If the current tool is the ObjectTool, then...
+	else if (CurrentTool == EToolType::Object) {
+		GroundFloor->AddObjectToLevel(ObjectToolMeshComponent->GetStaticMesh(), ObjectToolMeshComponent->GetComponentTransform());
+	}
+}
+
+/// -- Object Tool Functions --
+void APlayer_Tools::UpdateObjectMesh(UStaticMesh* NewStaticMesh)
+{
+	if (NewStaticMesh != ObjectToolMeshComponent->GetStaticMesh()) {
+		ObjectToolMeshComponent->SetStaticMesh(NewStaticMesh);
+	}
+	else {
+		ObjectToolMeshComponent->SetStaticMesh(nullptr);
+	}
+}
+
+void APlayer_Tools::ToggleRotationMode()
+{
+	bInRotationMode = !bInRotationMode;
 }
 
 /// -- Utility Functions --

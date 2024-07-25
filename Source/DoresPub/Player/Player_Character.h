@@ -48,6 +48,9 @@ public:
 	// Called to modify the current grid snap size
 	void ChangeGridSnapSize(bool bIncrement);
 
+	// Called to modify the current rotation snap size
+	void ChangeRotationSnapSize(bool bIncrement);
+
 	// Called to change the current active tool
 	void SwapCurrentActiveTool(int NewTool);
 
@@ -59,8 +62,14 @@ public:
 	// Called to get the Player_Controller controlling this player
 	class APlayer_Controller* GetPC();
 
+	// Called to get the PlayerTools
+	class APlayer_Tools* GetPT();
+
 	// Called to get the current grid snap value
 	int GetCurrentGridSnapValue();
+
+	// Called to get the current rotation snap value
+	int GetCurrentRotationSnapValue();
 
 	// Called to get if a point is inside of the World Bounds
 	bool GetIsPointInsideBound(FVector Point);
@@ -120,6 +129,13 @@ protected:
 	// TArray of grid snap values
 	UPROPERTY(EditDefaultsOnly, Category = "World Properties")
 	TArray<int> GridSnapValues;
+
+	// Float denoting the index of the current grid snap value
+	float CurrentRotationSnapValue = 0;
+
+	// TArray of grid snap values
+	UPROPERTY(EditDefaultsOnly, Category = "World Properties")
+	TArray<int> RotationSnapValues;
 
 	/// -- Camera Properties --
 	// Float to denote zoom step value

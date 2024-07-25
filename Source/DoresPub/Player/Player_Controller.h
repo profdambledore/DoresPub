@@ -60,6 +60,9 @@ protected:
 	// Called to swap the current active tool to the buildng tool
 	void SwapToBuildingTool(const FInputActionValue& Value);
 
+	// Called to swap the current active tool to the object tool
+	void SwapToObjectTool(const FInputActionValue& Value);
+
 private:
 	/// -- Utility Functions --
 	// Called to return if an input value is positive or negative

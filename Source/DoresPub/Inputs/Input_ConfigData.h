@@ -54,4 +54,8 @@ public:
 	// Pointer to the building tool input
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tools Inputs")
 	class UInputAction* BuildingToolInput = nullptr;
+
+	// Pointer to the object tool input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tools Inputs")
+	class UInputAction* ObjectToolInput = nullptr;
 };

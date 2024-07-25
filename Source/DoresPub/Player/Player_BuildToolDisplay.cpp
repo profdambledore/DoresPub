@@ -307,31 +307,3 @@ void APlayer_BuildToolDisplay::CreatePillars(FVector Start, FVector End)
 		SMCPool[Total - 1]->SetStaticMesh(nullptr);
 	}
 }
-
-// -- Attempt 1 - Fail --
-//bool APlayer_BuildToolDisplay::GetOverlappingPlacedMesh(UStaticMeshComponent* BuildToolComponent)
-//{
-//	TArray<UPrimitiveComponent*> OverlapComps;
-//
-//	// Check if this is now colliding with a already placed mesh.
-//	BuildToolComponent->GetOverlappingComponents(OverlapComps);
-//	if (!OverlapComps.IsEmpty()) {
-//		for (UPrimitiveComponent* i : OverlapComps) {
-//			if (i->IsA<UStaticMeshComponent>()) {
-//				// If it is a StaticMeshcComponent, cast it to SMC
-//				UStaticMeshComponent* OverlapMesh = Cast<UStaticMeshComponent>(i);
-//
-//				UE_LOG(LogTemp, Warning, TEXT("Overlaps Found = %i"), OverlapComps.Num());
-//				UE_LOG(LogTemp, Warning, TEXT("BuildTool Mesh = %s, Overlap Mesh = %s"), *BuildToolComponent->GetStaticMesh()->GetName(), *OverlapMesh->GetStaticMesh()->GetName());
-//
-//				// Compare if the two meshes are the same.  If they are, then clear this mesh
-//				if (BuildToolComponent->GetStaticMesh() == OverlapMesh->GetStaticMesh() && BuildToolComponent->GetOwner() != OverlapMesh->GetOwner()) {
-//					UE_LOG(LogTemp, Warning, TEXT("The two meshes are the same"));
-//					BuildToolComponent->SetStaticMesh(nullptr);
-//					return true;
-//				}
-//			}
-//		}
-//	}
-//	return false;
-//}

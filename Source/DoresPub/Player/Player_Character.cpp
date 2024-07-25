@@ -61,6 +61,7 @@ void APlayer_Character::BeginPlay()
 		UI->AddToViewport();
 		UI->PC = this;
 		UI->UpdateGridSnapText(GridSnapValues[CurrentGridSnapValue]);
+		UI->UpdateRotationSnapText(RotationSnapValues[CurrentRotationSnapValue]);
 	}
 
 	// Setup the player tools, defaulting to the Default tool
@@ -195,6 +196,31 @@ void APlayer_Character::ChangeGridSnapSize(bool bIncrement)
 	UI->UpdateGridSnapText(GetCurrentGridSnapValue());
 }
 
+void APlayer_Character::ChangeRotationSnapSize(bool bIncrement)
+{
+	if (bIncrement) {
+		if (CurrentRotationSnapValue + 1 >= RotationSnapValues.Num() - 1) {
+			// Set to max grid snap value
+			CurrentRotationSnapValue = RotationSnapValues.Num() - 1;
+		}
+		else {
+			CurrentRotationSnapValue++;
+		}
+	}
+	else {
+		if (CurrentRotationSnapValue - 1 <= 0) {
+			// Set to max grid snap value
+			CurrentRotationSnapValue = 0;
+		}
+		else {
+			CurrentRotationSnapValue--;
+		}
+	}
+
+	// Finally, update the GridSnapText on the UI
+	UI->UpdateRotationSnapText(GetCurrentRotationSnapValue());
+}
+
 void APlayer_Character::SwapCurrentActiveTool(int NewTool)
 {
 	// Update the UI
@@ -208,6 +234,10 @@ void APlayer_Character::SwapCurrentActiveTool(int NewTool)
 
 	case 1: // Build Tool
 		PT->SwapTool(EToolType::Building);
+		break;
+
+	case 2: // Build Tool
+		PT->SwapTool(EToolType::Object);
 		break;
 
 	default:
@@ -237,9 +267,19 @@ APlayer_Controller* APlayer_Character::GetPC()
 	return PC;
 }
 
+APlayer_Tools* APlayer_Character::GetPT()
+{
+	return PT;
+}
+
 int APlayer_Character::GetCurrentGridSnapValue()
 {
 	return GridSnapValues[CurrentGridSnapValue];
+}
+
+int APlayer_Character::GetCurrentRotationSnapValue()
+{
+	return RotationSnapValues[CurrentRotationSnapValue];
 }
 
 bool APlayer_Character::GetIsPointInsideBound(FVector Point)

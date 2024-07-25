@@ -23,8 +23,13 @@ public:
 	void AddBuildingObjects(TArray<struct FBuildingData> DataToBuild);
 
 	// Called to return the mesh of a static mesh component at a location and rotation
-// If returned nullptr, then none was found
+	// If returned nullptr, then none was found
 	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, FVector ForwardVector, UStaticMesh* Mesh);
+
+	/// -- Object Functions --
+	// Called to add a new object at a position
+	// TO:DO - Update this to use Actors instead, not implemented yet so do that first
+	void AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform);
 
 protected:
 	// Called when the game starts or when spawned

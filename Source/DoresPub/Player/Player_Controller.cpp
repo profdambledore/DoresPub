@@ -57,6 +57,7 @@ void APlayer_Controller::SetupInputComponent()
 		EnhancedInputComponent->BindAction(InputConfig->DecreaseGridSnapInput, ETriggerEvent::Triggered, this, &APlayer_Controller::DecreaseGridSnap);
 		EnhancedInputComponent->BindAction(InputConfig->DefaultToolInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SwapToDefaultTool);
 		EnhancedInputComponent->BindAction(InputConfig->BuildingToolInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SwapToBuildingTool);
+		EnhancedInputComponent->BindAction(InputConfig->ObjectToolInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SwapToObjectTool);
 	}
 }
 
@@ -148,6 +149,14 @@ void APlayer_Controller::SwapToBuildingTool(const FInputActionValue& Value)
 	// Check if the Character Pointer has been created successfully.  If so...
 	if (Character) {
 		Character->SwapCurrentActiveTool(1);
+	}
+}
+
+void APlayer_Controller::SwapToObjectTool(const FInputActionValue& Value)
+{
+	// Check if the Character Pointer has been created successfully.  If so...
+	if (Character) {
+		Character->SwapCurrentActiveTool(2);
 	}
 }
 
