@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+#include "Data/BuildingData.h"
+
 #include "World_BuildingLevel.generated.h"
 
 UCLASS()
@@ -26,6 +29,13 @@ public:
 	// If returned nullptr, then none was found
 	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, FVector ForwardVector, UStaticMesh* Mesh);
 
+	// Called to regenerate a BuildData array from scratch
+	void ReGenerateBuildData();
+
+	// Called to find the BuildData struct index based on an inputted FVector.
+	// Returns an empty struct if one doesn't exist
+	int GetBuildDataAtLocation(FVector Location);
+
 	/// -- Object Functions --
 	// Called to add a new object at a position
 	// TO:DO - Update this to use Actors instead, not implemented yet so do that first
@@ -39,6 +49,13 @@ protected:
 	// Called to add a new StaticMeshComponent to the BuildToolDisplay
 	void AddNewStaticMeshComponent(int Target);
 
+private:
+	// Called in GenerateBuildData to insert a new FBuildData struct
+	void AddNewBuildData(UStaticMeshComponent* SMC);
+
+	// Called in GenerateBuildData to update a previous FBuildData struct
+	void UpdateBuildData(UStaticMeshComponent* SMC, int Index);
+
 public:	
 	/// -- Components --
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Global Components")
@@ -48,4 +65,7 @@ protected:
 	/// -- Spawned Components --
 	// TArray of all spawned StaticMeshComponents, used for displaying the building before it is built
 	TArray<UStaticMeshComponent*> SMCPool;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Data")
+	TArray<FBuildData> BuildData;
 };

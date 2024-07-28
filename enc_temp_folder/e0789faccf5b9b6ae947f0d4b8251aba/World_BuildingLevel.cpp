@@ -54,8 +54,6 @@ void AWorld_BuildingLevel::AddBuildingObjects(TArray<struct FBuildingData> DataT
 		SMCPool[Current + i]->SetRelativeLocation(DataToBuild[i].Location);
 		SMCPool[Current + i]->SetRelativeRotation(DataToBuild[i].Rotation);
 	}
-
-	ReGenerateBuildData();
 }
 
 void AWorld_BuildingLevel::AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform)

@@ -110,7 +110,7 @@ void APlayer_BuildToolDisplay::GenerateNewBuildDisplay(FVector StartPosition, FV
 	// Then calculate the total needed + 4 for the pillar corner blocks
 	// If both X and Y require no walls, then don't add any to the required total
 	Total = (XRequires * ((YRequires != 0) ? 2 : 1)) + (YRequires * ((XRequires != 0) ? 2 : 1));
-	Total = ((Total != 0) ? Total + 4 : 0);
+	Total = ((Total != 0) ? Total + 0 : 0);
 
 	//UE_LOG(LogTemp, Warning, TEXT("XReq =  %i, YReq =  %i, Total =  %i, Spawned = %i, Need to clear = %i"), XRequires, YRequires, Total, SMCPool.Num(), SMCPool.Num() - Total);
 
@@ -140,7 +140,7 @@ void APlayer_BuildToolDisplay::GenerateNewBuildDisplay(FVector StartPosition, FV
 	}
 
 	if (Total != 0) {
-		CreatePillars(StartPosition, EndPosition);
+		//CreatePillars(StartPosition, EndPosition);
 	}
 
 	// Finally, clear the excees SMC
