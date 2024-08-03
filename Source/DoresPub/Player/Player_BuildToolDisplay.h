@@ -134,7 +134,7 @@ private:
 	bool bDisplayVisible = false;
 
 	// The size of a wall static mesh in uu
-	float WallSize = 250;
+	float WallSize = 125;
 
 	// Int denoting the current amount of SMC needed for the Display
 	int Total = 0;

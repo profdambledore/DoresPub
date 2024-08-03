@@ -27,7 +27,7 @@ public:
 
 	// Called to return the mesh of a static mesh component at a location and rotation
 	// If returned nullptr, then none was found
-	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, FVector ForwardVector, UStaticMesh* Mesh);
+	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, bool bOnXAxis);
 
 	// Called to regenerate a BuildData array from scratch
 	void ReGenerateBuildData();

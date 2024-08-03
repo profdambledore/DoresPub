@@ -28,13 +28,7 @@ public:
 	UStaticMeshComponent* XStaticMeshComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bXHalfWall = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* YStaticMeshComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bYHalfWall = false;
 
 	// Pointers to other structs
 	FBuildData* UpPoint = nullptr;

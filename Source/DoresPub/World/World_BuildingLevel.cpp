@@ -81,24 +81,19 @@ void AWorld_BuildingLevel::AddNewStaticMeshComponent(int Target)
 		AddNewStaticMeshComponent(Target);
 	}
 }
-UStaticMeshComponent* AWorld_BuildingLevel::GetWallObjectMeshAtPosition(FVector Location, FVector ForwardVector, UStaticMesh* Mesh)
+
+UStaticMeshComponent* AWorld_BuildingLevel::GetWallObjectMeshAtPosition(FVector Location, bool bOnXAxis)
 {
-	for (UStaticMeshComponent* i : SMCPool) {
-		if (i->GetStaticMesh() != nullptr) {
-			if (i->GetComponentLocation() == Location) {
-				if (Mesh == i->GetStaticMesh()) {
-					// Find the dot prod between the two rotators
-					FVector VecA = i->GetForwardVector();
-					VecA.Normalize();
-
-					FVector VecB = ForwardVector;
-					VecB.Normalize();
-
-					float OutAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(VecA, VecB)));
-					if (OutAngle == 0.0) {
-						return i;
-					}
-				}
+	int i = GetBuildDataAtLocation(Location);
+	if (i != -1) {
+		if (bOnXAxis) {
+			if (BuildData[i].XStaticMeshComponent) {
+				return BuildData[i].XStaticMeshComponent;
+			}
+		}
+		else {
+			if (BuildData[i].YStaticMeshComponent) {
+				return BuildData[i].YStaticMeshComponent;
 			}
 		}
 	}
@@ -135,20 +130,15 @@ void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC)
 	FVector f = NextBuildData.Origin;
 	bool bY = false;
 
-	// Figure out if the wall is a full or half wall
-	if (round(SMC->GetStaticMesh()->GetBoundingBox().GetSize().X) == 125) {
-		bIsHalfWall = true;
-	}
-
 	// Next, figure out if the wall is an X or Y wall (x has a default rotator, while y has a 0, 90, 0 rotator)
 	if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
 		NextBuildData.XStaticMeshComponent = SMC;
-		f.X += bIsHalfWall ? 125 : 250;
+		f.X += 125;
 		
 	}
 	else {
 		NextBuildData.YStaticMeshComponent = SMC;
-		f.Y += bIsHalfWall ? 125 : 250;
+		f.Y += 125;
 		bY = true;
 	}
 	BuildData.Add(NextBuildData);
