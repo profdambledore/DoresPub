@@ -110,7 +110,7 @@ void APlayer_BuildToolDisplay::GenerateNewBuildDisplay(FVector StartPosition, FV
 	// Then calculate the total needed + 4 for the pillar corner blocks
 	// If both X and Y require no walls, then don't add any to the required total
 	Total = (XRequires * ((YRequires != 0) ? 2 : 1)) + (YRequires * ((XRequires != 0) ? 2 : 1));
-	Total = ((Total != 0) ? Total + 0 : 0);
+	//Total = ((Total != 0) ? Total + 0 : 0);
 
 	// Add enough static mesh components to match the amount needed 
 	if (Total > SMCPool.Num()) {
@@ -184,9 +184,21 @@ void APlayer_BuildToolDisplay::CreateXWall(float Start, float End, float Y, int 
 		SMCPool[StartWallSegment + i]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		SMCPool[StartWallSegment + i]->SetStaticMesh(HalfWallMesh);
 
-		if (GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)) {
-			SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+		// If in default mode, check if there is a mesh already at the position
+		if (!bInEraseMode) {
+			if (GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)) {
+				// If there is, clear the mesh
+				SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+			}
 		}
+		// Else, check if there isn't a mesh at the position
+		else {
+			if (!GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)) {
+				// If there isn't, clear the mesh
+				SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+			}
+		}
+
 	}
 }
 
@@ -202,9 +214,20 @@ void APlayer_BuildToolDisplay::CreateYWall(float Start, float End, float X, int 
 		SMCPool[StartWallSegment + i]->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 		SMCPool[StartWallSegment + i]->SetStaticMesh(HalfWallMesh);
 
-		if (GroundFloor->GetWallObjectMeshAtPosition(FVector(X, WallStart + (WallSize * i), 1.0f), false)) {
-			SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+		// If in default mode, check if there is a mesh already at the position
+		if (!bInEraseMode) {
+			if (GroundFloor->GetWallObjectMeshAtPosition(FVector(X, WallStart + (WallSize * i), 1.0f), false)) {
+				SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+			}
 		}
+		// Else, check if there isn't a mesh at the position
+		else {
+			if (!GroundFloor->GetWallObjectMeshAtPosition(FVector(X, WallStart + (WallSize * i), 1.0f), false)) {
+				SMCPool[StartWallSegment + i]->SetStaticMesh(nullptr);
+			}
+		}
+
+		
 	}
 }
 

@@ -60,7 +60,7 @@ void AWorld_BuildingLevel::AddBuildingObjects(TArray<struct FBuildingData> DataT
 
 void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildingData> DataToRemove)
 {
-	int BuildDataIndex; UStaticMeshComponent* PTB = nullptr;
+	int BuildDataIndex;
 
 	// For each data to be removed...
 	for (FBuildingData i : DataToRemove) {
@@ -72,13 +72,8 @@ void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildingData> Da
 				if (BuildData[BuildDataIndex].XStaticMeshComponent) {
 					// If a mesh does exist on the X axis, clear the SMC, remove the pointer and update the BuildData on the up point
 					BuildData[BuildDataIndex].XStaticMeshComponent->SetStaticMesh(nullptr);
-					PTB = BuildData[BuildDataIndex].XStaticMeshComponent;
 					BuildData[BuildDataIndex].XStaticMeshComponent = nullptr;
-					SMCPool.Remove(PTB);
-					SMCPool.Add(PTB);
 					BuildData[BuildDataIndex].UpPoint->DownPoint = nullptr;
-					BuildData[BuildDataIndex].UpPoint = nullptr;
-
 					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint) {
 						BuildData.RemoveAt(BuildDataIndex);
 					}
@@ -88,13 +83,8 @@ void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildingData> Da
 				if (BuildData[BuildDataIndex].YStaticMeshComponent) {
 					// If a mesh does exist on the Y axis, clear the SMC, remove the pointer and update the BuildData on the right point
 					BuildData[BuildDataIndex].YStaticMeshComponent->SetStaticMesh(nullptr);
-					PTB = BuildData[BuildDataIndex].YStaticMeshComponent;
 					BuildData[BuildDataIndex].YStaticMeshComponent = nullptr;
-					SMCPool.Remove(PTB);
-					SMCPool.Add(PTB);
 					BuildData[BuildDataIndex].RightPoint->LeftPoint = nullptr;
-					BuildData[BuildDataIndex].RightPoint = nullptr;
-
 					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint) {
 						BuildData.RemoveAt(BuildDataIndex);
 					}
@@ -199,8 +189,8 @@ void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC)
 		}
 		else {
 			// If it does exist, update it
-			BuildData[j].LeftPoint = &BuildData[BuildData.Num() - 1];
-			BuildData[BuildData.Num() - 1].RightPoint = &BuildData[j];
+			BuildData[j].RightPoint = &BuildData[BuildData.Num() - 1];
+			BuildData[BuildData.Num() - 1].LeftPoint = &BuildData[j];
 		}
 	}
 	else {
@@ -216,9 +206,9 @@ void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC)
 			// Else, create a new one
 			NextBuildData = FBuildData();
 			NextBuildData.Origin = f;
-			NextBuildData.LeftPoint = &BuildData[BuildData.Num() - 1];
+			NextBuildData.RightPoint = &BuildData[BuildData.Num() - 1];
 			BuildData.Add(NextBuildData);
-			BuildData[BuildData.Num() - 2].RightPoint = &BuildData[BuildData.Num() - 1];
+			BuildData[BuildData.Num() - 2].LeftPoint = &BuildData[BuildData.Num() - 1];
 			
 		}
 	}
@@ -251,8 +241,8 @@ void AWorld_BuildingLevel::UpdateBuildData(UStaticMeshComponent* SMC, int Index)
 		}
 		else {
 			// If it does exist, update it
-			BuildData[j].LeftPoint = &BuildData[BuildData.Num() - 1];
-			BuildData[BuildData.Num() - 1].RightPoint = &BuildData[j];
+			BuildData[j].RightPoint = &BuildData[BuildData.Num() - 1];
+			BuildData[BuildData.Num() - 1].LeftPoint = &BuildData[j];
 		}
 	}
 	else {
@@ -268,9 +258,9 @@ void AWorld_BuildingLevel::UpdateBuildData(UStaticMeshComponent* SMC, int Index)
 			// Else, create a new one
 			FBuildData NextBuildData = FBuildData();
 			NextBuildData.Origin = f;
-			NextBuildData.LeftPoint = &BuildData[Index];
+			NextBuildData.RightPoint = &BuildData[Index];
 			BuildData.Add(NextBuildData);
-			BuildData[Index].RightPoint = &BuildData[BuildData.Num() - 1];
+			BuildData[Index].LeftPoint = &BuildData[BuildData.Num() - 1];
 			
 		}
 	}

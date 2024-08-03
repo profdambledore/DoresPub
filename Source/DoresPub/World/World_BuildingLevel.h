@@ -25,6 +25,9 @@ public:
 	// Called to add an array of building meshes to the level
 	void AddBuildingObjects(TArray<struct FBuildingData> DataToBuild);
 
+	// Called to remove an array of building meshes from the level
+	void RemoveBuildingObjects(TArray<struct FBuildingData> DataToRemove);
+
 	// Called to return the mesh of a static mesh component at a location and rotation
 	// If returned nullptr, then none was found
 	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, bool bOnXAxis);

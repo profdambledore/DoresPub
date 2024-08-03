@@ -122,6 +122,9 @@ protected:
 	// Add 2 zeros at end, as currency is int
 	int HalfWallCost = 1500;
 
+	// bool denoting if the player is in erase mode
+	bool bInEraseMode = false;
+
 	/// -- Object Tool Properties --
 	// bool denoting if the player is in rotation mode
 	bool bInRotationMode = false;

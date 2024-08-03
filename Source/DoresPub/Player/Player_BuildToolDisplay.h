@@ -120,6 +120,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Material Colours")
 	FLinearColor InvalidColour;
 
+	/// -- Tool Options --
+	// bool denoting if the tool is in erase mode
+	bool bInEraseMode = false;
+
 protected:
 	/// -- Spawned Components --
 	// TArray of all spawned StaticMeshComponents, used for displaying the building before it is built

@@ -193,14 +193,25 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 		// Check where the player has clicked is inside of the WorldBounds
 		FVector testClickPos = FireTraceToActor().Location;
 		if (PC->GetIsPointInsideBound(testClickPos)) {
-			// Check if they have enough money for the building
-			int cost = BTD->GetDisplayWallsInUse() * HalfWallCost;
-			if (cost <= PC->GetCurrentMoney()) {
-				// If they do, then 
-				GroundFloor->AddBuildingObjects(BTD->GetDisplayData());
-				PC->UpdateMoney(-cost);
+			// Check what mode they are in
+			if (!bInEraseMode) {
+				// Check if they have enough money for the building
+				int cost = BTD->GetDisplayWallsInUse() * HalfWallCost;
+				if (cost <= PC->GetCurrentMoney()) {
+					// If they do, then 
+					GroundFloor->AddBuildingObjects(BTD->GetDisplayData());
+					PC->UpdateMoney(-cost);
+					bInEraseMode = !bInEraseMode;
+				}
+			}
+			else {
+				// TODO - Refund the player for the walls being removed
+				GroundFloor->RemoveBuildingObjects(BTD->GetDisplayData());
+				bInEraseMode = !bInEraseMode;
 			}
 		}
+		BTD->bInEraseMode = bInEraseMode;
+
 		ClickPosition = FVector(-1, -1, -1);
 		// Also clear the BTD 
 		BTD->ClearBuildDisplay();
