@@ -10,6 +10,7 @@
 #include "Components/Button.h"
 
 #include "UI/UI_Player_Object.h"
+#include "UI/UI_Player_Build.h"
 
 #include "UI_Player_Master.generated.h"
 
@@ -102,6 +103,10 @@ public:
 	// Text Box to display the player's active tool
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* CurrentToolText = nullptr;
+
+	/// -- UI States --
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "States")
+	UUI_Player_Build* BuildState = nullptr;
 
 	/// -- UI States --
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "States")

@@ -21,6 +21,7 @@ void UUI_Player_Master::NativeConstruct()
 	IncrementRotationSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnIRSButtonReleased);
 	DecrementRotationSnapButton->OnReleased.AddDynamic(this, &UUI_Player_Master::OnDRSButtonReleased);
 
+	BuildState->MUI = this;
 	ObjectState->MUI = this;
 }
 
@@ -57,12 +58,12 @@ void UUI_Player_Master::UpdateUIToCurrentTool(int NewTool)
 
 	case 1: // Build Tool
 		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Building Tool"))));
-		SwapActiveState(0);
+		SwapActiveState(1);
 		break;
 
 	case 2:
 		CurrentToolText->SetText(FText::FromString(FString::Printf(TEXT("Object Tool"))));
-		SwapActiveState(1);
+		SwapActiveState(2);
 		break;
 
 	default:

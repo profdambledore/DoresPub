@@ -51,6 +51,10 @@ public:
 	// Called to fire the primary tool release function of the selected tool
 	void SelectedToolPrimaryReleased();
 
+	/// -- Build Tool Function --
+	// Called to toggle the erase mode to normal mode (and vice versa)
+	void ToggleEraseMode();
+
 	/// -- Object Tool Functions --
 	// Called to update the current mesh shown (leave blank to clear)
 	void UpdateObjectMesh(UStaticMesh* NewStaticMesh = nullptr);
