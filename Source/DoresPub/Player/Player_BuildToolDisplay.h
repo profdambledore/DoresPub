@@ -7,32 +7,9 @@
 
 #include "Components/StaticMeshComponent.h"
 
+#include "Data/BuildToolData.h"
+
 #include "Player_BuildToolDisplay.generated.h"
-
-USTRUCT(BlueprintType, Category = "Levels")
-struct DORESPUB_API FBuildingData
-{
-public:
-	GENERATED_BODY();
-
-	FBuildingData();
-	FBuildingData(UStaticMesh* NewMesh, FVector NewLocation, FRotator NewRotation);
-
-	~FBuildingData();
-
-public:
-	// The mesh of the SMC
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save Data")
-	UStaticMesh* Mesh;
-
-	// The location of the SMC
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save Data")
-	FVector Location;
-
-	// The rotation of the SMC
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Save Data")
-	FRotator Rotation;
-};
 
 UCLASS()
 class DORESPUB_API APlayer_BuildToolDisplay : public AActor
@@ -55,12 +32,17 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateMaterial(FLinearColor NewColour);
 
+	/// -- Display Functions --
 	// Called to update the display's validity
 	void UpdateDisplayValidity(bool bIsValid);
 
 	// Called to return how many walls are currently being used
-	// Returns as half walls
+	// Return an int of how many SMC's match the correct criteria
 	int GetDisplayWallsInUse();
+
+	// Called to return the wall data
+	// Returns a TArray of FBuildToolData structs for each valid SMC
+	TArray<FBuildToolData> GetDisplayData();
 
 	// Called to generate a new building display
 	void GenerateNewBuildDisplay(FVector StartPosition, FVector EndPosition);
@@ -68,17 +50,11 @@ public:
 	// Called to clear the building display
 	void ClearBuildDisplay();
 
-	// Called to return the wall data
-	TArray<FBuildingData> GetDisplayData();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/// -- Uitlity Functions --
-	// Called to add a new StaticMeshComponent to the BuildToolDisplay
-	void AddNewStaticMeshComponent(int Target);
-
+	/// -- Display Functions --
 	// Called to create a wall along the X axis
 	void CreateXWall(float Start, float End, float Y, int WallSegments, int StartWallSegment);
 
@@ -88,26 +64,19 @@ protected:
 	// Called to create a pillar at a series of points
 	void CreatePillars(FVector Start, FVector End);
 
-	// Called to check if the component is overlapping a matching static mesh
-	bool GetOverlappingPlacedMesh(UStaticMeshComponent* BuildToolComponent);
+	/// -- Uitlity Functions --
+	// Called to add a new StaticMeshComponent to the BuildToolDisplay
+	void AddNewStaticMeshComponent(int Target);
 
 public:	
 	/// -- Components --
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Global Components")
 	USceneComponent* Root;
 
-	/// -- 
-	// Pointer to the Wall object
+	/// -- Meshes --
+	// Pointer to the current selected mesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Meshes")
-	UStaticMesh* WallMesh = nullptr;
-
-	// Pointer to the Half Wall object
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Meshes")
-	UStaticMesh* HalfWallMesh = nullptr;
-
-	// Pointer to the Corner Pillar Wall object
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Meshes")
-	UStaticMesh* PillarWallMesh = nullptr;
+	UStaticMesh* SelectedMesh = nullptr;
 
 	// Pointer to the Build Tool Material
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build Tool Material")
@@ -138,7 +107,7 @@ private:
 	bool bDisplayVisible = false;
 
 	// The size of a wall static mesh in uu
-	float WallSize = 125;
+	float WallSize = 250;
 
 	// Int denoting the current amount of SMC needed for the Display
 	int Total = 0;

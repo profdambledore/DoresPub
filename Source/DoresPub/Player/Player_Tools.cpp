@@ -64,8 +64,8 @@ void APlayer_Tools::Tick(float DeltaTime)
 		// Also snap it to the building snapping distance (half of a wall size)
 		FVector MouseLocation = FireTraceToActor().Location;
 		
-		MouseLocation.X = GetNearestMultiple(MouseLocation.X, 125);
-		MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, 125);
+		MouseLocation.X = GetNearestMultiple(MouseLocation.X, 250);
+		MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, 250);
 		MouseLocation.Z = 1.0f;
 		SetActorLocation(MouseLocation);
 
@@ -124,39 +124,54 @@ void APlayer_Tools::Tick(float DeltaTime)
 			ObjectRotation.Pitch = 0.0f;
 			ObjectRotation.Roll = 0.0f;
 
+			// Then rotate the mesh
 			ObjectToolMeshComponent->SetWorldRotation(ObjectRotation);
 		}
 		
 	}
 }
 
+/// -- Global Tool Functions --
+// Called to set the Player Character pointer
 void APlayer_Tools::SetupTools(APlayer_Character* NewPC)
 {
 	PC = NewPC;
 	UpdateToolRotation();
 }
 
+// Called to swap to a selected tool
 void APlayer_Tools::SwapTool(TEnumAsByte<EToolType> NewTool)
 {
+	// Sets the current too to the new tool
 	CurrentTool = NewTool;
+
+	// Then reset required properties to their default (the click position, then clear the BTD and hide the Build Tool's widget
 	ClickPosition = FVector(-1, -1, -1);
 	BTD->ClearBuildDisplay();
 	BuildToolWidgetComponent->SetVisibility(false, false);
 
 	// Update what components are no longer hidden based on the new tool
+	// If the tool is now the Building tool, then
 	if (CurrentTool == EToolType::Building) {
+		// Make the widget visible
 		BuildToolWidgetComponent->SetVisibility(true, false);
 	}
+	// Else, if the tool is now the object tool, then
 	else if (CurrentTool == EToolType::Object) {
+		// Make the object tool mesh visible
 		ObjectToolMeshComponent->SetVisibility(true, false);
 	}
 }
 
+// Called to update the rotation of the tool class to re-face the player's camera
 void APlayer_Tools::UpdateToolRotation()
 {
+	// Update the rotation of the tool class to re - face the player's camera
 	BuildToolWidgetComponent->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PC->Camera->GetComponentLocation()));
 }
 
+// Called to fire the primary tool function of the selected tool
+// On first press, fire the pressed event.  On second press, fire the released event
 void APlayer_Tools::SelectedToolPrimary()
 {
 	bPrimaryHeld = !bPrimaryHeld;
@@ -169,6 +184,7 @@ void APlayer_Tools::SelectedToolPrimary()
 	}
 }
 
+// Called to fire the primary tool press function of the selected tool
 void APlayer_Tools::SelectedToolPrimaryPressed()
 {
 	// If the current tool is the BuildTool, then...
@@ -177,8 +193,8 @@ void APlayer_Tools::SelectedToolPrimaryPressed()
 		FVector testClickPos = FireTraceToActor().Location;
 		if (PC->GetIsPointInsideBound(testClickPos)) {
 			// If it is, then round it to the Building Bounds and start "drawing" with the BuildToolDisplay 
-			testClickPos.X = GetNearestMultiple(testClickPos.X, 125);
-			testClickPos.Y = GetNearestMultiple(testClickPos.Y, 125);
+			testClickPos.X = GetNearestMultiple(testClickPos.X, 250);
+			testClickPos.Y = GetNearestMultiple(testClickPos.Y, 250);
 			testClickPos.Z = 1.0f;
 			ClickPosition = testClickPos;
 			BTD->GenerateNewBuildDisplay(ClickPosition, ClickPosition);
@@ -186,6 +202,7 @@ void APlayer_Tools::SelectedToolPrimaryPressed()
 	}
 }
 
+// Called to fire the primary tool release function of the selected tool
 void APlayer_Tools::SelectedToolPrimaryReleased()
 {
 	// If the current tool is the BuildTool, then...
@@ -221,13 +238,22 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 }
 
 /// -- Build Tool Functions --
+// Called to toggle the erase mode to normal mode (and vice versa)
 void APlayer_Tools::ToggleEraseMode()
 {
 	bInEraseMode = !bInEraseMode;
 	BTD->bInEraseMode = bInEraseMode;
 }
 
+// Called to update the selected mesh in the BuildToolDisplay
+// Leave empty to clear (nullptr)
+void APlayer_Tools::UpdateSelectedWall(UStaticMesh* NewWallMesh)
+{
+	BTD->SelectedMesh = NewWallMesh;
+}
+
 /// -- Object Tool Functions --
+// Called to update the current mesh shown (leave blank to clear)
 void APlayer_Tools::UpdateObjectMesh(UStaticMesh* NewStaticMesh)
 {
 	if (NewStaticMesh != ObjectToolMeshComponent->GetStaticMesh()) {
@@ -238,12 +264,14 @@ void APlayer_Tools::UpdateObjectMesh(UStaticMesh* NewStaticMesh)
 	}
 }
 
+// Called to toggle the from rotation mode to normal mode (and vice versa)
 void APlayer_Tools::ToggleRotationMode()
 {
 	bInRotationMode = !bInRotationMode;
 }
 
 /// -- Utility Functions --
+// Called to fire a trace to hit an object, returning FHitResult from the trace
 FHitResult APlayer_Tools::FireTraceToActor()
 {
 	// Fire a line trace infront of this camera
@@ -265,6 +293,7 @@ FHitResult APlayer_Tools::FireTraceToActor()
 	return TraceHit;
 }
 
+// Called to round a float to the nearest multple, returning the output
 float APlayer_Tools::GetNearestMultiple(float Input, int Multiple)
 {
 	if (Multiple == 0) {

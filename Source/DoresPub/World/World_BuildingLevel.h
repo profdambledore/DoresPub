@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "Data/BuildingData.h"
+#include "Data/BuildToolData.h"
 
 #include "World_BuildingLevel.generated.h"
 
@@ -23,26 +23,31 @@ public:
 
 	/// -- Building Functions --
 	// Called to add an array of building meshes to the level
-	void AddBuildingObjects(TArray<struct FBuildingData> DataToBuild);
+	void AddBuildingObjects(TArray<struct FBuildToolData> DataToBuild);
 
 	// Called to remove an array of building meshes from the level
-	void RemoveBuildingObjects(TArray<struct FBuildingData> DataToRemove);
+	void RemoveBuildingObjects(TArray<struct FBuildToolData> DataToRemove);
 
-	// Called to return the mesh of a static mesh component at a location and rotation
-	// If returned nullptr, then none was found
-	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, bool bOnXAxis);
+	// Called to add to the current BuildData
+	void AddToBuildData(UStaticMeshComponent* ComponentToAdd);
 
 	// Called to regenerate a BuildData array from scratch
 	void ReGenerateBuildData();
 
-	// Called to find the BuildData struct index based on an inputted FVector.
-	// Returns an empty struct if one doesn't exist
-	int GetBuildDataAtLocation(FVector Location);
 
 	/// -- Object Functions --
 	// Called to add a new object at a position
 	// TO:DO - Update this to use Actors instead, not implemented yet so do that first
 	void AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform);
+
+	/// -- Uitlity Functions --
+	// Called to return the mesh of a static mesh component at a location and rotation
+	// If returned nullptr, then none was found
+	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, bool bOnXAxis);
+
+	// Called to find the BuildData struct index based on an inputted FVector.
+	// Returns an empty struct if one doesn't exist
+	int GetBuildDataAtLocation(FVector Location);
 
 protected:
 	// Called when the game starts or when spawned
@@ -53,6 +58,7 @@ protected:
 	void AddNewStaticMeshComponent(int Target);
 
 private:
+	/// -- Building Functions --
 	// Called in GenerateBuildData to insert a new FBuildData struct
 	void AddNewBuildData(UStaticMeshComponent* SMC);
 

@@ -2,7 +2,7 @@
 
 #include "UI/UI_Player_Object.h"
 
-#include "UI/UI_Player_ObjectData.h"
+#include "UI/UI_Data_Object.h"
 #include "UI/UI_Player_Object_CatButton.h"
 #include "UI/UI_Player_Object_ItemButton.h"
 #include "UI/UI_Player_Master.h"

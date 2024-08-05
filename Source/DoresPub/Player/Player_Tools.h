@@ -10,15 +10,18 @@
 
 #include "Player_Tools.generated.h"
 
+// Enum denoting the different types of tools currently available to use
 UENUM(BlueprintType, Category = "Tools")
 enum EToolType
 {
 	Default UMETA(DisplayName="Default Tool"),
 	Building UMETA(DisplayName = "Building Tool"),
-	Object UMETA(DisplayName = "Object Tool")
+	Object UMETA(DisplayName = "Object Tool"),
+	Count UMETA(Hidden),
 };
 
-ENUM_RANGE_BY_COUNT(EToolType, EToolType::Object);
+// Allows the macro to be used with the EToolType Enum
+ENUM_RANGE_BY_COUNT(EToolType, EToolType::Count);
 
 UCLASS()
 class DORESPUB_API APlayer_Tools : public AActor
@@ -43,6 +46,7 @@ public:
 	void UpdateToolRotation();
 
 	// Called to fire the primary tool function of the selected tool
+	// On first press, fire the pressed event.  On second press, fire the released event
 	void SelectedToolPrimary();
 
 	// Called to fire the primary tool press function of the selected tool
@@ -54,6 +58,10 @@ public:
 	/// -- Build Tool Function --
 	// Called to toggle the erase mode to normal mode (and vice versa)
 	void ToggleEraseMode();
+
+	// Called to update the selected mesh in the BuildToolDisplay
+	// Leave empty to clear (nullptr)
+	void UpdateSelectedWall(UStaticMesh* NewWallMesh = nullptr);
 
 	/// -- Object Tool Functions --
 	// Called to update the current mesh shown (leave blank to clear)

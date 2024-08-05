@@ -22,7 +22,7 @@ public:
 	// Called to setup the inputs for this player controller
 	virtual void SetupInputComponent() override;
 
-	// Called when 
+	// Called when the controller possesses a character/pawn
 	virtual void OnPossess(APawn* InPawn) override;
 	
 protected:

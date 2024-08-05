@@ -62,12 +62,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTileView* SubCategoryTileView = nullptr;
 
-	// Tile View Object for displaying the inventory
+	// Tile View Object for displaying the available objects
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTileView* ObjectTileView = nullptr;
 
 	// Button to swap to/from rotation mode
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Rotation Mode")
 	UButton* RotationModeButton = nullptr;
 
 	// TMap of all available sub categories

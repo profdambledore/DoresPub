@@ -10,6 +10,7 @@
 #include "Inputs/Input_ConfigData.h"
 #include "Player/Player_Character.h"
 
+// Constructor
 APlayer_Controller::APlayer_Controller()
 {
 	// Find the input objects
@@ -24,12 +25,14 @@ APlayer_Controller::APlayer_Controller()
 
 void APlayer_Controller::BeginPlay()
 {
+	// Called when the game starts or when spawned
 	Super::BeginPlay();
 
 	// Enable the mouse cursor on screen
 	bShowMouseCursor = true;
 }
 
+// Called to setup the inputs for this player controller
 void APlayer_Controller::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -61,6 +64,7 @@ void APlayer_Controller::SetupInputComponent()
 	}
 }
 
+// Called when the controller possesses a character/pawn
 void APlayer_Controller::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -69,6 +73,8 @@ void APlayer_Controller::OnPossess(APawn* InPawn)
 	Character = Cast<APlayer_Character>(GetPawn());
 }
 
+/// -- Inputs --
+// Called to move the character on the X axis
 void APlayer_Controller::MoveX(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -78,6 +84,7 @@ void APlayer_Controller::MoveX(const FInputActionValue& Value)
 	}
 }
 
+// Called to move the character on the Y axis
 void APlayer_Controller::MoveY(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -87,6 +94,7 @@ void APlayer_Controller::MoveY(const FInputActionValue& Value)
 	}
 }
 
+// Called to make the character's camera rotate
 void APlayer_Controller::RotateCamera(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -95,6 +103,7 @@ void APlayer_Controller::RotateCamera(const FInputActionValue& Value)
 	}
 }
 
+// Called to modify the camera's zoom
 void APlayer_Controller::ZoomCamera(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -104,6 +113,7 @@ void APlayer_Controller::ZoomCamera(const FInputActionValue& Value)
 	}
 }
 
+// Called to fire a primary action input (lmb)
 void APlayer_Controller::PrimaryAction(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -112,6 +122,7 @@ void APlayer_Controller::PrimaryAction(const FInputActionValue& Value)
 	}
 }
 
+// Called to fire a secondary action input (rmb)
 void APlayer_Controller::SecondaryAction(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -120,6 +131,7 @@ void APlayer_Controller::SecondaryAction(const FInputActionValue& Value)
 	}
 }
 
+// Called to change the current snapping value of the grid
 void APlayer_Controller::IncreaseGridSnap(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -128,6 +140,7 @@ void APlayer_Controller::IncreaseGridSnap(const FInputActionValue& Value)
 	}
 }
 
+// Called to change the current snapping value of the grid
 void APlayer_Controller::DecreaseGridSnap(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -136,6 +149,7 @@ void APlayer_Controller::DecreaseGridSnap(const FInputActionValue& Value)
 	}
 }
 
+// Called to swap the current active tool to the default tool
 void APlayer_Controller::SwapToDefaultTool(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -144,6 +158,7 @@ void APlayer_Controller::SwapToDefaultTool(const FInputActionValue& Value)
 	}
 }
 
+// Called to swap the current active tool to the buildng tool
 void APlayer_Controller::SwapToBuildingTool(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -152,6 +167,7 @@ void APlayer_Controller::SwapToBuildingTool(const FInputActionValue& Value)
 	}
 }
 
+// Called to swap the current active tool to the object tool
 void APlayer_Controller::SwapToObjectTool(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
@@ -160,6 +176,8 @@ void APlayer_Controller::SwapToObjectTool(const FInputActionValue& Value)
 	}
 }
 
+/// -- Utility Functions --
+// Called to return if an input value is positive or negative
 bool APlayer_Controller::GetInputValueIsPositive(float InInputValue)
 {
 	if (InInputValue == 1) {
