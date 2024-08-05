@@ -272,6 +272,11 @@ APlayer_Tools* APlayer_Character::GetPT()
 	return PT;
 }
 
+UUI_Player_Master* APlayer_Character::GetUI()
+{
+	return UI;
+}
+
 int APlayer_Character::GetCurrentGridSnapValue()
 {
 	return GridSnapValues[CurrentGridSnapValue];

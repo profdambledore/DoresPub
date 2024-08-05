@@ -10,14 +10,6 @@ void UUI_Player_Build::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// Update the SelectableWallTileView
-	for (FName i : WallDataTable->GetRowNames()) {
-		FSelectableWallData* d = WallDataTable->FindRow<FSelectableWallData>(i, "");
-		UWallButtonData* NewWallObj = NewObject<UWallButtonData>();
-		NewWallObj->SetupData(this, i, d->Icon);
-		WallSelectionTileView->AddItem(NewWallObj);
-	}
-
 	// Bind button events
 	EraseModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnRMButtonReleased);
 }
@@ -27,19 +19,26 @@ void UUI_Player_Build::SynchronizeProperties()
 	Super::SynchronizeProperties();
 }
 
+void UUI_Player_Build::AddSelectableWallToList(FName ID, FSelectableWallData WallData)
+{
+	UWallButtonData* NewWallObj = NewObject<UWallButtonData>();
+	NewWallObj->SetupData(this, ID, WallData.Icon);
+	WallSelectionTileView->AddItem(NewWallObj);
+}
+
 void UUI_Player_Build::UpdateSelectedWall(FName ObjectID)
 {
 	if (MUI) {
-		UStaticMesh* NewMesh = WallDataTable->FindRow<FSelectableWallData>(ObjectID, "")->Mesh; 
-		if (NewMesh == SelectedMesh) {
-			SelectedMesh = nullptr;
+		//UStaticMesh* NewMesh = WallDataTable->FindRow<FSelectableWallData>(ObjectID, "")->Mesh; 
+		if (SelectedID == ObjectID) {
+			SelectedID = "";
 			
 		}
 		else {
-			SelectedMesh = NewMesh;
+			SelectedID = ObjectID;
 		}
 		
-		MUI->GetPlayerTools()->UpdateSelectedWall(SelectedMesh);
+		MUI->GetPlayerTools()->UpdateSelectedWall(SelectedID);
 	}
 }
 

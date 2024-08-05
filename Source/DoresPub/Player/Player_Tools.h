@@ -17,11 +17,11 @@ enum EToolType
 	Default UMETA(DisplayName="Default Tool"),
 	Building UMETA(DisplayName = "Building Tool"),
 	Object UMETA(DisplayName = "Object Tool"),
-	Count UMETA(Hidden),
+	ToolCount UMETA(Hidden),
 };
 
 // Allows the macro to be used with the EToolType Enum
-ENUM_RANGE_BY_COUNT(EToolType, EToolType::Count);
+ENUM_RANGE_BY_COUNT(EToolType, EToolType::ToolCount);
 
 UCLASS()
 class DORESPUB_API APlayer_Tools : public AActor
@@ -61,7 +61,7 @@ public:
 
 	// Called to update the selected mesh in the BuildToolDisplay
 	// Leave empty to clear (nullptr)
-	void UpdateSelectedWall(UStaticMesh* NewWallMesh = nullptr);
+	void UpdateSelectedWall(FName WallID = "");
 
 	/// -- Object Tool Functions --
 	// Called to update the current mesh shown (leave blank to clear)
@@ -130,12 +130,15 @@ protected:
 	// Class of the BuildToolDisplay
 	TSubclassOf<class APlayer_BuildToolDisplay>BuildToolDisplayClass = nullptr;
 
-	// Int denoting the price of a wall (half for a half wall)
-	// Add 2 zeros at end, as currency is int
-	int HalfWallCost = 1500;
+	// Float denoting the multiplier of the refund
+	float RefundMultiplier = 0.8;
 
 	// bool denoting if the player is in erase mode
 	bool bInEraseMode = false;
+
+	// Data Table of all available walls
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
+	UDataTable* WallDataTable = nullptr;
 
 	/// -- Object Tool Properties --
 	// bool denoting if the player is in rotation mode

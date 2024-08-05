@@ -57,16 +57,20 @@ void AWorld_BuildingLevel::AddBuildingObjects(TArray<struct FBuildToolData> Data
 		SMCPool[Current + i]->SetRelativeRotation(DataToBuild[i].Rotation);
 
 		// Finally, update the build data with the new SMC
-		AddToBuildData(SMCPool[Current + i]);
+		AddToBuildData(SMCPool[Current + i], DataToBuild[i].ID);
 	}
 
 	//ReGenerateBuildData();
 }
 
 // Called to remove an array of building meshes from the level
-void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildToolData> DataToRemove)
+TArray<FName> AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildToolData> DataToRemove)
 {
+	// Init local variables
 	int BuildDataIndex; UStaticMeshComponent* PTB = nullptr;
+
+	// Also init the return array
+	TArray<FName> out;
 
 	// For each data to be removed...
 	for (FBuildToolData i : DataToRemove) {
@@ -76,8 +80,14 @@ void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildToolData> D
 			// Next, check that a mesh exists on the rotation specified
 			if (i.Rotation == FRotator(0, 0, 0)) {
 				if (BuildData[BuildDataIndex].XStaticMeshComponent) {
-					// If a mesh does exist on the X axis, clear the SMC, remove the pointer and update the BuildData on the up point
+					// If a mesh does exist on the X axis, clear the SMC
 					BuildData[BuildDataIndex].XStaticMeshComponent->SetStaticMesh(nullptr);
+
+					// Then add the ID to the output array and clear the ID in the XID
+					out.Add(BuildData[BuildDataIndex].XID);
+					BuildData[BuildDataIndex].XID = "";
+
+					// Next, remove the pointer in the BuildDataIndex and update the BuildData on the up point
 					PTB = BuildData[BuildDataIndex].XStaticMeshComponent;
 					BuildData[BuildDataIndex].XStaticMeshComponent = nullptr;
 					SMCPool.Remove(PTB);
@@ -94,6 +104,12 @@ void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildToolData> D
 				if (BuildData[BuildDataIndex].YStaticMeshComponent) {
 					// If a mesh does exist on the Y axis, clear the SMC, remove the pointer and update the BuildData on the right point
 					BuildData[BuildDataIndex].YStaticMeshComponent->SetStaticMesh(nullptr);
+
+					// Then add the ID to the output array and clear the ID in the YID
+					out.Add(BuildData[BuildDataIndex].YID);
+					BuildData[BuildDataIndex].YID = "";
+
+					// Next, remove the pointer in the BuildDataIndex and update the BuildData on the right point
 					PTB = BuildData[BuildDataIndex].YStaticMeshComponent;
 					BuildData[BuildDataIndex].YStaticMeshComponent = nullptr;
 					SMCPool.Remove(PTB);
@@ -108,20 +124,19 @@ void AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildToolData> D
 			}
 		}
 	}
+	return out;
 }
 
 // Called to add to the current BuildData
-void AWorld_BuildingLevel::AddToBuildData(UStaticMeshComponent* ComponentToAdd)
+void AWorld_BuildingLevel::AddToBuildData(UStaticMeshComponent* ComponentToAdd, FName ID)
 {
 	if (ComponentToAdd->GetStaticMesh()) {
 		int j = GetBuildDataAtLocation(ComponentToAdd->GetComponentLocation());
 		if (j != -1) {
-			UE_LOG(LogTemp, Warning, TEXT("Updating, there are %i indecies currently"), BuildData.Num())
-				UpdateBuildData(ComponentToAdd, j);
+				UpdateBuildData(ComponentToAdd, j, ID);
 		}
 		else {
-			UE_LOG(LogTemp, Warning, TEXT("Adding, there are %i indecies currently"), BuildData.Num())
-				AddNewBuildData(ComponentToAdd);
+				AddNewBuildData(ComponentToAdd, ID);
 		}
 	}
 }
@@ -149,7 +164,7 @@ void AWorld_BuildingLevel::ReGenerateBuildData()
 }
 
 // Called in GenerateBuildData to insert a new FBuildData struct
-void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC)
+void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC, FName ID)
 {
 	// Initialize the variables for adding a new build data
 	FBuildData NextBuildData; bool bIsHalfWall = false;
@@ -161,12 +176,13 @@ void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC)
 	// Next, figure out if the wall is an X or Y wall (x has a default rotator, while y has a 0, 90, 0 rotator)
 	if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
 		NextBuildData.XStaticMeshComponent = SMC;
-		f.X += 125;
-		
+		f.X += 250;
+		NextBuildData.XID = ID;
 	}
 	else {
 		NextBuildData.YStaticMeshComponent = SMC;
-		f.Y += 125;
+		f.Y += 250;
+		NextBuildData.YID = ID;
 		bY = true;
 	}
 	BuildData.Add(NextBuildData);
@@ -207,7 +223,7 @@ void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC)
 }
 
 // Called in GenerateBuildData to update a previous FBuildData struct
-void AWorld_BuildingLevel::UpdateBuildData(UStaticMeshComponent* SMC, int Index)
+void AWorld_BuildingLevel::UpdateBuildData(UStaticMeshComponent* SMC, int Index, FName ID)
 {
 	bool bY = false;
 	FVector f = BuildData[Index].Origin;
@@ -215,12 +231,13 @@ void AWorld_BuildingLevel::UpdateBuildData(UStaticMeshComponent* SMC, int Index)
 	// Next, figure out if the wall is an X or Y wall (X has a default rotator, while Y has a 0, 90, 0 rotator)
 	if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
 		BuildData[Index].XStaticMeshComponent = SMC;
-		f.X += 125;
-		
+		f.X += 250;
+		BuildData[Index].XID = ID;
 	}
 	else {
 		BuildData[Index].YStaticMeshComponent = SMC;
-		f.Y += 125;
+		f.Y += 250;
+		BuildData[Index].YID = ID;
 		bY = true;
 	}
 

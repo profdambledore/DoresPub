@@ -22,6 +22,9 @@ public:
 
 	virtual void SynchronizeProperties() override;
 
+	// Called to add a new selectable wall to the list view
+	void AddSelectableWallToList(FName ID, FSelectableWallData WallData);
+
 	// Called to update the selected wall in the BuildToolDisplay
 	UFUNCTION(BlueprintCallable)
 	void UpdateSelectedWall(FName ObjectID);
@@ -47,12 +50,7 @@ public:
 	class UUI_Player_Master* MUI = nullptr;
 
 protected:
-	/// -- Data Tables --
-	// Data Table of all available walls
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
-	UDataTable* WallDataTable = nullptr;
-
 	// Pointer to the selected static mesh
-	UStaticMesh* SelectedMesh = nullptr;
+	FName SelectedID = "";
 	
 };

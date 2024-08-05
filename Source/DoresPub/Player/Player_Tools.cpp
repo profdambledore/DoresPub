@@ -10,6 +10,9 @@
 #include "Player/Player_Controller.h"
 #include "Player/Player_BuildToolDisplay.h"
 #include "World/World_BuildingLevel.h"
+#include "UI/UI_Player_Build.h"
+#include "UI/UI_Player_Master.h"
+#include "Data/BuildToolData.h"
 
 // Sets default values
 APlayer_Tools::APlayer_Tools()
@@ -78,18 +81,21 @@ void APlayer_Tools::Tick(float DeltaTime)
 			if (ClickPosition != FVector(-1, -1, -1)) {
 				BTD->GenerateNewBuildDisplay(ClickPosition, LastPosition);
 
-				// Check if it is valid (money)
-				if (BTD->GetDisplayWallsInUse() * HalfWallCost <= PC->GetCurrentMoney()) {
-					// Next, check if the MouseLocation is outside the zone.
-					if (!PC->GetIsPointInsideBound(MouseLocation)) {
-						BTD->UpdateDisplayValidity(false);
+				// Check that there is a wall ID selected
+				if (BTD->SelectedWallID != "") {
+					// Check if it is valid (money)
+					if (BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price <= PC->GetCurrentMoney()) {
+						// Next, check if the MouseLocation is outside the zone.
+						if (!PC->GetIsPointInsideBound(MouseLocation)) {
+							BTD->UpdateDisplayValidity(false);
+						}
+						else {
+							BTD->UpdateDisplayValidity(true);
+						}
 					}
 					else {
-						BTD->UpdateDisplayValidity(true);
+						BTD->UpdateDisplayValidity(false);
 					}
-				}
-				else {
-					BTD->UpdateDisplayValidity(false);
 				}
 			}
 		}
@@ -137,6 +143,13 @@ void APlayer_Tools::SetupTools(APlayer_Character* NewPC)
 {
 	PC = NewPC;
 	UpdateToolRotation();
+
+	// Setup the Build Tool
+	// Update the SelectableWallTileView
+	for (FName i : WallDataTable->GetRowNames()) {
+		FSelectableWallData* d = WallDataTable->FindRow<FSelectableWallData>(i, "");
+		PC->GetUI()->BuildState->AddSelectableWallToList(i, *d);
+	}
 }
 
 // Called to swap to a selected tool
@@ -210,19 +223,31 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 		// Check where the player has clicked is inside of the WorldBounds
 		FVector testClickPos = FireTraceToActor().Location;
 		if (PC->GetIsPointInsideBound(testClickPos)) {
-			// Check what mode they are in
-			if (!bInEraseMode) {
-				// Check if they have enough money for the building
-				int cost = BTD->GetDisplayWallsInUse() * HalfWallCost;
-				if (cost <= PC->GetCurrentMoney()) {
-					// If they do, then 
-					GroundFloor->AddBuildingObjects(BTD->GetDisplayData());
-					PC->UpdateMoney(-cost);
+			// Get the display data
+			TArray<FBuildToolData> data = BTD->GetDisplayData();
+			// Check if there is some data in the display mode
+			if (BTD->GetDisplayWallsInUse() > 0) {
+				// Check what mode they are in
+				if (!bInEraseMode) {
+					// Get the cost of a single wall (as you can only ever place one type of wall at a time, just check the ID of the first index and get the cost)
+					int cost = WallDataTable->FindRow<FSelectableWallData>(data[0].ID, "")->Price;
+					// Check if they have enough money for the building
+					int total = BTD->GetDisplayWallsInUse() * cost;
+					if (total <= PC->GetCurrentMoney()) {
+						// If they do, then 
+						GroundFloor->AddBuildingObjects(data);
+						PC->UpdateMoney(-total);
+					}
 				}
-			}
-			else {
-				// TODO - Refund the player for the walls being removed
-				GroundFloor->RemoveBuildingObjects(BTD->GetDisplayData());
+				else {
+					// Remove the Walls from the WorldBuildingLevel
+					TArray<FName> wallsToRefund = GroundFloor->RemoveBuildingObjects(BTD->GetDisplayData());
+					int total = 0;
+					for (FName w : wallsToRefund) {
+						total += WallDataTable->FindRow<FSelectableWallData>(w, "")->Price * RefundMultiplier;
+					}
+					PC->UpdateMoney(total);
+				}
 			}
 		}
 
@@ -247,9 +272,10 @@ void APlayer_Tools::ToggleEraseMode()
 
 // Called to update the selected mesh in the BuildToolDisplay
 // Leave empty to clear (nullptr)
-void APlayer_Tools::UpdateSelectedWall(UStaticMesh* NewWallMesh)
+void APlayer_Tools::UpdateSelectedWall(FName WallID)
 {
-	BTD->SelectedMesh = NewWallMesh;
+	BTD->SelectedMesh = WallDataTable->FindRow<FSelectableWallData>(WallID, "")->Mesh;
+	BTD->SelectedWallID = WallID;
 }
 
 /// -- Object Tool Functions --

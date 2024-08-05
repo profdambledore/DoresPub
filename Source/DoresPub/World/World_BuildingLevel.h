@@ -26,14 +26,15 @@ public:
 	void AddBuildingObjects(TArray<struct FBuildToolData> DataToBuild);
 
 	// Called to remove an array of building meshes from the level
-	void RemoveBuildingObjects(TArray<struct FBuildToolData> DataToRemove);
+	// Returns a TArray of the ID's of the removed walls
+	TArray<FName> RemoveBuildingObjects(TArray<struct FBuildToolData> DataToRemove);
 
 	// Called to add to the current BuildData
-	void AddToBuildData(UStaticMeshComponent* ComponentToAdd);
+	void AddToBuildData(UStaticMeshComponent* ComponentToAdd, FName ID);
 
 	// Called to regenerate a BuildData array from scratch
+	// Update to store ID's (how?)
 	void ReGenerateBuildData();
-
 
 	/// -- Object Functions --
 	// Called to add a new object at a position
@@ -60,10 +61,10 @@ protected:
 private:
 	/// -- Building Functions --
 	// Called in GenerateBuildData to insert a new FBuildData struct
-	void AddNewBuildData(UStaticMeshComponent* SMC);
+	void AddNewBuildData(UStaticMeshComponent* SMC, FName ID = "");
 
 	// Called in GenerateBuildData to update a previous FBuildData struct
-	void UpdateBuildData(UStaticMeshComponent* SMC, int Index);
+	void UpdateBuildData(UStaticMeshComponent* SMC, int Index, FName ID = "");
 
 public:	
 	/// -- Components --

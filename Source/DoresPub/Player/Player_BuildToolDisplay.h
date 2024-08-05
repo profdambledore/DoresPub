@@ -78,6 +78,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Meshes")
 	UStaticMesh* SelectedMesh = nullptr;
 
+	// FName of the ID of the selected wall
+	FName SelectedWallID = "";
+
 	// Pointer to the Build Tool Material
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build Tool Material")
 	UMaterialInstanceDynamic* BuildToolMaterial = nullptr;

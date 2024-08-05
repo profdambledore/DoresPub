@@ -34,13 +34,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* XStaticMeshComponent = nullptr;
 
+	// FName of the wall in the XStaticMeshComponent
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FName XID = "";
+
 	// Pointer to the StaticMeshComponent rotated on the Y axis
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* YStaticMeshComponent = nullptr;
 
-
+	// FName of the wall in the YStaticMeshComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int Cost = 0;
+	FName YID = "";
 
 	// Pointers to other structs in each direction
 	FBuildData* UpPoint = nullptr;
@@ -93,7 +97,7 @@ public:
 	~FBuildToolData();
 
 	// Constructor which allows the data to be setup on construction
-	FBuildToolData(UStaticMesh* NewMesh, FVector NewLocation, FRotator NewRotation, int NewCost = 0);
+	FBuildToolData(UStaticMesh* NewMesh, FVector NewLocation, FRotator NewRotation, FName NewName = "");
 
 public:
 	// The mesh of the SMC
@@ -108,7 +112,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build Tool Data")
 	FRotator Rotation;
 
-	// The cost of the SMC
+	// The ID of the wall
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build Tool Data")
-	int Cost;
+	FName ID;
 };

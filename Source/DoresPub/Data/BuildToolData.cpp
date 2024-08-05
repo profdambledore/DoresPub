@@ -39,12 +39,12 @@ FBuildToolData::FBuildToolData()
 }
 
 // Constructor which allows the data to be setup on construction
-FBuildToolData::FBuildToolData(UStaticMesh* NewMesh, FVector NewLocation, FRotator NewRotation, int NewCost)
+FBuildToolData::FBuildToolData(UStaticMesh* NewMesh, FVector NewLocation, FRotator NewRotation, FName NewID)
 {
 	Mesh = NewMesh;
 	Location = NewLocation;
 	Rotation = NewRotation;
-	Cost = NewCost;
+	ID = NewID;
 }
 
 // Default Deconstructor

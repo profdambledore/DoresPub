@@ -86,6 +86,7 @@ TArray<FBuildToolData> APlayer_BuildToolDisplay::GetDisplayData()
 			curr.Mesh = i->GetStaticMesh();
 			curr.Location = i->GetComponentLocation();
 			curr.Rotation = i->GetComponentRotation();
+			curr.ID = SelectedWallID;
 
 			// And add it to the total array
 			out.Add(curr);

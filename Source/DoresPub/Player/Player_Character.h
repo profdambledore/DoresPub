@@ -65,6 +65,9 @@ public:
 	// Called to get the PlayerTools
 	class APlayer_Tools* GetPT();
 
+	// Called to get the UI
+	class UUI_Player_Master* GetUI();
+
 	// Called to get the current grid snap value
 	int GetCurrentGridSnapValue();
 
