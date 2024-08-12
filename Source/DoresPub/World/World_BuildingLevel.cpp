@@ -59,8 +59,6 @@ void AWorld_BuildingLevel::AddBuildingObjects(TArray<struct FBuildToolData> Data
 		// Finally, update the build data with the new SMC
 		AddToBuildData(SMCPool[Current + i], DataToBuild[i].ID);
 	}
-
-	//ReGenerateBuildData();
 }
 
 // Called to remove an array of building meshes from the level
@@ -77,47 +75,62 @@ TArray<FName> AWorld_BuildingLevel::RemoveBuildingObjects(TArray<struct FBuildTo
 		// First, check that the data to be removes actually exists in the BuildData
 		BuildDataIndex = GetBuildDataAtLocation(i.Location);
 		if (BuildDataIndex != -1) {
+			// Check if the building object to remove is a floor mesh
+			if (i.ID == "floor") {
+				// Check if a floor mesh exists at the location
+				if (BuildData[BuildDataIndex].FloorData.StaticMeshComponent) {
+					// If so, clear it
+					BuildData[BuildDataIndex].FloorData.StaticMeshComponent->SetStaticMesh(nullptr);
+
+					// Then clear the FloorData struct
+					BuildData[BuildDataIndex].FloorData = FFloorData();
+
+					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint && !BuildData[BuildDataIndex].FloorData.StaticMeshComponent) {
+						BuildData.RemoveAt(BuildDataIndex);
+					}
+				}
+			}
 			// Next, check that a mesh exists on the rotation specified
-			if (i.Rotation == FRotator(0, 0, 0)) {
-				if (BuildData[BuildDataIndex].XStaticMeshComponent) {
+			else if (i.Rotation == FRotator(0, 0, 0)) {
+				if (BuildData[BuildDataIndex].XWallData.StaticMeshComponent) {
 					// If a mesh does exist on the X axis, clear the SMC
-					BuildData[BuildDataIndex].XStaticMeshComponent->SetStaticMesh(nullptr);
+					BuildData[BuildDataIndex].XWallData.StaticMeshComponent->SetStaticMesh(nullptr);
 
 					// Then add the ID to the output array and clear the ID in the XID
-					out.Add(BuildData[BuildDataIndex].XID);
-					BuildData[BuildDataIndex].XID = "";
+					out.Add(BuildData[BuildDataIndex].XWallData.ID);
+					BuildData[BuildDataIndex].XWallData.ID = "";
 
 					// Next, remove the pointer in the BuildDataIndex and update the BuildData on the up point
-					PTB = BuildData[BuildDataIndex].XStaticMeshComponent;
-					BuildData[BuildDataIndex].XStaticMeshComponent = nullptr;
+					PTB = BuildData[BuildDataIndex].XWallData.StaticMeshComponent;
+					BuildData[BuildDataIndex].XWallData.StaticMeshComponent = nullptr;
 					SMCPool.Remove(PTB);
 					SMCPool.Add(PTB);
 					BuildData[BuildDataIndex].UpPoint->DownPoint = nullptr;
 					BuildData[BuildDataIndex].UpPoint = nullptr;
 
-					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint) {
+					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint && !BuildData[BuildDataIndex].FloorData.StaticMeshComponent) {
 						BuildData.RemoveAt(BuildDataIndex);
 					}
 				}
 			}
 			else {
-				if (BuildData[BuildDataIndex].YStaticMeshComponent) {
+				if (BuildData[BuildDataIndex].YWallData.StaticMeshComponent) {
 					// If a mesh does exist on the Y axis, clear the SMC, remove the pointer and update the BuildData on the right point
-					BuildData[BuildDataIndex].YStaticMeshComponent->SetStaticMesh(nullptr);
+					BuildData[BuildDataIndex].YWallData.StaticMeshComponent->SetStaticMesh(nullptr);
 
 					// Then add the ID to the output array and clear the ID in the YID
-					out.Add(BuildData[BuildDataIndex].YID);
-					BuildData[BuildDataIndex].YID = "";
+					out.Add(BuildData[BuildDataIndex].YWallData.ID);
+					BuildData[BuildDataIndex].YWallData.ID = "";
 
 					// Next, remove the pointer in the BuildDataIndex and update the BuildData on the right point
-					PTB = BuildData[BuildDataIndex].YStaticMeshComponent;
-					BuildData[BuildDataIndex].YStaticMeshComponent = nullptr;
+					PTB = BuildData[BuildDataIndex].YWallData.StaticMeshComponent;
+					BuildData[BuildDataIndex].YWallData.StaticMeshComponent = nullptr;
 					SMCPool.Remove(PTB);
 					SMCPool.Add(PTB);
 					BuildData[BuildDataIndex].RightPoint->LeftPoint = nullptr;
 					BuildData[BuildDataIndex].RightPoint = nullptr;
 
-					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint) {
+					if (!BuildData[BuildDataIndex].UpPoint && !BuildData[BuildDataIndex].LeftPoint && !BuildData[BuildDataIndex].DownPoint && !BuildData[BuildDataIndex].RightPoint && !BuildData[BuildDataIndex].FloorData.StaticMeshComponent) {
 						BuildData.RemoveAt(BuildDataIndex);
 					}
 				}
@@ -173,51 +186,62 @@ void AWorld_BuildingLevel::AddNewBuildData(UStaticMeshComponent* SMC, FName ID)
 	FVector f = NextBuildData.Origin;
 	bool bY = false;
 
-	// Next, figure out if the wall is an X or Y wall (x has a default rotator, while y has a 0, 90, 0 rotator)
-	if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
-		NextBuildData.XStaticMeshComponent = SMC;
-		f.X += 250;
-		NextBuildData.XID = ID;
-	}
-	else {
-		NextBuildData.YStaticMeshComponent = SMC;
-		f.Y += 250;
-		NextBuildData.YID = ID;
-		bY = true;
-	}
-	BuildData.Add(NextBuildData);
+	// Check if the data we are trying to insert is a floor data
+	if (ID == "floor") {
+		NextBuildData.FloorData.StaticMeshComponent = SMC;
+		//NextBuildData.FloorData.Material = SMC->GetMaterial(0)->GetMaterial();
 
-	// Then figure out if we need to create a new FBuildData for the other connecting point
-	int j = GetBuildDataAtLocation(f);
-	if (j != -1) {
-		if (!bY) {
-			// If it does exist, update it
-			BuildData[j].DownPoint = &BuildData[BuildData.Num() - 1];
-			BuildData[BuildData.Num() - 1].UpPoint = &BuildData[j];
-		}
-		else {
-			// If it does exist, update it
-			BuildData[j].LeftPoint = &BuildData[BuildData.Num() - 1];
-			BuildData[BuildData.Num() - 1].RightPoint = &BuildData[j];
-		}
+		BuildData.Add(NextBuildData);
 	}
+	// Else, insert the data as a wall
 	else {
-		if (!bY) {
-			// Else, create a new one
-			NextBuildData = FBuildData();
-			NextBuildData.Origin = f;
-			NextBuildData.DownPoint = &BuildData[BuildData.Num() - 1];
-			BuildData.Add(NextBuildData);
-			BuildData[BuildData.Num() - 2].UpPoint = &BuildData[BuildData.Num() - 1];
+		// Next, figure out if the wall is an X or Y wall (x has a default rotator, while y has a 0, 90, 0 rotator)
+		if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
+			NextBuildData.XWallData.StaticMeshComponent = SMC;
+			f.X += 250;
+			NextBuildData.XWallData.ID = ID;
+			//SetupDefaultMaterials(NextBuildData.XWallData);
 		}
 		else {
-			// Else, create a new one
-			NextBuildData = FBuildData();
-			NextBuildData.Origin = f;
-			NextBuildData.LeftPoint = &BuildData[BuildData.Num() - 1];
-			BuildData.Add(NextBuildData);
-			BuildData[BuildData.Num() - 2].RightPoint = &BuildData[BuildData.Num() - 1];
-			
+			NextBuildData.YWallData.StaticMeshComponent = SMC;
+			f.Y += 250;
+			NextBuildData.YWallData.ID = ID;
+			bY = true;
+			//SetupDefaultMaterials(NextBuildData.YWallData);
+		}
+		BuildData.Add(NextBuildData);
+
+		// Then figure out if we need to create a new FBuildData for the other connecting point
+		int j = GetBuildDataAtLocation(f);
+		if (j != -1) {
+			if (!bY) {
+				// If it does exist, update it
+				BuildData[j].DownPoint = &BuildData[BuildData.Num() - 1];
+				BuildData[BuildData.Num() - 1].UpPoint = &BuildData[j];
+			}
+			else {
+				// If it does exist, update it
+				BuildData[j].LeftPoint = &BuildData[BuildData.Num() - 1];
+				BuildData[BuildData.Num() - 1].RightPoint = &BuildData[j];
+			}
+		}
+		else {
+			if (!bY) {
+				// Else, create a new one
+				NextBuildData = FBuildData();
+				NextBuildData.Origin = f;
+				NextBuildData.DownPoint = &BuildData[BuildData.Num() - 1];
+				BuildData.Add(NextBuildData);
+				BuildData[BuildData.Num() - 2].UpPoint = &BuildData[BuildData.Num() - 1];
+			}
+			else {
+				// Else, create a new one
+				NextBuildData = FBuildData();
+				NextBuildData.Origin = f;
+				NextBuildData.LeftPoint = &BuildData[BuildData.Num() - 1];
+				BuildData.Add(NextBuildData);
+				BuildData[BuildData.Num() - 2].RightPoint = &BuildData[BuildData.Num() - 1];
+			}
 		}
 	}
 }
@@ -228,51 +252,69 @@ void AWorld_BuildingLevel::UpdateBuildData(UStaticMeshComponent* SMC, int Index,
 	bool bY = false;
 	FVector f = BuildData[Index].Origin;
 
-	// Next, figure out if the wall is an X or Y wall (X has a default rotator, while Y has a 0, 90, 0 rotator)
-	if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
-		BuildData[Index].XStaticMeshComponent = SMC;
-		f.X += 250;
-		BuildData[Index].XID = ID;
+	// Check if the data we are trying to insert is a floor data
+	if (ID == "floor") {
+		BuildData[Index].FloorData.StaticMeshComponent = SMC;
+		//BuildData[Index].FloorData.Material = SMC->GetMaterial(0)->GetMaterial();
 	}
+	// Else, insert the data as a wall
 	else {
-		BuildData[Index].YStaticMeshComponent = SMC;
-		f.Y += 250;
-		BuildData[Index].YID = ID;
-		bY = true;
-	}
+		// Next, figure out if the wall is an X or Y wall (X has a default rotator, while Y has a 0, 90, 0 rotator)
+		if (SMC->GetComponentRotation() == FRotator(0, 0, 0)) {
+			BuildData[Index].XWallData.StaticMeshComponent = SMC;
+			f.X += 250;
+			BuildData[Index].XWallData.ID = ID;
+			//SetupDefaultMaterials(BuildData[Index].XWallData);
+		}
+		else {
+			BuildData[Index].YWallData.StaticMeshComponent = SMC;
+			f.Y += 250;
+			BuildData[Index].YWallData.ID = ID;
+			bY = true;
+			//SetupDefaultMaterials(BuildData[Index].YWallData);
+		}
 
-	// Then figure out if we need to create a new FBuildData for the other connecting point
-	int j = GetBuildDataAtLocation(f);
-	if (j != -1) {
-		if (!bY) {
-			// If it does exist, update it
-			BuildData[j].DownPoint = &BuildData[BuildData.Num() - 1];
-			BuildData[BuildData.Num() - 1].UpPoint = &BuildData[j];
+		// Then figure out if we need to create a new FBuildData for the other connecting point
+		int j = GetBuildDataAtLocation(f);
+		if (j != -1) {
+			if (!bY) {
+				// If it does exist, update it
+				BuildData[j].DownPoint = &BuildData[Index];
+				BuildData[Index].UpPoint = &BuildData[j];
+			}
+			else {
+				// If it does exist, update it
+				BuildData[j].LeftPoint = &BuildData[Index];
+				BuildData[Index].RightPoint = &BuildData[j];
+			}
 		}
 		else {
-			// If it does exist, update it
-			BuildData[j].LeftPoint = &BuildData[BuildData.Num() - 1];
-			BuildData[BuildData.Num() - 1].RightPoint = &BuildData[j];
+			if (!bY) {
+				// Else, create a new one
+				FBuildData NextBuildData = FBuildData();
+				NextBuildData.Origin = f;
+				NextBuildData.DownPoint = &BuildData[Index];
+				BuildData.Add(NextBuildData);
+				BuildData[Index].UpPoint = &BuildData[BuildData.Num() - 1];
+			}
+			else {
+				// Else, create a new one
+				FBuildData NextBuildData = FBuildData();
+				NextBuildData.Origin = f;
+				NextBuildData.LeftPoint = &BuildData[Index];
+				BuildData.Add(NextBuildData);
+				BuildData[Index].RightPoint = &BuildData[BuildData.Num() - 1];
+			}
 		}
 	}
-	else {
-		if (!bY) {
-			// Else, create a new one
-			FBuildData NextBuildData = FBuildData();
-			NextBuildData.Origin = f;
-			NextBuildData.DownPoint = &BuildData[Index];
-			BuildData.Add(NextBuildData);
-			BuildData[Index].UpPoint = &BuildData[BuildData.Num() - 1];
-		}
-		else {
-			// Else, create a new one
-			FBuildData NextBuildData = FBuildData();
-			NextBuildData.Origin = f;
-			NextBuildData.LeftPoint = &BuildData[Index];
-			BuildData.Add(NextBuildData);
-			BuildData[Index].RightPoint = &BuildData[BuildData.Num() - 1];
-			
-		}
+}
+
+void AWorld_BuildingLevel::SetupDefaultMaterials(FWallData& WallDataToUpdate)
+{
+	int mats = WallDataToUpdate.StaticMeshComponent->GetNumMaterials();
+	UE_LOG(LogTemp, Warning, TEXT("mats amn = %i"), mats);
+	for (int i = 0; i < mats; i++) {
+		WallDataToUpdate.Materials.Add(WallDataToUpdate.StaticMeshComponent->GetMaterial(i)->GetMaterial());
 	}
 }
 
@@ -299,20 +341,36 @@ UStaticMeshComponent* AWorld_BuildingLevel::GetWallObjectMeshAtPosition(FVector 
 	if (i != -1) {
 		if (bOnXAxis) {
 			// If on X, check if there is a SMC in the XStaticMeshComponent property
-			if (BuildData[i].XStaticMeshComponent) {
+			if (BuildData[i].XWallData.StaticMeshComponent) {
 				// If so, return it
-				return BuildData[i].XStaticMeshComponent;
+				return BuildData[i].XWallData.StaticMeshComponent;
 			}
 		}
 		else {
 			// If on Y, check if there is a SMC in the YStaticMeshComponent property
-			if (BuildData[i].YStaticMeshComponent) {
+			if (BuildData[i].YWallData.StaticMeshComponent) {
 				// If so, return it
-				return BuildData[i].YStaticMeshComponent;
+				return BuildData[i].YWallData.StaticMeshComponent;
 			}
 		}
 	}
 	// If none of the above are true, return nullptr
+	return nullptr;
+}
+
+UStaticMeshComponent* AWorld_BuildingLevel::GetFloorObjectMeshAtPosition(FVector Location)
+{
+	// Check if a BuildData exists at the inputted location
+	int i = GetBuildDataAtLocation(Location);
+	// If one does,...
+	if (i != -1) {
+		// Check if there is a SMC in the FloorData static mesh property
+		if (BuildData[i].FloorData.StaticMeshComponent) {
+			// If so, return it
+			return BuildData[i].FloorData.StaticMeshComponent;
+		}
+	}
+
 	return nullptr;
 }
 

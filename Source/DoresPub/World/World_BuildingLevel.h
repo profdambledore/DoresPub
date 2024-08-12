@@ -46,6 +46,10 @@ public:
 	// If returned nullptr, then none was found
 	UStaticMeshComponent* GetWallObjectMeshAtPosition(FVector Location, bool bOnXAxis);
 
+	// Called to return the floor static mesh at a location
+	// If returned nullprt, then none was found
+	UStaticMeshComponent* GetFloorObjectMeshAtPosition(FVector Location);
+
 	// Called to find the BuildData struct index based on an inputted FVector.
 	// Returns an empty struct if one doesn't exist
 	int GetBuildDataAtLocation(FVector Location);
@@ -65,6 +69,9 @@ private:
 
 	// Called in GenerateBuildData to update a previous FBuildData struct
 	void UpdateBuildData(UStaticMeshComponent* SMC, int Index, FName ID = "");
+
+	// Called to setup a FWallData's default materials 
+	void SetupDefaultMaterials(FWallData& WallDataToUpdate);
 
 public:	
 	/// -- Components --

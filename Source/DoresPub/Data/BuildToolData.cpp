@@ -4,6 +4,17 @@
 #include "Data/BuildToolData.h"
 
 // Default Constructor
+FWallData::FWallData()
+{
+}
+
+// Default Deconstructor
+FWallData::~FWallData()
+{
+}
+
+
+// Default Constructor
 FBuildData::FBuildData()
 {
 }
@@ -49,5 +60,13 @@ FBuildToolData::FBuildToolData(UStaticMesh* NewMesh, FVector NewLocation, FRotat
 
 // Default Deconstructor
 FBuildToolData::~FBuildToolData()
+{
+}
+
+FFloorData::FFloorData()
+{
+}
+
+FFloorData::~FFloorData()
 {
 }

@@ -31,15 +31,31 @@ public:
 
 protected:
 	/// -- Button Functions --
-	// Button event to swap to/from rotation mode
+	// Button event to swap to erase mode
 	UFUNCTION()
-	void OnRMButtonReleased();
+	void OnWallButtonReleased();
+
+	// Button event to swap to erase mode
+	UFUNCTION()
+	void OnEraseButtonReleased();
+
+	// Button event to swap to erase mode
+	UFUNCTION()
+	void OnFloorButtonReleased();
 
 public:
 	/// -- Components --
-	// Button to swap to/from erase mode
+	// Button to swap to wall mode
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UButton* WallModeButton = nullptr;
+
+	// Button to swap to erase mode
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
 	UButton* EraseModeButton = nullptr;
+
+	// Button to swap to floor mode
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Grid Snapping")
+	UButton* FloorModeButton = nullptr;
 
 	// Tile View Object for displaying the available walls
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

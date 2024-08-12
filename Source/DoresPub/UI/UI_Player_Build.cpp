@@ -11,7 +11,10 @@ void UUI_Player_Build::NativeConstruct()
 	Super::NativeConstruct();
 
 	// Bind button events
-	EraseModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnRMButtonReleased);
+	EraseModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnEraseButtonReleased);
+
+	WallModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnWallButtonReleased);
+	FloorModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnFloorButtonReleased);
 }
 
 void UUI_Player_Build::SynchronizeProperties()
@@ -42,9 +45,23 @@ void UUI_Player_Build::UpdateSelectedWall(FName ObjectID)
 	}
 }
 
-void UUI_Player_Build::OnRMButtonReleased()
+void UUI_Player_Build::OnEraseButtonReleased()
 {
 	if (MUI) {
 		MUI->GetPlayerTools()->ToggleEraseMode();
+	}
+}
+
+void UUI_Player_Build::OnWallButtonReleased()
+{
+	if (MUI) {
+		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Wall);
+	}
+}
+
+void UUI_Player_Build::OnFloorButtonReleased()
+{
+	if (MUI) {
+		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Floor);
 	}
 }

@@ -57,7 +57,10 @@ public:
 
 	/// -- Build Tool Function --
 	// Called to toggle the erase mode to normal mode (and vice versa)
-	void ToggleEraseMode();
+	void ToggleEraseMode(bool bOverride = false, bool bOverrideTo = false);
+
+	// Called to toggle the erase mode to normal mode (and vice versa)
+	void SwapSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool);
 
 	// Called to update the selected mesh in the BuildToolDisplay
 	// Leave empty to clear (nullptr)
@@ -105,6 +108,9 @@ protected:
 
 	// Pointer to the spawned BuildToolDisplay
 	class APlayer_BuildToolDisplay* BTD = nullptr;
+
+	// Pointer to the build tool widget class
+	class UUI_Tools_BuildWidget* BTW = nullptr;
 
 	// TEMP
 	// Pointer to the World Building Level

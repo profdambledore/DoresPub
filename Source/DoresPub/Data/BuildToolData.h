@@ -11,6 +11,64 @@
 
 #include "BuildToolData.generated.h"
 
+// Enum denoting the different types of tools currently available to use
+UENUM(BlueprintType, Category = "Tools")
+enum EBuildToolSubType
+{
+	Wall UMETA(DisplayName = "Wall Sub-Tool"),
+	Window UMETA(DisplayName = "Window Sub-Tool"),
+	Door UMETA(DisplayName = "Door Sub-Tool"),
+	Floor UMETA(DisplayName = "Floor Sub-Tool"),
+	BuildToolSubTypeMax UMETA(Hidden),
+};
+
+// Allows the macro to be used with the EToolType Enum
+ENUM_RANGE_BY_COUNT(EBuildToolSubType, EBuildToolSubType::BuildToolSubTypeMax);
+
+USTRUCT(BlueprintType, Category = "Build Tool")
+struct FWallData
+{
+public:
+	GENERATED_BODY();
+
+	// Default Constructor/Deconstructor
+	FWallData();
+	~FWallData();
+
+public:
+	// Pointer to the StaticMeshComponent of this wall
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* StaticMeshComponent = nullptr;
+
+	// FName of the wall's ID
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FName ID = "";
+
+	// TArray of all materials on the wall
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<UMaterial*> Materials;
+};
+
+USTRUCT(BlueprintType, Category = "Build Tool")
+struct FFloorData
+{
+public:
+	GENERATED_BODY();
+
+	// Default Constructor/Deconstructor
+	FFloorData();
+	~FFloorData();
+
+public:
+	// Pointer to the StaticMeshComponent of this wall
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* StaticMeshComponent = nullptr;
+
+	// TArray of all materials on the wall
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UMaterial* Material = nullptr;
+};
+
 USTRUCT(BlueprintType, Category = "Build Tool")
 struct FBuildData
 {
@@ -30,21 +88,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector Origin;
 
-	// Pointer to the StaticMeshComponent rotated on the X axis
+	// FWallData of the wall on the X axis
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* XStaticMeshComponent = nullptr;
+	FWallData XWallData;
 
-	// FName of the wall in the XStaticMeshComponent
+	// FWallData of the wall on the Y axis
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FName XID = "";
+	FWallData YWallData;
 
-	// Pointer to the StaticMeshComponent rotated on the Y axis
+	// FFloorData of the floor data
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* YStaticMeshComponent = nullptr;
-
-	// FName of the wall in the YStaticMeshComponent
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FName YID = "";
+	FFloorData FloorData;
 
 	// Pointers to other structs in each direction
 	FBuildData* UpPoint = nullptr;
@@ -84,6 +138,14 @@ public:
 	// Int denoting the price of the wall per unit placed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
+
+	// bool denoting if the wall can be placed manually (true), or requires a door/window to place it (false)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bManualPlacing = true;
+
+	// bool denoting if the wall's materials can be updated (true if they can)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bMaterialUpdatable = true;
 };
 
 USTRUCT(BlueprintType, Category = "Build Tool")

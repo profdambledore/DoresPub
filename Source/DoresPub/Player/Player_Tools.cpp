@@ -13,6 +13,7 @@
 #include "UI/UI_Player_Build.h"
 #include "UI/UI_Player_Master.h"
 #include "Data/BuildToolData.h"
+#include "UI/UI_Tools_BuildWidget.h"
 
 // Sets default values
 APlayer_Tools::APlayer_Tools()
@@ -44,6 +45,9 @@ APlayer_Tools::APlayer_Tools()
 void APlayer_Tools::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Complete the pointer to the Build Tool Widget
+	BTW = Cast<UUI_Tools_BuildWidget>(BuildToolWidgetComponent->GetWidget());
 
 	// Spawn the BuildToolDisplay class
 	if (BuildToolDisplayClass) {
@@ -79,12 +83,64 @@ void APlayer_Tools::Tick(float DeltaTime)
 
 			// If the ClickPosition is valid (not (-1, -1, -1), then update the BTD
 			if (ClickPosition != FVector(-1, -1, -1)) {
-				BTD->GenerateNewBuildDisplay(ClickPosition, LastPosition);
+				BTD->GenerateBuildDisplay(ClickPosition, LastPosition);
 
-				// Check that there is a wall ID selected
-				if (BTD->SelectedWallID != "") {
+				// Continue based on the selected sub-tool
+				if (BTD->GetSubTool() == Wall) {
+					// Check if we are in erase mode
+					if (!bInEraseMode) {
+						// Check that there is a wall ID selected
+						if (BTD->SelectedWallID != "") {
+							// Calculate the cost
+							int cost;  cost = BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price;
+
+							// Update the BTW with the new price
+							BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
+
+							// Check if it is valid (money)
+							if (cost <= PC->GetCurrentMoney()) {
+								// Next, check if the MouseLocation is outside the zone.
+								if (!PC->GetIsPointInsideBound(MouseLocation)) {
+									BTD->UpdateDisplayValidity(false);
+								}
+								else {
+									BTD->UpdateDisplayValidity(true);
+								}
+							}
+							else {
+								BTD->UpdateDisplayValidity(false);
+							}
+						}
+					}
+					else {
+						// Calculate the cost
+						int cost = 0;
+
+						for (FBuildToolData i : BTD->GetDisplayData()) {
+							cost += WallDataTable->FindRow<FSelectableWallData>(i.ID, "")->Price * RefundMultiplier;
+						}
+
+						// Update the BTW with the new price
+						BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
+
+						// Next, check if the MouseLocation is outside the zone.
+						if (!PC->GetIsPointInsideBound(MouseLocation)) {
+							BTD->UpdateDisplayValidity(false);
+						}
+						else {
+							BTD->UpdateDisplayValidity(true);
+						}
+					}
+				}
+				// Continue based on the selected sub-tool
+				else if (BTD->GetSubTool() == Floor) {
+					int cost;  cost = 0; //BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price;
+
+					// Update the BTW with the new price
+					BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
+
 					// Check if it is valid (money)
-					if (BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price <= PC->GetCurrentMoney()) {
+					if (cost <= PC->GetCurrentMoney()) {
 						// Next, check if the MouseLocation is outside the zone.
 						if (!PC->GetIsPointInsideBound(MouseLocation)) {
 							BTD->UpdateDisplayValidity(false);
@@ -133,7 +189,6 @@ void APlayer_Tools::Tick(float DeltaTime)
 			// Then rotate the mesh
 			ObjectToolMeshComponent->SetWorldRotation(ObjectRotation);
 		}
-		
 	}
 }
 
@@ -148,7 +203,9 @@ void APlayer_Tools::SetupTools(APlayer_Character* NewPC)
 	// Update the SelectableWallTileView
 	for (FName i : WallDataTable->GetRowNames()) {
 		FSelectableWallData* d = WallDataTable->FindRow<FSelectableWallData>(i, "");
-		PC->GetUI()->BuildState->AddSelectableWallToList(i, *d);
+		if (d->bManualPlacing) {
+			PC->GetUI()->BuildState->AddSelectableWallToList(i, *d);
+		}
 	}
 }
 
@@ -181,6 +238,7 @@ void APlayer_Tools::UpdateToolRotation()
 {
 	// Update the rotation of the tool class to re - face the player's camera
 	BuildToolWidgetComponent->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PC->Camera->GetComponentLocation()));
+	BuildToolWidgetComponent->SetWorldRotation(FRotator(0.0f, BuildToolWidgetComponent->GetComponentRotation().Yaw, 0.0f));
 }
 
 // Called to fire the primary tool function of the selected tool
@@ -210,7 +268,9 @@ void APlayer_Tools::SelectedToolPrimaryPressed()
 			testClickPos.Y = GetNearestMultiple(testClickPos.Y, 250);
 			testClickPos.Z = 1.0f;
 			ClickPosition = testClickPos;
-			BTD->GenerateNewBuildDisplay(ClickPosition, ClickPosition);
+			BTD->GenerateBuildDisplay(ClickPosition, ClickPosition);
+
+			BTW->UpdateTextVisibility(true);
 		}
 	}
 }
@@ -225,28 +285,46 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 		if (PC->GetIsPointInsideBound(testClickPos)) {
 			// Get the display data
 			TArray<FBuildToolData> data = BTD->GetDisplayData();
-			// Check if there is some data in the display mode
-			if (BTD->GetDisplayWallsInUse() > 0) {
-				// Check what mode they are in
-				if (!bInEraseMode) {
-					// Get the cost of a single wall (as you can only ever place one type of wall at a time, just check the ID of the first index and get the cost)
-					int cost = WallDataTable->FindRow<FSelectableWallData>(data[0].ID, "")->Price;
-					// Check if they have enough money for the building
-					int total = BTD->GetDisplayWallsInUse() * cost;
-					if (total <= PC->GetCurrentMoney()) {
-						// If they do, then 
-						GroundFloor->AddBuildingObjects(data);
-						PC->UpdateMoney(-total);
+
+			// Continue based on the selected sub-tool
+			if (BTD->GetSubTool() == Wall) {
+				
+				// Check if there is some data in the display mode
+				if (data.Num() > 0) {
+					// Check what mode they are in
+					if (!bInEraseMode) {
+						// Get the cost of a single wall (as you can only ever place one type of wall at a time, just check the ID of the first index and get the cost)
+						int cost = WallDataTable->FindRow<FSelectableWallData>(data[0].ID, "")->Price;
+						// Check if they have enough money for the building
+						int total = BTD->GetDisplayWallsInUse() * cost;
+						if (total <= PC->GetCurrentMoney()) {
+							// If they do, then 
+							GroundFloor->AddBuildingObjects(data);
+							PC->UpdateMoney(-total);
+						}
+					}
+					else {
+						// Remove the Walls from the WorldBuildingLevel
+						TArray<FName> wallsToRefund = GroundFloor->RemoveBuildingObjects(data);
+						int total = 0;
+						for (FName w : wallsToRefund) {
+							total += WallDataTable->FindRow<FSelectableWallData>(w, "")->Price * RefundMultiplier;
+						}
+						PC->UpdateMoney(total);
 					}
 				}
-				else {
-					// Remove the Walls from the WorldBuildingLevel
-					TArray<FName> wallsToRefund = GroundFloor->RemoveBuildingObjects(BTD->GetDisplayData());
-					int total = 0;
-					for (FName w : wallsToRefund) {
-						total += WallDataTable->FindRow<FSelectableWallData>(w, "")->Price * RefundMultiplier;
+			}
+			else if (BTD->GetSubTool() == Floor) {
+				// Check if there is some data in the display mode
+				if (data.Num() > 0) {
+					// Check what mode they are in
+					if (!bInEraseMode) {
+						// If they are, then add the floors to the world
+						GroundFloor->AddBuildingObjects(data);
 					}
-					PC->UpdateMoney(total);
+					else {
+						GroundFloor->RemoveBuildingObjects(data);
+					}
 				}
 			}
 		}
@@ -254,6 +332,9 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 		ClickPosition = FVector(-1, -1, -1);
 		// Also clear the BTD 
 		BTD->ClearBuildDisplay();
+
+		BTW->UpdateTextVisibility(false);
+		BTW->UpdateDisplayedText(0, 0, 0);
 	}
 
 	// If the current tool is the ObjectTool, then...
@@ -264,18 +345,37 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 
 /// -- Build Tool Functions --
 // Called to toggle the erase mode to normal mode (and vice versa)
-void APlayer_Tools::ToggleEraseMode()
+void APlayer_Tools::ToggleEraseMode(bool bOverride, bool bOverrideTo)
 {
-	bInEraseMode = !bInEraseMode;
-	BTD->bInEraseMode = bInEraseMode;
+	if (bOverride == true) {
+		bInEraseMode = bOverrideTo;
+		BTD->bInEraseMode = bOverrideTo;
+	}
+	else {
+		bInEraseMode = !bInEraseMode;
+		BTD->bInEraseMode = bInEraseMode;
+	}
+}
+
+// Called toswap between sub-tools
+void APlayer_Tools::SwapSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool)
+{
+	BTD->UpdateSubTool(NewSubTool);
+	ToggleEraseMode(true, false);
 }
 
 // Called to update the selected mesh in the BuildToolDisplay
 // Leave empty to clear (nullptr)
 void APlayer_Tools::UpdateSelectedWall(FName WallID)
 {
-	BTD->SelectedMesh = WallDataTable->FindRow<FSelectableWallData>(WallID, "")->Mesh;
-	BTD->SelectedWallID = WallID;
+	if (WallID == "") {
+		BTD->SelectedMesh = nullptr;
+		BTD->SelectedWallID = WallID;
+	}
+	else {
+		BTD->SelectedMesh = WallDataTable->FindRow<FSelectableWallData>(WallID, "")->Mesh;
+		BTD->SelectedWallID = WallID;
+	}
 }
 
 /// -- Object Tool Functions --
