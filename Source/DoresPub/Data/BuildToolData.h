@@ -149,6 +149,39 @@ public:
 };
 
 USTRUCT(BlueprintType, Category = "Build Tool")
+struct FSelectableWindowData : public FTableRowBase
+{
+public:
+	GENERATED_BODY();
+
+	// Default Constructor/Deconstructor
+	FSelectableWindowData();
+	~FSelectableWindowData();
+
+
+public:
+	// FString denoting the walls name
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name;
+
+	// FString denoting a brief description of the wall
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Description;
+
+	// Texture denoting a picture of the wall
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Icon;
+
+	// StaticMesh of the wall, used in the world
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMesh* Mesh;
+
+	// Int denoting the price of the wall per unit placed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Price;
+};
+
+USTRUCT(BlueprintType, Category = "Build Tool")
 struct DORESPUB_API FBuildToolData
 {
 public:
