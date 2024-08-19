@@ -207,6 +207,12 @@ void APlayer_Tools::SetupTools(APlayer_Character* NewPC)
 			PC->GetUI()->BuildState->AddSelectableWallToList(i, *d);
 		}
 	}
+
+	// Update the SelectableWindowTileView
+	for (FName j : WindowDataTable->GetRowNames()) {
+		FSelectableWindowData* c = WindowDataTable->FindRow<FSelectableWindowData>(j, "");
+		PC->GetUI()->BuildState->AddSelectableWindowToList(j, *c);
+	}
 }
 
 // Called to swap to a selected tool
@@ -350,10 +356,12 @@ void APlayer_Tools::ToggleEraseMode(bool bOverride, bool bOverrideTo)
 	if (bOverride == true) {
 		bInEraseMode = bOverrideTo;
 		BTD->bInEraseMode = bOverrideTo;
+		PC->GetUI()->BuildState->UpdateEraseButtonEnabled(bOverrideTo);
 	}
 	else {
 		bInEraseMode = !bInEraseMode;
 		BTD->bInEraseMode = bInEraseMode;
+		PC->GetUI()->BuildState->UpdateEraseButtonEnabled(bInEraseMode);
 	}
 }
 
@@ -362,6 +370,7 @@ void APlayer_Tools::SwapSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool)
 {
 	BTD->UpdateSubTool(NewSubTool);
 	ToggleEraseMode(true, false);
+	PC->GetUI()->BuildState->UpdateSelectedSubToolButton(NewSubTool);
 }
 
 // Called to update the selected mesh in the BuildToolDisplay

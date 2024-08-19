@@ -4,6 +4,7 @@
 
 #include "UI/UI_Data_Build.h"
 #include "UI/UI_Player_Master.h"
+#include "UI/UI_Player_Build_WallButton.h"
 #include "Player/Player_Tools.h"
 
 void UUI_Player_Build::NativeConstruct()
@@ -12,9 +13,12 @@ void UUI_Player_Build::NativeConstruct()
 
 	// Bind button events
 	EraseModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnEraseButtonReleased);
-
 	WallModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnWallButtonReleased);
 	FloorModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnFloorButtonReleased);
+	WindowModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnWindowButtonReleased);
+
+	// Then set the default selected button to wall
+	UpdateSelectedSubToolButton(Wall);
 }
 
 void UUI_Player_Build::SynchronizeProperties()
@@ -24,24 +28,56 @@ void UUI_Player_Build::SynchronizeProperties()
 
 void UUI_Player_Build::AddSelectableWallToList(FName ID, FSelectableWallData WallData)
 {
-	UWallButtonData* NewWallObj = NewObject<UWallButtonData>();
-	NewWallObj->SetupData(this, ID, WallData.Icon);
+	UBuildSelectButtonData* NewWallObj = NewObject<UBuildSelectButtonData>();
+	NewWallObj->SetupData(this, ID, WallData.Icon, Wall);
 	WallSelectionTileView->AddItem(NewWallObj);
 }
 
-void UUI_Player_Build::UpdateSelectedWall(FName ObjectID)
+void UUI_Player_Build::AddSelectableWindowToList(FName ID, FSelectableWindowData WallData)
+{
+	UBuildSelectButtonData* NewWallObj = NewObject<UBuildSelectButtonData>();
+	NewWallObj->SetupData(this, ID, WallData.Icon, Window);
+	WindowSelectionTileView->AddItem(NewWallObj);
+}
+
+void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallButton* NewSelectedButton)
 {
 	if (MUI) {
-		//UStaticMesh* NewMesh = WallDataTable->FindRow<FSelectableWallData>(ObjectID, "")->Mesh; 
 		if (SelectedID == ObjectID) {
 			SelectedID = "";
-			
+			SelectedItemButton->ClearSelectedCategory();
+			SelectedItemButton = nullptr;
 		}
 		else {
 			SelectedID = ObjectID;
+			if (SelectedItemButton) {
+				SelectedItemButton->ClearSelectedCategory();
+			}
+			SelectedItemButton = NewSelectedButton;
+			SelectedItemButton->WallBorder->SetBrushColor(SelectedButtonColour);
 		}
 		
 		MUI->GetPlayerTools()->UpdateSelectedWall(SelectedID);
+	}
+}
+
+void UUI_Player_Build::UpdateSelectedWindow(FName WindowID, UUI_Player_Build_WallButton* NewSelectedButton)
+{
+	if (MUI) {
+		if (SelectedID == WindowID) {
+			SelectedID = "";
+			SelectedItemButton->ClearSelectedCategory();
+			SelectedItemButton = nullptr;
+		}
+		else {
+			SelectedID = WindowID;
+			if (SelectedItemButton) {
+
+				SelectedItemButton->ClearSelectedCategory();
+			}
+			SelectedItemButton = NewSelectedButton;
+			SelectedItemButton->WallBorder->SetBrushColor(SelectedButtonColour);
+		}
 	}
 }
 
@@ -63,5 +99,59 @@ void UUI_Player_Build::OnFloorButtonReleased()
 {
 	if (MUI) {
 		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Floor);
+	}
+}
+
+void UUI_Player_Build::OnWindowButtonReleased()
+{
+	if (MUI) {
+		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Window);
+	}
+}
+
+void UUI_Player_Build::UpdateEraseButtonEnabled(bool bEnabled)
+{
+	if (bEnabled) {
+		EraseModeButton->SetBackgroundColor(SelectedButtonColour);
+	}
+	else {
+		EraseModeButton->SetBackgroundColor(UnselectedButtonColour);
+	}
+}
+
+void UUI_Player_Build::UpdateSelectedSubToolButton(TEnumAsByte<EBuildToolSubType> NewSubType)
+{
+	if (SelectedButton) {
+		SelectedButton->SetBackgroundColor(UnselectedButtonColour);
+	}
+
+	// Clear the selected item and selected button
+	if (SelectedItemButton) {
+		SelectedID = "";
+		SelectedItemButton->ClearSelectedCategory();
+		SelectedItemButton = nullptr;
+	}
+	
+	switch (NewSubType) {
+	case Wall:
+		WallModeButton->SetBackgroundColor(SelectedButtonColour);
+		SubStateSwitcher->SetActiveWidgetIndex(0);
+		SelectedButton = WallModeButton;
+		break;
+
+	case Floor:
+		FloorModeButton->SetBackgroundColor(SelectedButtonColour);
+		SubStateSwitcher->SetActiveWidgetIndex(1);
+		SelectedButton = FloorModeButton;
+		break;
+
+	case Window:
+		WindowModeButton->SetBackgroundColor(SelectedButtonColour);
+		SubStateSwitcher->SetActiveWidgetIndex(2);
+		SelectedButton = WindowModeButton;
+		break;
+
+	default:
+		break;
 	}
 }

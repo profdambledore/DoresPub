@@ -12,4 +12,5 @@ void UUI_Player_Build_WallButton::NativeConstruct()
 
 void UUI_Player_Build_WallButton::ClearSelectedCategory()
 {
+	WallBorder->SetBrushColor(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
 }

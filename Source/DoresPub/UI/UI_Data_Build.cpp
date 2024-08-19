@@ -4,17 +4,18 @@
 #include "UI/UI_Data_Build.h"
 #include "UI/UI_Player_Build.h"
 
-UWallButtonData::UWallButtonData()
+UBuildSelectButtonData::UBuildSelectButtonData()
 {
 }
 
-UWallButtonData::~UWallButtonData()
+UBuildSelectButtonData::~UBuildSelectButtonData()
 {
 }
 
-void UWallButtonData::SetupData(UUI_Player_Build* UI, FName NewName, UTexture2D* NewWallIcon)
+void UBuildSelectButtonData::SetupData(UUI_Player_Build* UI, FName NewName, UTexture2D* NewWallIcon, TEnumAsByte<EBuildToolSubType> NewSubType)
 {
 	BuildUIState = UI;
 	RowName = NewName;
 	WallIcon = NewWallIcon;
+	SubType = NewSubType;
 }

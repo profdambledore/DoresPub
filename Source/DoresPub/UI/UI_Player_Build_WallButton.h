@@ -7,6 +7,7 @@
 
 #include "Components/Image.h"
 #include "Components/Button.h"
+#include "Components/Border.h"
 
 #include "UI_Player_Build_WallButton.generated.h"
 
@@ -28,6 +29,10 @@ protected:
 
 public:
 	/// -- Components --
+	// Border to envelop the WallImage
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UBorder* WallBorder = nullptr;
+
 	// Image to display the icon of the item
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UImage* WallImage = nullptr;

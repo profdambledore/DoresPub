@@ -10,15 +10,15 @@
 #include "UI_Data_Build.generated.h"
 
 UCLASS(BlueprintType, Blueprintable)
-class DORESPUB_API UWallButtonData : public UObject
+class DORESPUB_API UBuildSelectButtonData : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UWallButtonData();
-	~UWallButtonData();
+	UBuildSelectButtonData();
+	~UBuildSelectButtonData();
 
-	void SetupData(class UUI_Player_Build* UI, FName NewName, UTexture2D* NewWallIcon);
+	void SetupData(class UUI_Player_Build* UI, FName NewName, UTexture2D* NewWallIcon, TEnumAsByte<EBuildToolSubType> NewSubType);
 
 public:
 	// Pointer back to the Object UI class
@@ -30,4 +30,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* WallIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EBuildToolSubType> SubType;
 };

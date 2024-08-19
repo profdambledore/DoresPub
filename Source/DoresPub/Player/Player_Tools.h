@@ -146,6 +146,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* WallDataTable = nullptr;
 
+	// Data Table of all available walls
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
+	UDataTable* WindowDataTable = nullptr;
+
 	/// -- Object Tool Properties --
 	// bool denoting if the player is in rotation mode
 	bool bInRotationMode = false;
