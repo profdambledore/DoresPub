@@ -64,7 +64,7 @@ public:
 
 	// Called to update the selected mesh in the BuildToolDisplay
 	// Leave empty to clear (nullptr)
-	void UpdateSelectedWall(FName WallID = "");
+	void UpdateSelectedItem(FName WallID = "", TEnumAsByte<EBuildToolSubType> Type = BuildToolSubTypeMax);
 
 	/// -- Object Tool Functions --
 	// Called to update the current mesh shown (leave blank to clear)
@@ -149,6 +149,12 @@ protected:
 	// Data Table of all available walls
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* WindowDataTable = nullptr;
+
+	// Pointer to the last hit SMC
+	UStaticMeshComponent* LastHitSMC = nullptr;
+
+	// Pointer to the LastHitSMC's mesh, used to return the mesh to the one before replacement
+	UStaticMesh* LastHitMesh = nullptr;
 
 	/// -- Object Tool Properties --
 	// bool denoting if the player is in rotation mode

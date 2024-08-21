@@ -38,23 +38,40 @@ void APlayer_BuildToolDisplay::Tick(float DeltaTime)
 
 /// -- Tool Functions --
 // Called to update the display's validity
-void APlayer_BuildToolDisplay::UpdateDisplayValidity(bool bIsValid)
+void APlayer_BuildToolDisplay::UpdateDisplayValidity(int NewVisibility)
 {
-	// If the tool display is vailid,
-	if (bIsValid) {
-		// Set the material instance to use the valid colour
-		UpdateMaterial(ValidColour);
-	}
-	// Else, the tool is invalid, so
-	else {
+	// switch on NewVisibility
+	switch (NewVisibility){
+	case 0: // If the tool display is invalid,
 		// Set the material instance to use the invalid colour
 		UpdateMaterial(InvalidColour);
+		break;
+
+	case 1: // If the tool display is valid,
+		// Set the material instance to use the valid colour
+		UpdateMaterial(ValidColour);
+		break;
+
+	case 2: // If the tool display is hidden,
+		// Set the material instance to use the hidden colour
+		UpdateMaterial(HiddenColour);
+		break;
+
+	default:
+		break;
 	}
 }
 
 void APlayer_BuildToolDisplay::UpdateSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool)
 {
 	SelectedSubTool = NewSubTool;
+
+	// Also clear the selected meshes and ID's
+	SelectedID = "";
+	SelectedMesh = nullptr;
+
+	// Also clear the BTD
+	ClearBuildDisplay();
 }
 
 TEnumAsByte<EBuildToolSubType> APlayer_BuildToolDisplay::GetSubTool()
@@ -97,7 +114,7 @@ TArray<FBuildToolData> APlayer_BuildToolDisplay::GetDisplayData()
 				curr.Mesh = i->GetStaticMesh();
 				curr.Location = i->GetComponentLocation();
 				curr.Rotation = i->GetComponentRotation();
-				curr.ID = SelectedWallID;
+				curr.ID = SelectedID;
 
 				// And add it to the total array
 				out.Add(curr);
@@ -140,6 +157,10 @@ void APlayer_BuildToolDisplay::GenerateBuildDisplay(FVector StartPos, FVector En
 
 	case Floor:
 		GenerateFloorDisplay(StartPos, EndPos);
+		break;
+
+	case Window:
+		GenerateWindowDisplay(StartPos);
 		break;
 
 	default:
@@ -243,6 +264,30 @@ void APlayer_BuildToolDisplay::GenerateFloorDisplay(FVector StartPosition, FVect
 	// Finally, clear the excees SMC
 	for (int j = Total; j < SMCPool.Num(); j++) {
 		SMCPool[j]->SetStaticMesh(nullptr);
+	}
+}
+
+void APlayer_BuildToolDisplay::GenerateWindowDisplay(FVector StartPosition)
+{
+	// Move the BuildToolDisplay to the StartPosition
+	SetActorLocation(StartPosition);
+
+	// Check if there is a SMC in index 0 of SMCPool
+	if (SMCPool.IsEmpty()) {
+		// If so, add a default one now
+		AddNewStaticMeshComponent(1);
+	}
+
+	// Check that there is a SelectedMesh set
+	if (SelectedMesh) {
+		// If so, set SMCPool[0] to it if it hasn't already 
+		if (!SMCPool[0]->GetStaticMesh()) {
+			SMCPool[0]->SetStaticMesh(SelectedMesh);
+		}
+
+		// Move the SMC to the start location offsetting it by 125 on the x axis)
+		SMCPool[0]->SetRelativeLocation(FVector(StartPosition.X - 125, StartPosition.Y, 1.0f));
+		SMCPool[0]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 	}
 }
 
@@ -448,6 +493,8 @@ void APlayer_BuildToolDisplay::AddNewStaticMeshComponent(int Target)
 	NewMeshComp->RegisterComponent();
 	NewMeshComp->SetMaterial(0, BuildToolMaterial);
 	NewMeshComp->SetMaterial(1, BuildToolMaterial);
+	NewMeshComp->SetMaterial(2, BuildToolMaterial);
+	NewMeshComp->SetMaterial(3, BuildToolMaterial);
 	NewMeshComp->SetCollisionProfileName(FName("BuildingTool"));
 
 	// Then add it to the total pool (SMCPool)

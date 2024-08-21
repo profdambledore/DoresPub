@@ -35,6 +35,9 @@ public:
 	FWallData();
 	~FWallData();
 
+	// Called to update the ID of this WallData
+	void SetNewID(FName NewID);
+
 public:
 	// Pointer to the StaticMeshComponent of this wall
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

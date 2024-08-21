@@ -34,7 +34,8 @@ public:
 
 	/// -- Global Functions --
 	// Called to update the display's validity
-	void UpdateDisplayValidity(bool bIsValid);
+	// Use 0/false for invalid, 1/true for valid and 2 for hidden
+	void UpdateDisplayValidity(int NewVisibility);
 
 	// Called to update the selected sub-tool
 	void UpdateSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool);
@@ -56,13 +57,16 @@ public:
 
 	/// -- Display Building Functions --
 	// Called to generate a new display based on the current sub-tool
-	void GenerateBuildDisplay(FVector StartPos, FVector EndPos);
+	void GenerateBuildDisplay(FVector StartPos, FVector EndPos = FVector(0.0f, 0.0f, 0.0f));
 
 	// Called to generate a new wall display
 	void GenerateWallDisplay(FVector StartPosition, FVector EndPosition);
 
 	// Called to generate a new floor display
 	void GenerateFloorDisplay(FVector StartPosition, FVector EndPosition);
+
+	// Called to generate a new window display
+	void GenerateWindowDisplay(FVector StartPosition);
 
 	// Called to clear the building display
 	void ClearBuildDisplay();
@@ -110,6 +114,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Global Properties")
 	FLinearColor InvalidColour;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Global Properties")
+	FLinearColor HiddenColour;
+
 	// bool denoting if the tool is in erase mode
 	bool bInEraseMode = false;
 
@@ -119,7 +126,7 @@ public:
 	UStaticMesh* SelectedMesh = nullptr;
 
 	// FName of the ID of the selected wall
-	FName SelectedWallID = "";
+	FName SelectedID = "";
 
 	/// -- Floor Sub Tool Properties --
 	// Pointer to the floor mesh

@@ -28,6 +28,12 @@ void UUI_Tools_BuildWidget::UpdateTextVisibility(bool bVisible)
 
 void UUI_Tools_BuildWidget::UpdateDisplayedText(int X, int Y, int Price)
 {
-	SizeText->SetText(FText::FromString(FString::Printf(TEXT("%i x %i"), X, Y)));
+	//	If X is invalid (less than 0), then don't display the size text
+	if (X >= 0) {
+		SizeText->SetText(FText::FromString(FString::Printf(TEXT("%i x %i"), X, Y)));
+	}
+	else {
+		SizeText->SetText(FText::FromString(FString::Printf(TEXT(""))));
+	}
 	CostText->SetText(FText::AsCurrencyBase(Price, "£"));
 }

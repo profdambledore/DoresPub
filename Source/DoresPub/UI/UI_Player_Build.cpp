@@ -57,7 +57,7 @@ void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallB
 			SelectedItemButton->WallBorder->SetBrushColor(SelectedButtonColour);
 		}
 		
-		MUI->GetPlayerTools()->UpdateSelectedWall(SelectedID);
+		MUI->GetPlayerTools()->UpdateSelectedItem(SelectedID, Wall);
 	}
 }
 
@@ -79,6 +79,8 @@ void UUI_Player_Build::UpdateSelectedWindow(FName WindowID, UUI_Player_Build_Wal
 			SelectedItemButton->WallBorder->SetBrushColor(SelectedButtonColour);
 		}
 	}
+
+	MUI->GetPlayerTools()->UpdateSelectedItem(SelectedID, Window);
 }
 
 void UUI_Player_Build::OnEraseButtonReleased()

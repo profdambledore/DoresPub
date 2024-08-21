@@ -69,92 +69,172 @@ void APlayer_Tools::Tick(float DeltaTime)
 	if (CurrentTool == EToolType::Building) {
 		// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
 		// Also snap it to the building snapping distance (half of a wall size)
-		FVector MouseLocation = FireTraceToActor().Location;
+		FHitResult TickTrace = FireTraceToActor();
+		FVector MouseLocation = TickTrace.Location;
 		
-		MouseLocation.X = GetNearestMultiple(MouseLocation.X, 250);
-		MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, 250);
-		MouseLocation.Z = 1.0f;
-		SetActorLocation(MouseLocation);
+		// Branch off based on if the sub-tool uses a draw method (wall, floor) or replace method (window, door)
+		// Start by checking if the sub-tool is one of the replace methods
+		if (BTD->GetSubTool() == Window) {
+			MouseLocation.X = GetNearestMultiple(MouseLocation.X, PC->GetCurrentGridSnapValue());
+			MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, PC->GetCurrentGridSnapValue());
+			MouseLocation.Z = 1.0f;
 
-		// Update the LastPosition and call any related functions
-		if (MouseLocation != LastPosition) {
-			LastPosition = MouseLocation;
+			BTD->GenerateBuildDisplay(MouseLocation);
+			SetActorLocation(MouseLocation);
 			UpdateToolRotation();
 
-			// If the ClickPosition is valid (not (-1, -1, -1), then update the BTD
-			if (ClickPosition != FVector(-1, -1, -1)) {
-				BTD->GenerateBuildDisplay(ClickPosition, LastPosition);
+			// Next, check if a mesh has been set via GetDisplayWallsInUse
+			// If this doesn't return empty, then it is in use
+			if (BTD->GetDisplayWallsInUse() != 0) {
+				// Start by checking that an actor was actually hit
+				if (TickTrace.GetActor()) {
+					// Then check that the trace hit a World_BuildingLevel
+					if (TickTrace.GetActor()->IsA<AWorld_BuildingLevel>()) {
+						// Next check if the component hit is a StaticMeshComponent
+						if (TickTrace.Component.Get()->IsA<UStaticMeshComponent>()) {
+							// If it is a StaticMeshComponent, then check if it matches the previous hit SMC
+							if (TickTrace.GetComponent() != LastHitSMC) {
+								// First, reset the LastHitSMC if required
+								if (LastHitSMC) {
+									if (LastHitSMC->GetStaticMesh() != LastHitMesh) {
+										LastHitSMC->SetStaticMesh(LastHitMesh);
+									}
+								}
+								LastHitSMC = Cast<UStaticMeshComponent>(TickTrace.GetComponent());
+								LastHitMesh = LastHitSMC->GetStaticMesh();
 
-				// Continue based on the selected sub-tool
-				if (BTD->GetSubTool() == Wall) {
-					// Check if we are in erase mode
-					if (!bInEraseMode) {
-						// Check that there is a wall ID selected
-						if (BTD->SelectedWallID != "") {
+								// Compare the LastHitMesh to the Wall mesh
+								// Must match the default wall mesh to be suitable (at this time, could change in the future)
+								if (LastHitMesh == WallDataTable->FindRow<FSelectableWallData>("wall_default", "")->Mesh) {
+									// If it does match, hide the BTD, set the hit SMC to the window mesh
+									BTD->UpdateDisplayValidity(2);
+									LastHitSMC->SetStaticMesh(BTD->SelectedMesh);
+
+									// Update the BuildToolWidget to display the selected window's price
+									BTW->UpdateTextVisibility(true);
+									BTW->UpdateDisplayedText(-1, 0, WindowDataTable->FindRow<FSelectableWindowData>(BTD->SelectedID, "")->Price);
+								}
+								else {
+									// If it doesn't match, invalidate the SMC
+									BTD->UpdateDisplayValidity(false);
+									BTW->UpdateTextVisibility(false);
+								}
+							}
+						}
+					}
+					else {
+						// If we don't hit a StaticMeshComponent, clear LastHitSMC and LastHitMesh
+						// Also, invalidate the BTD
+						if (LastHitSMC) {
+							if (LastHitSMC->GetStaticMesh() != LastHitMesh) {
+								LastHitSMC->SetStaticMesh(LastHitMesh);
+							}
+						}
+						LastHitSMC = nullptr;
+						LastHitMesh = nullptr;
+						BTD->UpdateDisplayValidity(false);
+						BTW->UpdateTextVisibility(false);
+					}
+				}						
+			}
+		}
+		// Else, the selected sub-tool is a draw method
+		else {
+			MouseLocation.X = GetNearestMultiple(MouseLocation.X, 250);
+			MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, 250);
+			MouseLocation.Z = 1.0f;
+
+			SetActorLocation(MouseLocation);
+
+			// Update the LastPosition and call any related functions
+			if (MouseLocation != LastPosition) {
+				LastPosition = MouseLocation;
+				UpdateToolRotation();
+
+				// If the ClickPosition is valid (not (-1, -1, -1), then update the BTD
+				if (ClickPosition != FVector(-1, -1, -1)) {
+					BTD->GenerateBuildDisplay(ClickPosition, LastPosition);
+
+					// Continue based on the selected sub-tool
+					if (BTD->GetSubTool() == Wall) {
+						// Check if we are in erase mode
+						if (!bInEraseMode) {
+							// Check that there is a wall ID selected
+							if (BTD->SelectedID != "") {
+								// Calculate the cost
+								int cost;  cost = BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedID, "")->Price;
+
+								// Update the BTW with the new price
+								BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
+
+								// Check if it is valid (money)
+								if (cost <= PC->GetCurrentMoney()) {
+									// Next, check if the MouseLocation is outside the zone.
+									if (!PC->GetIsPointInsideBound(MouseLocation)) {
+										BTD->UpdateDisplayValidity(false);
+									}
+									else {
+										BTD->UpdateDisplayValidity(true);
+									}
+								}
+								else {
+									BTD->UpdateDisplayValidity(false);
+								}
+							}
+						}
+						else {
 							// Calculate the cost
-							int cost;  cost = BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price;
+							int cost = 0;
+
+							// For each display data returned
+							for (FBuildToolData i : BTD->GetDisplayData()) {
+								// Check if the id of the data is valid.  If so...
+								// TO:DO - World_BuildingLevel gets a function to return the ID of the wall at a position and rotation
+								// Work in same way as GetWallObjectMeshAtPosition but returns FName/FString whatever is used in BuildData
+								// Dont use ID from i directly as this will not be correct
+								if (i.ID != "") {
+									// Add to the total cost of the refund
+									cost += WallDataTable->FindRow<FSelectableWallData>(i.ID, "")->Price * RefundMultiplier;
+								}
+							}
 
 							// Update the BTW with the new price
 							BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
 
-							// Check if it is valid (money)
-							if (cost <= PC->GetCurrentMoney()) {
-								// Next, check if the MouseLocation is outside the zone.
-								if (!PC->GetIsPointInsideBound(MouseLocation)) {
-									BTD->UpdateDisplayValidity(false);
-								}
-								else {
-									BTD->UpdateDisplayValidity(true);
-								}
+							// Next, check if the MouseLocation is outside the zone.
+							if (!PC->GetIsPointInsideBound(MouseLocation)) {
+								BTD->UpdateDisplayValidity(false);
 							}
 							else {
-								BTD->UpdateDisplayValidity(false);
+								BTD->UpdateDisplayValidity(true);
 							}
 						}
 					}
-					else {
-						// Calculate the cost
-						int cost = 0;
-
-						for (FBuildToolData i : BTD->GetDisplayData()) {
-							cost += WallDataTable->FindRow<FSelectableWallData>(i.ID, "")->Price * RefundMultiplier;
-						}
+					// Continue based on the selected sub-tool
+					else if (BTD->GetSubTool() == Floor) {
+						int cost;  cost = 0; //BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price;
 
 						// Update the BTW with the new price
 						BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
 
-						// Next, check if the MouseLocation is outside the zone.
-						if (!PC->GetIsPointInsideBound(MouseLocation)) {
-							BTD->UpdateDisplayValidity(false);
+						// Check if it is valid (money)
+						if (cost <= PC->GetCurrentMoney()) {
+							// Next, check if the MouseLocation is outside the zone.
+							if (!PC->GetIsPointInsideBound(MouseLocation)) {
+								BTD->UpdateDisplayValidity(false);
+							}
+							else {
+								BTD->UpdateDisplayValidity(true);
+							}
 						}
 						else {
-							BTD->UpdateDisplayValidity(true);
-						}
-					}
-				}
-				// Continue based on the selected sub-tool
-				else if (BTD->GetSubTool() == Floor) {
-					int cost;  cost = 0; //BTD->GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(BTD->SelectedWallID, "")->Price;
-
-					// Update the BTW with the new price
-					BTW->UpdateDisplayedText(BTD->GetDisplaySize().first, BTD->GetDisplaySize().second, cost);
-
-					// Check if it is valid (money)
-					if (cost <= PC->GetCurrentMoney()) {
-						// Next, check if the MouseLocation is outside the zone.
-						if (!PC->GetIsPointInsideBound(MouseLocation)) {
 							BTD->UpdateDisplayValidity(false);
 						}
-						else {
-							BTD->UpdateDisplayValidity(true);
-						}
-					}
-					else {
-						BTD->UpdateDisplayValidity(false);
 					}
 				}
 			}
 		}
+		
 	}
 	// If the current tool is the Object tool, then...
 	else if (CurrentTool == EToolType::Object) {
@@ -333,6 +413,23 @@ void APlayer_Tools::SelectedToolPrimaryReleased()
 					}
 				}
 			}
+			else if (BTD->GetSubTool() == Window) {
+				// Check that there is valid LastHitSMC
+				if (LastHitSMC) {
+					// Check if a wall has been changed already
+					if (LastHitSMC->GetStaticMesh() == BTD->SelectedMesh) {
+						// Update the wall ID in the BuildData of the mesh that has been changed
+						GroundFloor->UpdateWallID(LastHitSMC->GetComponentLocation(), LastHitSMC->GetComponentRotation(), BTD->SelectedID);
+
+						// Clear the LastHitSMC's and Mesh, as the wall is already replaced
+						LastHitSMC = nullptr;
+						LastHitMesh = nullptr;
+
+						// Charge the player for the window
+						PC->UpdateMoney(WindowDataTable->FindRow<FSelectableWindowData>(BTD->SelectedID, "")->Price);
+					}
+				}
+			}
 		}
 
 		ClickPosition = FVector(-1, -1, -1);
@@ -371,19 +468,36 @@ void APlayer_Tools::SwapSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool)
 	BTD->UpdateSubTool(NewSubTool);
 	ToggleEraseMode(true, false);
 	PC->GetUI()->BuildState->UpdateSelectedSubToolButton(NewSubTool);
+
+	BTW->UpdateTextVisibility(false);
+
+	if (LastHitSMC) {
+		if (LastHitSMC->GetStaticMesh() != LastHitMesh) {
+			LastHitSMC->SetStaticMesh(LastHitMesh);
+		}
+	}
+	LastHitSMC = nullptr;
+	LastHitMesh = nullptr;
 }
 
 // Called to update the selected mesh in the BuildToolDisplay
 // Leave empty to clear (nullptr)
-void APlayer_Tools::UpdateSelectedWall(FName WallID)
+void APlayer_Tools::UpdateSelectedItem(FName ID, TEnumAsByte<EBuildToolSubType> Type)
 {
-	if (WallID == "") {
+	if (ID == "") {
 		BTD->SelectedMesh = nullptr;
-		BTD->SelectedWallID = WallID;
+		BTD->SelectedID = ID;
+		BTD->ClearBuildDisplay();
 	}
 	else {
-		BTD->SelectedMesh = WallDataTable->FindRow<FSelectableWallData>(WallID, "")->Mesh;
-		BTD->SelectedWallID = WallID;
+		if (Type == Wall) {
+			BTD->SelectedMesh = WallDataTable->FindRow<FSelectableWallData>(ID, "")->Mesh;
+			BTD->SelectedID = ID;
+		}
+		else if (Type == Window) {
+			BTD->SelectedMesh = WindowDataTable->FindRow<FSelectableWindowData>(ID, "")->Mesh;
+			BTD->SelectedID = ID;
+		}
 	}
 }
 

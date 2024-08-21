@@ -13,6 +13,11 @@ FWallData::~FWallData()
 {
 }
 
+void FWallData::SetNewID(FName NewID)
+{
+	ID = NewID;
+}
+
 
 // Default Constructor
 FBuildData::FBuildData()

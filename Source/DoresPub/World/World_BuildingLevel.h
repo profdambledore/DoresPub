@@ -32,6 +32,9 @@ public:
 	// Called to add to the current BuildData
 	void AddToBuildData(UStaticMeshComponent* ComponentToAdd, FName ID);
 
+	// Called to update the ID of a wall at a location and rotation
+	void UpdateWallID(FVector Location, FRotator Rotation, FName NewID);
+
 	// Called to regenerate a BuildData array from scratch
 	// Update to store ID's (how?)
 	void ReGenerateBuildData();

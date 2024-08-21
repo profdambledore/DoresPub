@@ -154,6 +154,22 @@ void AWorld_BuildingLevel::AddToBuildData(UStaticMeshComponent* ComponentToAdd, 
 	}
 }
 
+void AWorld_BuildingLevel::UpdateWallID(FVector Location, FRotator Rotation, FName NewID)
+{
+	// First, find the BuildData at the location
+	int DataIndex = GetBuildDataAtLocation(Location);
+
+	UE_LOG(LogTemp, Warning, TEXT("DataIndex = %i"), DataIndex);
+
+	// Next, figure out if the wall is an X or Y wall (X has a default rotator, while Y has a 0, 90, 0 rotator)
+	if (Rotation == FRotator(0, 0, 0)) {
+		BuildData[DataIndex].XWallData.SetNewID(NewID);
+	}
+	else {
+		BuildData[DataIndex].YWallData.SetNewID(NewID);
+	}
+}
+
 // Called to regenerate a BuildData array from scratch
 void AWorld_BuildingLevel::ReGenerateBuildData()
 {
