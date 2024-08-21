@@ -84,6 +84,26 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	/// -- Build Tool Tick Functions --
+	// Called in OnTick when the Build Tool is selected and the sub-tool is in Wall mode
+	void BuildToolWallModeTick();
+
+	// Called in OnTick when the Build Tool is selected and the sub-tool is in Floor mode
+	void BuildToolFloorModeTick();
+
+	// Called in OnTick when the Build Tool is selected and the sub-tool is in Window mode
+	void BuildToolWindowModeTick();
+
+	/// -- Build Tool Release Functions --
+	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Wall mode
+	void BuildToolWallModeReleased();
+
+	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Floor mode
+	void BuildToolFloorModeReleased();
+
+	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Window mode
+	void BuildToolWindowModeReleased();
+
 public:	
 	/// -- Global Components --
 	// SceneComponent acting as the root component
@@ -145,10 +165,6 @@ protected:
 	// Data Table of all available walls
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* WallDataTable = nullptr;
-
-	// Data Table of all available walls
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
-	UDataTable* WindowDataTable = nullptr;
 
 	// Pointer to the last hit SMC
 	UStaticMeshComponent* LastHitSMC = nullptr;

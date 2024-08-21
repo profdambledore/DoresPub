@@ -33,7 +33,7 @@ void UUI_Player_Build::AddSelectableWallToList(FName ID, FSelectableWallData Wal
 	WallSelectionTileView->AddItem(NewWallObj);
 }
 
-void UUI_Player_Build::AddSelectableWindowToList(FName ID, FSelectableWindowData WallData)
+void UUI_Player_Build::AddSelectableWindowToList(FName ID, FSelectableWallData WallData)
 {
 	UBuildSelectButtonData* NewWallObj = NewObject<UBuildSelectButtonData>();
 	NewWallObj->SetupData(this, ID, WallData.Icon, Window);

@@ -27,7 +27,7 @@ public:
 	void AddSelectableWallToList(FName ID, FSelectableWallData WallData);
 
 	// Called to add a new selectable wall to the list view
-	void AddSelectableWindowToList(FName ID, FSelectableWindowData WallData);
+	void AddSelectableWindowToList(FName ID, FSelectableWallData WallData);
 
 	// Called to update the selected wall in the BuildToolDisplay
 	UFUNCTION(BlueprintCallable)

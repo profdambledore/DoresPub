@@ -120,7 +120,6 @@ public:
 	FSelectableWallData();
 	~FSelectableWallData();
 
-
 public:
 	// FString denoting the walls name
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -142,46 +141,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
 
-	// bool denoting if the wall can be placed manually (true), or requires a door/window to place it (false)
+	// TArray of FString denoting item tags
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bManualPlacing = true;
+	TArray<FString> Tags;
 
 	// bool denoting if the wall's materials can be updated (true if they can)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bMaterialUpdatable = true;
-};
-
-USTRUCT(BlueprintType, Category = "Build Tool")
-struct FSelectableWindowData : public FTableRowBase
-{
-public:
-	GENERATED_BODY();
-
-	// Default Constructor/Deconstructor
-	FSelectableWindowData();
-	~FSelectableWindowData();
-
-
-public:
-	// FString denoting the walls name
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name;
-
-	// FString denoting a brief description of the wall
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Description;
-
-	// Texture denoting a picture of the wall
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* Icon;
-
-	// StaticMesh of the wall, used in the world
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMesh* Mesh;
-
-	// Int denoting the price of the wall per unit placed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Price;
 };
 
 USTRUCT(BlueprintType, Category = "Build Tool")

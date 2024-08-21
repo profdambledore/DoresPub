@@ -50,16 +50,6 @@ FSelectableWallData::~FSelectableWallData()
 }
 
 // Default Constructor
-FSelectableWindowData::FSelectableWindowData()
-{
-}
-
-// Default Deconstructor
-FSelectableWindowData::~FSelectableWindowData()
-{
-}
-
-// Default Constructor
 FBuildToolData::FBuildToolData()
 {
 }
