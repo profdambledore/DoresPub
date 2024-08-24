@@ -41,7 +41,7 @@ public:
 	void UpdateSelectedSubToolButton(TEnumAsByte<EBuildToolSubType> NewSubType);
 
 	// Called to update the colour of the erase button if it's enabled or not
-	void UpdateEraseButtonEnabled(bool bEnabled);
+	void UpdateEraseModeEnabled(bool bEnabled);
 
 protected:
 	/// -- Button Functions --
@@ -63,6 +63,10 @@ protected:
 
 public:
 	/// -- Components --
+	// Widget switcher that allows the UI to swap between erase mode enabled and disabled
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Global Components")
+	UWidgetSwitcher* EraseModeSwitcher = nullptr;
+
 	// Button to swap to wall mode
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Sub Mode Buttons")
 	UButton* WallModeButton = nullptr;

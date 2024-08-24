@@ -79,6 +79,11 @@ TEnumAsByte<EBuildToolSubType> APlayer_BuildToolDisplay::GetSubTool()
 	return SelectedSubTool;
 }
 
+void APlayer_BuildToolDisplay::UpdateEraseMode(bool bEraseEnabled)
+{
+	bInEraseMode = bEraseEnabled;
+}
+
 // Called to return how many walls are currently being used
 // Return an int of how many SMC's match the correct criteria
 int APlayer_BuildToolDisplay::GetDisplayWallsInUse()
@@ -150,29 +155,127 @@ std::pair<int, int> APlayer_BuildToolDisplay::GetDisplaySize()
 
 void APlayer_BuildToolDisplay::GenerateBuildDisplay(FVector StartPos, FVector EndPos)
 {
-	switch (SelectedSubTool) {
-	case Wall:
-		GenerateWallDisplay(StartPos, EndPos);
-		break;
+	// First, check if the player is in erase mode
+	if (bInEraseMode) {
+		GenerateEraseDisplay(StartPos, EndPos);
+	}
+	else {
+		// Else, switch on the sub-tool
+		switch (SelectedSubTool) {
+		case Wall:
+			GenerateWallDisplay(StartPos, EndPos);
+			break;
 
-	case Floor:
-		GenerateFloorDisplay(StartPos, EndPos);
-		break;
+		case Floor:
+			GenerateFloorDisplay(StartPos, EndPos);
+			break;
 
-	case Window:
-		GenerateWindowDisplay(StartPos);
-		break;
+		case Window:
+			GenerateWindowDisplay(StartPos);
+			break;
 
-	default:
-		break;
+		default:
+			break;
+		}
+	}
+}
+
+void APlayer_BuildToolDisplay::GenerateEraseDisplay(FVector StartPosition, FVector EndPosition)
+{
+	// Move the BuildToolDisplay to the StartPosition
+	SetActorLocation(StartPosition);
+
+	// Imagine box c d
+	//			   a b
+	// Set the StartPoint to a's positon and EndPoint to d's position
+	FVector a = FVector((StartPosition.X < EndPosition.X) ? StartPosition.X : EndPosition.X, (StartPosition.Y < EndPosition.Y) ? StartPosition.Y : EndPosition.Y, 1.0);
+	FVector d = FVector((StartPosition.X > EndPosition.X) ? StartPosition.X : EndPosition.X, (StartPosition.Y > EndPosition.Y) ? StartPosition.Y : EndPosition.Y, 1.0);
+
+	//UE_LOG(LogTemp, Warning, TEXT("Start = %s, End = %s"), *StartPosition.ToString(), *EndPosition.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("a.x = %f / d.x = %f"),a.X, d.X);
+	//UE_LOG(LogTemp, Warning, TEXT("a.y = %f / d.y = %f"), a.Y, d.Y);
+
+	// Draw it too
+	DrawDebugBox(GetWorld(), a, FVector(8.0f, 8.0f, 1.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)), FColor::Red, false, 0.5f, 0U, 3.0f);
+	DrawDebugBox(GetWorld(), d, FVector(8.0f, 8.0f, 1.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)), FColor::Purple, false, 0.5f, 0U, 3.0f);
+	DrawDebugBox(GetWorld(), (a + ((d - a) / 2)), ((d - a) / 2), FQuat(FRotator(0.0f, 0.0f, 0.0f)), FColor::Green, false, 0.5f, 0U, 3.0f);
+
+	// Start by calculating how many static mesh components are needed
+	XSize = 0;	YSize = 0;
+
+	// Calculate how many are needed for a single x edge (will double for a full box)
+	// By calculating the difference between the start and end position, making the output absolute (always pos)
+	// Then dividing that by the wall length (125 uu) and rounding up with ceil
+	XSize = ceil(fabs(d.X - a.X) / WallSize) + 1;
+
+	// Do the same to the Y axis
+	YSize = ceil(fabs(d.Y - a.Y) / WallSize) + 1;
+
+	// Calculate the total required for the floor with X * Y
+	Total = (XSize * YSize);
+
+	// Add enough static mesh components to match the amount needed 
+	if (Total > SMCPool.Num()) {
+		AddNewStaticMeshComponent(Total);
+	}
+
+	// Start by rounding down with floor to the nearest 250, 250, 1 value
+	FVector RoundedStart = FVector(floor(a.X / 250) * 250, floor(a.Y / 250) * 250, 1.0f);
+	int ActiveIndex = 0;
+
+	DrawDebugBox(GetWorld(), RoundedStart, FVector(16.0f, 16.0f, 1.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)), FColor::Orange, false, 0.5f, 0U, 3.0f);
+
+	for (int i = 0; i < YSize; i++) {
+		for (int j = 0; j < XSize; j++) {
+
+			// Math
+			//https://stackoverflow.com/questions/18295825/determine-if-point-is-within-bounding-box
+			//https://stackoverflow.com/questions/4823789/how-to-check-if-any-point-or-part-of-a-line-is-inside-or-touches-a-rectangle
+			//https://stackoverflow.com/questions/17095324/fastest-way-to-determine-if-an-integer-is-between-two-integers-inclusive-with
+
+			// If want the wall to just intercect the box,
+			//https://en.wikipedia.org/wiki/Cohen–Sutherland_algorithm
+
+			// Check if we should grab the X Wall
+			// Check if the bottom of the wall is inside the box, then check if the top of the wall is inside the box
+			if (GetPointInsideRectange(a, d, FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f)) && GetPointInsideRectange(a, d, FVector(RoundedStart.X + (WallSize * j) + 250, RoundedStart.Y + (WallSize * i), 1.0f))) {
+				// Finally, check if there is an actual wall there
+				if (GroundFloor->GetWallObjectMeshAtPosition(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f), true)) {
+					SMCPool[ActiveIndex]->SetRelativeLocation(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f));
+					SMCPool[ActiveIndex]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+					SMCPool[ActiveIndex]->SetStaticMesh(GroundFloor->GetWallObjectMeshAtPosition(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f), true)->GetStaticMesh());
+					ActiveIndex++;
+				}
+			}
+
+			// Next, check if we should grab the Y Wall
+			// Check if the bottom of the wall is inside the box, then check if the top of the wall is inside the box
+			if (GetPointInsideRectange(a, d, FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f)) && GetPointInsideRectange(a, d, FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i) + 250, 1.0f))) {
+				// Finally, check if there is an actual wall there
+				if (GroundFloor->GetWallObjectMeshAtPosition(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f), false)) {
+					SMCPool[ActiveIndex]->SetRelativeLocation(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f));
+					SMCPool[ActiveIndex]->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+					SMCPool[ActiveIndex]->SetStaticMesh(GroundFloor->GetWallObjectMeshAtPosition(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f), false)->GetStaticMesh());
+					ActiveIndex++;
+				}
+			}
+
+		}
+	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("ActiveIndex = %i"), ActiveIndex);
+
+	// Finally, clear the excees SMC
+	for (int j = ActiveIndex; j < SMCPool.Num(); j++) {
+		SMCPool[j]->SetStaticMesh(nullptr);
 	}
 }
 
 // Called to generate a new building display, based on a start and end location
 void APlayer_BuildToolDisplay::GenerateWallDisplay(FVector StartPosition, FVector EndPosition)
 {
-	// Check that there is a mesh selected, or we are in erase mode.  If so,
-	if (SelectedMesh || bInEraseMode) {
+	// Check that there is a mesh selected.  If so,
+	if (SelectedMesh) {
 		// Move the BuildToolDisplay to the StartPosition
 		SetActorLocation(StartPosition);
 
@@ -327,16 +430,16 @@ void APlayer_BuildToolDisplay::CreateLineOnX(float Start, float End, float Y, in
 				}
 			}
 			// Else, check if there isn't a mesh at the position
-			else {
-				if (!GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)) {
+			//else {
+				//if (!GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)) {
 					// If there isn't, clear the mesh
-					SMCPool[PoolStartIndex + i]->SetStaticMesh(nullptr);
-				}
+					//SMCPool[PoolStartIndex + i]->SetStaticMesh(nullptr);
+				//}
 				// Else, match the meshes
-				else {
-					SMCPool[PoolStartIndex + i]->SetStaticMesh(GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)->GetStaticMesh());
-				}
-			}
+				//else {
+					//SMCPool[PoolStartIndex + i]->SetStaticMesh(GroundFloor->GetWallObjectMeshAtPosition(FVector(WallStart + (WallSize * i), Y, 1.0f), true)->GetStaticMesh());
+				//}
+			//}
 		}
 		else if (SelectedSubTool == Floor) {
 			// If in default mode, check if there is a mesh already at the position
@@ -482,7 +585,7 @@ void APlayer_BuildToolDisplay::CreatePillars(FVector Start, FVector End)
 }
 
 /// -- Utility Functions --
-	// Called to add a new StaticMeshComponent to the BuildToolDisplay
+// Called to add a new StaticMeshComponent to the BuildToolDisplay
 void APlayer_BuildToolDisplay::AddNewStaticMeshComponent(int Target)
 {
 	// Init local variable
@@ -491,6 +594,7 @@ void APlayer_BuildToolDisplay::AddNewStaticMeshComponent(int Target)
 	// Create a new StaticMeshComponent with the new number, register it so it can be used and set the mesh's materials and collision
 	UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Wall Mesh %i"), NewNumber)));
 	NewMeshComp->RegisterComponent();
+	NewMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	NewMeshComp->SetMaterial(0, BuildToolMaterial);
 	NewMeshComp->SetMaterial(1, BuildToolMaterial);
 	NewMeshComp->SetMaterial(2, BuildToolMaterial);
@@ -504,4 +608,12 @@ void APlayer_BuildToolDisplay::AddNewStaticMeshComponent(int Target)
 	if (SMCPool.Num() < Target) {
 		AddNewStaticMeshComponent(Target);
 	}
+}
+
+bool APlayer_BuildToolDisplay::GetPointInsideRectange(FVector A, FVector D, FVector Point)
+{
+	if ((unsigned)(Point.X - A.X) <= (D.X - A.X) && ((unsigned)(Point.Y - A.Y) <= (D.Y - A.Y))) {
+		return true;
+	}
+	return false;
 }

@@ -111,13 +111,15 @@ void UUI_Player_Build::OnWindowButtonReleased()
 	}
 }
 
-void UUI_Player_Build::UpdateEraseButtonEnabled(bool bEnabled)
+void UUI_Player_Build::UpdateEraseModeEnabled(bool bEnabled)
 {
 	if (bEnabled) {
 		EraseModeButton->SetBackgroundColor(SelectedButtonColour);
+		EraseModeSwitcher->SetActiveWidgetIndex(1);
 	}
 	else {
 		EraseModeButton->SetBackgroundColor(UnselectedButtonColour);
+		EraseModeSwitcher->SetActiveWidgetIndex(0);
 	}
 }
 

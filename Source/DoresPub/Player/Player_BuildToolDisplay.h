@@ -40,8 +40,11 @@ public:
 	// Called to update the selected sub-tool
 	void UpdateSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool);
 
-	// Called to get the current sub-ttol
+	// Called to get the current sub-tool
 	TEnumAsByte<EBuildToolSubType> GetSubTool();
+
+	// Called to update if erase mode is enabled or not
+	void UpdateEraseMode(bool bEraseEnabled);
 
 	// Called to return how many walls are currently being used
 	// Return an int of how many SMC's match the correct criteria
@@ -58,6 +61,9 @@ public:
 	/// -- Display Building Functions --
 	// Called to generate a new display based on the current sub-tool
 	void GenerateBuildDisplay(FVector StartPos, FVector EndPos = FVector(0.0f, 0.0f, 0.0f));
+
+	// Called to generate a display of things to erase
+	void GenerateEraseDisplay(FVector StartPosition, FVector EndPosition);
 
 	// Called to generate a new wall display
 	void GenerateWallDisplay(FVector StartPosition, FVector EndPosition);
@@ -97,6 +103,11 @@ protected:
 	// Called to add a new StaticMeshComponent to the BuildToolDisplay
 	void AddNewStaticMeshComponent(int Target);
 
+	// Called to check if a point is inside a rectange
+	// A is the bottom left point on the rectange, D is the top right
+	// Point is the point to check
+	bool GetPointInsideRectange(FVector A, FVector D, FVector Point);
+
 public:	
 	/// -- Components --
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Global Components")
@@ -116,9 +127,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Global Properties")
 	FLinearColor HiddenColour;
-
-	// bool denoting if the tool is in erase mode
-	bool bInEraseMode = false;
 
 	/// -- Wall Sub Tool Properties --
 	// Pointer to the current selected mesh;
@@ -148,6 +156,9 @@ private:
 
 	// Bool denoting if the helper is currently visible
 	bool bDisplayVisible = false;
+
+	// bool denoting if the tool is in erase mode
+	bool bInEraseMode = false;
 
 	// The size of a wall static mesh in uu
 	float WallSize = 250;

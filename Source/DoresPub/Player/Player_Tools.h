@@ -85,6 +85,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	/// -- Build Tool Tick Functions --
+	// Called in OnTick when the Build Tool is selected and the erase mode is selected
+	void BuildToolEraseTick();
+
 	// Called in OnTick when the Build Tool is selected and the sub-tool is in Wall mode
 	void BuildToolWallModeTick();
 

@@ -73,22 +73,28 @@ void APlayer_Tools::Tick(float DeltaTime)
 		FVector MouseLocation = TickTrace.Location;
 		
 		// Branch off based on the sub-tool.  They uses a draw method (wall, floor) or replace method (window, door)
-		// Start by checking if the sub-tool is one of the replace methods
-		switch (BTD->GetSubTool()) {
-		case Wall:
-			BuildToolWallModeTick();
-			break;
+		// Start by checking if the erase mode is enabled
+		if (bInEraseMode) {
+			BuildToolEraseTick();
+		}
+		else
+		{
+			switch (BTD->GetSubTool()) {
+			case Wall:
+				BuildToolWallModeTick();
+				break;
 
-		case Floor:
-			BuildToolFloorModeTick();
-			break;
+			case Floor:
+				BuildToolFloorModeTick();
+				break;
 
-		case Window:
-			BuildToolWindowModeTick();
-			break;
+			case Window:
+				BuildToolWindowModeTick();
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 	}
 	// If the current tool is the Object tool, then...
@@ -198,21 +204,37 @@ void APlayer_Tools::SelectedToolPrimaryPressed()
 {
 	// If the current tool is the BuildTool, then...
 	if (CurrentTool == EToolType::Building) {
-		// Check if the selected sub tool uses a draw method
-		if (BTD->GetSubTool() == Wall || Floor) {
+		// Check if the player is in erase mode
+		if (bInEraseMode) {
 			// Check where the player has clicked is inside of the WorldBounds
 			FVector testClickPos = FireTraceToActor().Location;
 			if (PC->GetIsPointInsideBound(testClickPos)) {
 				// If it is, then round it to the Building Bounds and start "drawing" with the BuildToolDisplay 
-				testClickPos.X = GetNearestMultiple(testClickPos.X, 250);
-				testClickPos.Y = GetNearestMultiple(testClickPos.Y, 250);
+				testClickPos.X = GetNearestMultiple(testClickPos.X, PC->GetCurrentGridSnapValue());
+				testClickPos.Y = GetNearestMultiple(testClickPos.Y, PC->GetCurrentGridSnapValue());
 				testClickPos.Z = 1.0f;
 				ClickPosition = testClickPos;
 				BTD->GenerateBuildDisplay(ClickPosition, ClickPosition);
-
-				BTW->UpdateTextVisibility(true);
 			}
-		}		
+		}
+		else
+		{
+			// Check if the selected sub tool uses a draw method
+			if (BTD->GetSubTool() == Wall || Floor) {
+				// Check where the player has clicked is inside of the WorldBounds
+				FVector testClickPos = FireTraceToActor().Location;
+				if (PC->GetIsPointInsideBound(testClickPos)) {
+					// If it is, then round it to the Building Bounds and start "drawing" with the BuildToolDisplay 
+					testClickPos.X = GetNearestMultiple(testClickPos.X, 250);
+					testClickPos.Y = GetNearestMultiple(testClickPos.Y, 250);
+					testClickPos.Z = 1.0f;
+					ClickPosition = testClickPos;
+					BTD->GenerateBuildDisplay(ClickPosition, ClickPosition);
+
+					BTW->UpdateTextVisibility(true);
+				}
+			}
+		}	
 	}
 }
 
@@ -258,13 +280,13 @@ void APlayer_Tools::ToggleEraseMode(bool bOverride, bool bOverrideTo)
 {
 	if (bOverride == true) {
 		bInEraseMode = bOverrideTo;
-		BTD->bInEraseMode = bOverrideTo;
-		PC->GetUI()->BuildState->UpdateEraseButtonEnabled(bOverrideTo);
+		BTD->UpdateEraseMode(bOverrideTo);
+		PC->GetUI()->BuildState->UpdateEraseModeEnabled(bOverrideTo);
 	}
 	else {
 		bInEraseMode = !bInEraseMode;
-		BTD->bInEraseMode = bInEraseMode;
-		PC->GetUI()->BuildState->UpdateEraseButtonEnabled(bInEraseMode);
+		BTD->UpdateEraseMode(bInEraseMode);
+		PC->GetUI()->BuildState->UpdateEraseModeEnabled(bInEraseMode);
 	}
 }
 
@@ -302,6 +324,31 @@ void APlayer_Tools::UpdateSelectedItem(FName ID, TEnumAsByte<EBuildToolSubType> 
 }
 
 /// -- Build Tool Tick Functions --
+void APlayer_Tools::BuildToolEraseTick()
+{
+	// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
+	// Also snap it to the building snapping distance (half of a wall size)
+	FHitResult TickTrace = FireTraceToActor();
+	FVector MouseLocation = TickTrace.Location;
+
+	MouseLocation.X = GetNearestMultiple(MouseLocation.X, PC->GetCurrentGridSnapValue());
+	MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, PC->GetCurrentGridSnapValue());
+	MouseLocation.Z = 1.0f;
+
+	SetActorLocation(MouseLocation);
+
+	// Update the LastPosition and call any related functions
+	if (MouseLocation != LastPosition) {
+		LastPosition = MouseLocation;
+		UpdateToolRotation();
+
+		// If the ClickPosition is valid (not (-1, -1, -1), then update the BTD
+		if (ClickPosition != FVector(-1, -1, -1)) {
+			BTD->GenerateBuildDisplay(ClickPosition, LastPosition);
+		}
+	}
+}
+
 // Called when the Build Tool is selected and the sub-tool is in Wall mode
 void APlayer_Tools::BuildToolWallModeTick()
 {
