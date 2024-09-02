@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "Data/BuildToolData.h"
+#include "Data/OptionsData.h"
 
 #include "Player_BuildToolDisplay.generated.h"
 
@@ -168,4 +169,8 @@ private:
 
 	// Int denoting the current amount of SMC needed for the Display
 	int Total = 0;
+
+	// -- Options Pointers --
+	// Pointer to the erase mode options in the game instance
+	FEraseOptions* EraseOptions;
 };

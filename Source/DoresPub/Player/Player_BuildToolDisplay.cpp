@@ -3,6 +3,7 @@
 #include "Player/Player_BuildToolDisplay.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Game/Game_DoresPubGI.h"
 
 #include "World/World_BuildingLevel.h"
 
@@ -15,7 +16,6 @@ APlayer_BuildToolDisplay::APlayer_BuildToolDisplay()
 		
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	RootComponent = Root;
-
 }
 
 // Called when the game starts or when spawned
@@ -24,6 +24,14 @@ void APlayer_BuildToolDisplay::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeMaterial();
+
+	// Also get the options from the game instance
+	// As they are pointers, they should only need to be collected once
+	UGame_DoresPubGI* GI = Cast<UGame_DoresPubGI>(GetGameInstance());
+	if (GI) {
+		EraseOptions = &GI->GetEraseOptions();
+		UE_LOG(LogTemp, Warning, TEXT("Walls included are now: %s"), EraseOptions->bIncludeWalls ? TEXT("true") : TEXT("false"));
+	}
 
 	// TEMP -- Find the ground floor and store a pointer to it
 	GroundFloor = Cast<AWorld_BuildingLevel>(UGameplayStatics::GetActorOfClass(GetWorld(), AWorld_BuildingLevel::StaticClass()));
