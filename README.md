@@ -10,7 +10,7 @@ In this project, I am creating a pub management simulation, where the player tak
 
 ## Project Document
  
- [Link](https://github.com/profdambledore/DoresPub/blob/main/Docs/DoresPub.pdf)
+ [Link](https://github.com/profdambledore/DoresPub/blob/main/Documents/DoresPub.pdf)
 
  ## Latest Update
 <table><tr><td valign="center" width="100%">
@@ -18,24 +18,27 @@ In this project, I am creating a pub management simulation, where the player tak
 ### v0.6e - Build Tool Mk4.4
 
  <p align="center">
-  <img src="https://github.com/profdambledore/DoresPub/blob/main/Images/v6-005.PNG" />
+  <img src="https://github.com/profdambledore/DoresPub/blob/main/Images/v06-005.PNG" />
 </p>
 
 -- UI - Build --
-Added a new widget switcher, used to swap between erase mode display and normal mode display
+
+Added a new widget switcher, used to swap between erase mode display and normal mode display\
 Renamed UpdateEraseButtonEnabled to UpdateEraseModeEnabled and also added a call to change the active widget of EraseModeSwitcher
 
 -- Player - Tools --
-Added a check for erase mode in OnTick()
+
+Added a check for erase mode in OnTick()\
 Added BuildToolEraseTick, which fires a trace to the mouse position, updates and snaps it to the selected snap size, updates LastPosition then calls GenerateBuildDisplay in the BuildToolDisplay
 - Also updated PrimaryRelease with a similar code block
 
 -- BuildToolDisplay --
-Added function UpdateEraseMode, which sets bInEraseMode to the inputted argument.
-- Also made bInEraseMode protected
-Added path for EraseMode in GenerateBuildDisplay, which is checked before the sub-tool switch
-Removed the erase mode code from CreateLineOnX
-Implemented utility function GetPointInsideRectange, which checks if an inputted point is between a min and max point of a rectange
+
+Added function UpdateEraseMode, which sets bInEraseMode to the inputted argument\
+Also made bInEraseMode protected.\
+Added path for EraseMode in GenerateBuildDisplay, which is checked before the sub-tool switch\
+Removed the erase mode code from CreateLineOnX\
+Implemented utility function GetPointInsideRectange, which checks if an inputted point is between a min and max point of a rectange\
 Added function GenerateEraseDisplay
 - Starts as usual, by moving the BuildToolDisplay to the StartPosition
 - Then calculates the minimum and maximum points of a rectangle from the StartPosition and EndPosition (a and d)
@@ -45,7 +48,7 @@ Added function GenerateEraseDisplay
 -- If it is, set a static mesh to its position and mesh from the BuildData
 - Repeat with the Y wall
 - Finally clear any excess SMC's
-// Currently draws the box points, as well as the box the player has drawn via DrawDebugBox (see Images)
+- // Currently draws the box points, as well as the box the player has drawn via DrawDebugBox (see Images)
 
 // The first iteration of the improved erase mode is implemented. Took a little while to implement as I didnt understand the c++ code from GetPointInsideRectange. Now erase mode isnt limited by the snapping of the walls and can be free selected. A wall just needs to be fully overlapped by the player's draw to capture it for deletion
 
