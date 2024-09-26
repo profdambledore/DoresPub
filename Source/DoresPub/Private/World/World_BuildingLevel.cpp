@@ -2,7 +2,6 @@
 
 
 #include "World/World_BuildingLevel.h"
-#include "Player/Player_BuildToolDisplay.h"
 
 // Sets default values
 AWorld_BuildingLevel::AWorld_BuildingLevel()

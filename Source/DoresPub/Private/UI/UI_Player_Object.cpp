@@ -6,7 +6,6 @@
 #include "UI/UI_Player_Object_CatButton.h"
 #include "UI/UI_Player_Object_ItemButton.h"
 #include "UI/UI_Player_Master.h"
-#include "Player/Player_Tools.h"
 
 #include "Engine/Texture2D.h"
 
@@ -129,12 +128,12 @@ void UUI_Player_Object::UpdateSelectedSubCategory(FString NewSubCategory, class 
 
 void UUI_Player_Object::UpdateSelectedObject(FName ObjectID)
 {
-	MUI->GetPlayerTools()->UpdateObjectMesh(ObjectDataTable->FindRow<FObjectData>(ObjectID, "")->Mesh);
+	//MUI->GetPlayerTools()->UpdateObjectMesh(ObjectDataTable->FindRow<FObjectData>(ObjectID, "")->Mesh);
 }
 
 void UUI_Player_Object::OnRMButtonReleased()
 {
-	if (MUI) {
-		MUI->GetPlayerTools()->ToggleRotationMode();
-	}
+	//if (MUI) {
+		//MUI->GetPlayerTools()->ToggleRotationMode();
+	//}
 }
