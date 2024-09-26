@@ -97,8 +97,6 @@ void APlayer_Tool_Build::PrimaryActionReleased()
 	ClickPosition = FVector(-1, -1, -1);
 	// Also clear the BTD 
 	ClearBuildDisplay();
-
-	BTW->UpdateTextVisibility(false);
 }
 
 void APlayer_Tool_Build::ToolTick()
@@ -574,6 +572,10 @@ void APlayer_Tool_Build::GenerateEraseDisplay(FVector StartPosition, FVector End
 	FVector a = FVector((StartPosition.X < EndPosition.X) ? StartPosition.X : EndPosition.X, (StartPosition.Y < EndPosition.Y) ? StartPosition.Y : EndPosition.Y, 1.0);
 	FVector d = FVector((StartPosition.X > EndPosition.X) ? StartPosition.X : EndPosition.X, (StartPosition.Y > EndPosition.Y) ? StartPosition.Y : EndPosition.Y, 1.0);
 
+	//UE_LOG(LogTemp, Warning, TEXT("Start = %s, End = %s"), *StartPosition.ToString(), *EndPosition.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("a.x = %f / d.x = %f"),a.X, d.X);
+	//UE_LOG(LogTemp, Warning, TEXT("a.y = %f / d.y = %f"), a.Y, d.Y);
+
 	// Draw it too
 	DrawDebugBox(GetWorld(), a, FVector(8.0f, 8.0f, 1.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)), FColor::Red, false, 0.5f, 0U, 3.0f);
 	DrawDebugBox(GetWorld(), d, FVector(8.0f, 8.0f, 1.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)), FColor::Purple, false, 0.5f, 0U, 3.0f);
@@ -635,17 +637,6 @@ void APlayer_Tool_Build::GenerateEraseDisplay(FVector StartPosition, FVector End
 					SMCPool[ActiveIndex]->SetRelativeLocation(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f));
 					SMCPool[ActiveIndex]->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 					SMCPool[ActiveIndex]->SetStaticMesh(PC->GetCurrentBuildingLevel()->GetWallObjectMeshAtPosition(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f), false)->GetStaticMesh());
-					ActiveIndex++;
-				}
-			}
-
-			// Finally, check if we should grab the floor tile
-			// Check if the bottom left corner is inside the box, then check the top right corner
-			if (GetPointInsideRectange(a, d, FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f)) && GetPointInsideRectange(a, d, FVector(RoundedStart.X + (WallSize * j) + 250, RoundedStart.Y + (WallSize * i) + 250, 1.0f))) {
-				if (PC->GetCurrentBuildingLevel()->GetFloorObjectMeshAtPosition(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f))) {
-					SMCPool[ActiveIndex]->SetRelativeLocation(FVector(RoundedStart.X + (WallSize * j), RoundedStart.Y + (WallSize * i), 1.0f));
-					SMCPool[ActiveIndex]->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-					SMCPool[ActiveIndex]->SetStaticMesh(FloorTileMesh);
 					ActiveIndex++;
 				}
 			}
