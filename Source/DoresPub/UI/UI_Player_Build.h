@@ -98,6 +98,9 @@ public:
 	/// -- Pointers --
 	// Pointer back to the Player_Master UI class
 	class UUI_Player_Master* MUI = nullptr;
+
+	// Pointer to the Build Tool owned by the player
+	class APlayer_Tool_Build* BuildTool = nullptr;
 	
 	/// -- Colours --
 	// FLinearColor of the button when selected

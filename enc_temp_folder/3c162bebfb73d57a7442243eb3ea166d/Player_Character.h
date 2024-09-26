@@ -176,10 +176,6 @@ protected:
 	// Bool denoting if the PrimaryToolButton is currently being held
 	bool bPrimaryHeld = false;
 
-	// Build Tool Class
-	UPROPERTY(EditDefaultsOnly, Category = "Tool Properties")
-	TSubclassOf<APlayer_Tool_Parent> BuildToolClass = nullptr;
-
 	// TEMP
 	// Pointer to the World Building Level
 	class AWorld_BuildingLevel* GroundFloor = nullptr;

@@ -247,9 +247,9 @@ void APlayer_Character::GiveTool(TEnumAsByte<EToolType> NewToolToAdd)
 			AvailableTools.Add(Default, DefTool);
 		}
 		else if (NewToolToAdd == Building) {
-			APlayer_Tool_Build* BuildTool = GetWorld()->SpawnActor<APlayer_Tool_Build>(BuildToolClass, FVector(), FRotator(), SpawnInfo);
-			BuildTool->SetupTool(this);
-			AvailableTools.Add(Building, BuildTool);
+			//APlayer_Tool_Build* BuildTool = GetWorld()->SpawnActor<APlayer_Tool_Build>(FVector(), FRotator(), SpawnInfo);
+			//BuildTool->SetupTool(this);
+			//AvailableTools.Add(Building, BuildTool);
 		}
 		else if (NewToolToAdd == Object) {
 

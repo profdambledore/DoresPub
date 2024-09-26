@@ -118,7 +118,7 @@ void APlayer_Controller::PrimaryAction(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
 	if (Character) {
-		Character->PrimaryActionTrace();
+		Character->PrimaryAction();
 	}
 }
 

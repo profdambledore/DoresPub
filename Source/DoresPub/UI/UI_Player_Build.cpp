@@ -5,7 +5,10 @@
 #include "UI/UI_Data_Build.h"
 #include "UI/UI_Player_Master.h"
 #include "UI/UI_Player_Build_WallButton.h"
+
+#include "Player/Player_Character.h"
 #include "Player/Player_Tools.h"
+#include "Player/Player_Tool_Build.h"
 
 void UUI_Player_Build::NativeConstruct()
 {
@@ -42,7 +45,7 @@ void UUI_Player_Build::AddSelectableWindowToList(FName ID, FSelectableWallData W
 
 void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallButton* NewSelectedButton)
 {
-	if (MUI) {
+	if (BuildTool) {
 		if (SelectedID == ObjectID) {
 			SelectedID = "";
 			SelectedItemButton->ClearSelectedCategory();
@@ -57,13 +60,13 @@ void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallB
 			SelectedItemButton->WallBorder->SetBrushColor(SelectedButtonColour);
 		}
 		
-		MUI->GetPlayerTools()->UpdateSelectedItem(SelectedID, Wall);
+		BuildTool->UpdateSelectedItem(SelectedID, Wall);
 	}
 }
 
 void UUI_Player_Build::UpdateSelectedWindow(FName WindowID, UUI_Player_Build_WallButton* NewSelectedButton)
 {
-	if (MUI) {
+	if (BuildTool) {
 		if (SelectedID == WindowID) {
 			SelectedID = "";
 			SelectedItemButton->ClearSelectedCategory();
@@ -80,34 +83,34 @@ void UUI_Player_Build::UpdateSelectedWindow(FName WindowID, UUI_Player_Build_Wal
 		}
 	}
 
-	MUI->GetPlayerTools()->UpdateSelectedItem(SelectedID, Window);
+	BuildTool->UpdateSelectedItem(SelectedID, Window);
 }
 
 void UUI_Player_Build::OnEraseButtonReleased()
 {
-	if (MUI) {
-		MUI->GetPlayerTools()->ToggleEraseMode();
+	if (BuildTool) {
+		BuildTool->UpdateEraseMode();
 	}
 }
 
 void UUI_Player_Build::OnWallButtonReleased()
 {
-	if (MUI) {
-		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Wall);
+	if (BuildTool) {
+		BuildTool->UpdateSubTool(EBuildToolSubType::Wall);
 	}
 }
 
 void UUI_Player_Build::OnFloorButtonReleased()
 {
-	if (MUI) {
-		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Floor);
+	if (BuildTool) {
+		BuildTool->UpdateSubTool(EBuildToolSubType::Floor);
 	}
 }
 
 void UUI_Player_Build::OnWindowButtonReleased()
 {
-	if (MUI) {
-		MUI->GetPlayerTools()->SwapSubTool(EBuildToolSubType::Window);
+	if (BuildTool) {
+		BuildTool->UpdateSubTool(EBuildToolSubType::Window);
 	}
 }
 

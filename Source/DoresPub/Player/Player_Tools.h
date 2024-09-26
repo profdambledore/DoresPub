@@ -10,16 +10,6 @@
 
 #include "Player_Tools.generated.h"
 
-// Enum denoting the different types of tools currently available to use
-UENUM(BlueprintType, Category = "Tools")
-enum EToolType
-{
-	Default UMETA(DisplayName="Default Tool"),
-	Building UMETA(DisplayName = "Building Tool"),
-	Object UMETA(DisplayName = "Object Tool"),
-	ToolCount UMETA(Hidden),
-};
-
 // Allows the macro to be used with the EToolType Enum
 ENUM_RANGE_BY_COUNT(EToolType, EToolType::ToolCount);
 

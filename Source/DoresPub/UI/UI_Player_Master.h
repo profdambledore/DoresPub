@@ -44,8 +44,11 @@ public:
 	void SwapActiveState(FString StateName);
 
 	/// -- Utility Functions --
-	// Called to return a pointer to the PlayerTools class spawned by the PC
+	// Called to return a pointer to the PlayerTools class spawned by the PC DEPRECTATED
 	class APlayer_Tools* GetPlayerTools();
+
+	// Called to return a pointer to the PlayerCharacter
+	class APlayer_Character* GetPlayerCharacter() { return PC; };
 
 protected:
 	/// -- Global Button Functions --

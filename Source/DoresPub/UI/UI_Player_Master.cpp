@@ -134,7 +134,7 @@ void UUI_Player_Master::SwapActiveState(FString StateName)
 /// -- Utility Functions --
 APlayer_Tools* UUI_Player_Master::GetPlayerTools()
 {
-	return PC->GetPT();
+	return nullptr;
 }
 
 
