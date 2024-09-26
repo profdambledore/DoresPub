@@ -16,9 +16,8 @@ UENUM(BlueprintType, Category = "Tools")
 enum EBuildToolSubType
 {
 	Wall UMETA(DisplayName = "Wall Sub-Tool"),
-	Window UMETA(DisplayName = "Window Sub-Tool"),
-	Door UMETA(DisplayName = "Door Sub-Tool"),
 	Floor UMETA(DisplayName = "Floor Sub-Tool"),
+	Extra UMETA(DisplayName = "Extras Sub-Tool"),	
 	BuildToolSubTypeMax UMETA(Hidden),
 };
 

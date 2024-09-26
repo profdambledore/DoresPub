@@ -27,7 +27,7 @@ public:
 	void AddSelectableWallToList(FName ID, FSelectableWallData WallData);
 
 	// Called to add a new selectable wall to the list view
-	void AddSelectableWindowToList(FName ID, FSelectableWallData WallData);
+	void AddSelectableExtraToList(FName ID, FSelectableWallData WallData);
 
 	// Called to update the selected wall in the BuildToolDisplay
 	UFUNCTION(BlueprintCallable)
@@ -35,7 +35,7 @@ public:
 
 	// Called to update the selected wall in the BuildToolDisplay
 	UFUNCTION(BlueprintCallable)
-	void UpdateSelectedWindow(FName ObjectID, class UUI_Player_Build_WallButton* NewSelectedButton);
+	void UpdateSelectedExtra(FName ObjectID, class UUI_Player_Build_WallButton* NewSelectedButton);
 
 	// Called to update the colour of the selected sub tool button if it's enabled or not
 	void UpdateSelectedSubToolButton(TEnumAsByte<EBuildToolSubType> NewSubType);
@@ -57,9 +57,9 @@ protected:
 	UFUNCTION()
 	void OnFloorButtonReleased();
 
-	// Button event to swap to window mode
+	// Button event to swap to Extra mode
 	UFUNCTION()
-	void OnWindowButtonReleased();
+	void OnExtraButtonReleased();
 
 public:
 	/// -- Components --
@@ -79,9 +79,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Sub Mode Buttons")
 	UButton* FloorModeButton = nullptr;
 
-	// Button to swap to window mode
+	// Button to swap to Extra mode
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Sub Mode Buttons")
-	UButton* WindowModeButton = nullptr;
+	UButton* ExtraModeButton = nullptr;
 
 	// Widget switcher that allows the UI to swap between different sub states
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Global Components")
@@ -91,9 +91,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Global Components")
 	UTileView* WallSelectionTileView = nullptr;
 
-	// Tile View Object for displaying the available windows
+	// Tile View Object for displaying the available Extras
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Global Components")
-	UTileView* WindowSelectionTileView = nullptr;
+	UTileView* ExtraSelectionTileView = nullptr;
 
 	/// -- Pointers --
 	// Pointer back to the Player_Master UI class

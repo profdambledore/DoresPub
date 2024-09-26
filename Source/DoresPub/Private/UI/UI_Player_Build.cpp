@@ -17,7 +17,7 @@ void UUI_Player_Build::NativeConstruct()
 	EraseModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnEraseButtonReleased);
 	WallModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnWallButtonReleased);
 	FloorModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnFloorButtonReleased);
-	WindowModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnWindowButtonReleased);
+	ExtraModeButton->OnReleased.AddDynamic(this, &UUI_Player_Build::OnExtraButtonReleased);
 
 	// Then set the default selected button to wall
 	UpdateSelectedSubToolButton(Wall);
@@ -35,11 +35,11 @@ void UUI_Player_Build::AddSelectableWallToList(FName ID, FSelectableWallData Wal
 	WallSelectionTileView->AddItem(NewWallObj);
 }
 
-void UUI_Player_Build::AddSelectableWindowToList(FName ID, FSelectableWallData WallData)
+void UUI_Player_Build::AddSelectableExtraToList(FName ID, FSelectableWallData WallData)
 {
 	UBuildSelectButtonData* NewWallObj = NewObject<UBuildSelectButtonData>();
-	NewWallObj->SetupData(this, ID, WallData.Icon, Window);
-	WindowSelectionTileView->AddItem(NewWallObj);
+	NewWallObj->SetupData(this, ID, WallData.Icon, Extra);
+	ExtraSelectionTileView->AddItem(NewWallObj);
 }
 
 void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallButton* NewSelectedButton)
@@ -63,16 +63,16 @@ void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallB
 	}
 }
 
-void UUI_Player_Build::UpdateSelectedWindow(FName WindowID, UUI_Player_Build_WallButton* NewSelectedButton)
+void UUI_Player_Build::UpdateSelectedExtra(FName ExtraID, UUI_Player_Build_WallButton* NewSelectedButton)
 {
 	if (BuildTool) {
-		if (SelectedID == WindowID) {
+		if (SelectedID == ExtraID) {
 			SelectedID = "";
 			SelectedItemButton->ClearSelectedCategory();
 			SelectedItemButton = nullptr;
 		}
 		else {
-			SelectedID = WindowID;
+			SelectedID = ExtraID;
 			if (SelectedItemButton) {
 
 				SelectedItemButton->ClearSelectedCategory();
@@ -82,7 +82,7 @@ void UUI_Player_Build::UpdateSelectedWindow(FName WindowID, UUI_Player_Build_Wal
 		}
 	}
 
-	BuildTool->UpdateSelectedItem(SelectedID, Window);
+	BuildTool->UpdateSelectedItem(SelectedID, Extra);
 }
 
 void UUI_Player_Build::OnEraseButtonReleased()
@@ -106,10 +106,10 @@ void UUI_Player_Build::OnFloorButtonReleased()
 	}
 }
 
-void UUI_Player_Build::OnWindowButtonReleased()
+void UUI_Player_Build::OnExtraButtonReleased()
 {
 	if (BuildTool) {
-		BuildTool->UpdateSubTool(EBuildToolSubType::Window);
+		BuildTool->UpdateSubTool(EBuildToolSubType::Extra);
 	}
 }
 
@@ -151,10 +151,10 @@ void UUI_Player_Build::UpdateSelectedSubToolButton(TEnumAsByte<EBuildToolSubType
 		SelectedButton = FloorModeButton;
 		break;
 
-	case Window:
-		WindowModeButton->SetBackgroundColor(SelectedButtonColour);
+	case Extra:
+		ExtraModeButton->SetBackgroundColor(SelectedButtonColour);
 		SubStateSwitcher->SetActiveWidgetIndex(2);
-		SelectedButton = WindowModeButton;
+		SelectedButton = ExtraModeButton;
 		break;
 
 	default:

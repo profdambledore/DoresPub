@@ -86,8 +86,8 @@ void APlayer_Tool_Build::PrimaryActionReleased()
 		BuildToolFloorModeReleased();
 		break;
 
-	case Window:
-		BuildToolWindowModeReleased();
+	case Extra:
+		BuildToolExtraModeReleased();
 		break;
 
 	default:
@@ -108,7 +108,7 @@ void APlayer_Tool_Build::ToolTick()
 	FHitResult TickTrace = FireTraceToActor();
 	FVector MouseLocation = TickTrace.Location;
 
-	// Branch off based on the sub-tool.  They uses a draw method (wall, floor) or replace method (window, door)
+	// Branch off based on the sub-tool.  They uses a draw method (wall, floor) or replace method (Extra, door)
 	// Start by checking if the erase mode is enabled
 	if (bInEraseMode) {
 		BuildToolEraseTick();
@@ -124,8 +124,8 @@ void APlayer_Tool_Build::ToolTick()
 			BuildToolFloorModeTick();
 			break;
 
-		case Window:
-			BuildToolWindowModeTick();
+		case Extra:
+			BuildToolExtraModeTick();
 			break;
 
 		default:
@@ -165,8 +165,8 @@ void APlayer_Tool_Build::SetupTool(APlayer_Character* NewPC)
 		if (d->Tags.Contains<FString>("selectable_wall")) {
 			BuildWidget->AddSelectableWallToList(i, *d);
 		}
-		else if (d->Tags.Contains<FString>("selectable_window")) {
-			BuildWidget->AddSelectableWindowToList(i, *d);
+		else if (d->Tags.Contains<FString>("selectable_extra")) {
+			BuildWidget->AddSelectableExtraToList(i, *d);
 		}
 	}
 }
@@ -189,7 +189,7 @@ void APlayer_Tool_Build::UpdateSubTool(TEnumAsByte<EBuildToolSubType> NewSubTool
 	SelectedID = "";
 	SelectedMesh = nullptr;
 
-	// Clear the Window Mode properties
+	// Clear the Extra Mode properties
 	if (LastHitSMC) {
 		if (LastHitSMC->GetStaticMesh() != LastHitMesh) {
 			LastHitSMC->SetStaticMesh(LastHitMesh);
@@ -383,7 +383,7 @@ void APlayer_Tool_Build::BuildToolFloorModeTick()
 	}
 }
 
-void APlayer_Tool_Build::BuildToolWindowModeTick()
+void APlayer_Tool_Build::BuildToolExtraModeTick()
 {
 	// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
 	// Also snap it to the building snapping distance (half of a wall size)
@@ -421,11 +421,11 @@ void APlayer_Tool_Build::BuildToolWindowModeTick()
 						// Compare the LastHitMesh to the Wall mesh
 						// Must match the default wall mesh to be suitable (at this time, could change in the future)
 						if (LastHitMesh == WallDataTable->FindRow<FSelectableWallData>("wall_default", "")->Mesh) {
-							// If it does match, hide the BTD, set the hit SMC to the window mesh
+							// If it does match, hide the BTD, set the hit SMC to the Extra mesh
 							UpdateDisplayValidity(2);
 							LastHitSMC->SetStaticMesh(SelectedMesh);
 
-							// Update the BuildToolWidget to display the selected window's price
+							// Update the BuildToolWidget to display the selected Extra's price
 							BTW->UpdateTextVisibility(true);
 							BTW->UpdateDisplayedText(-1, 0, WallDataTable->FindRow<FSelectableWallData>(SelectedID, "")->Price);
 						}
@@ -511,7 +511,7 @@ void APlayer_Tool_Build::BuildToolFloorModeReleased()
 	}
 }
 
-void APlayer_Tool_Build::BuildToolWindowModeReleased()
+void APlayer_Tool_Build::BuildToolExtraModeReleased()
 {
 	int cost = WallDataTable->FindRow<FSelectableWallData>(SelectedID, "")->Price;
 	if (cost <= PC->GetCurrentMoney()) {
@@ -526,7 +526,7 @@ void APlayer_Tool_Build::BuildToolWindowModeReleased()
 				LastHitSMC = nullptr;
 				LastHitMesh = nullptr;
 
-				// Charge the player for the window
+				// Charge the player for the Extra
 				PC->UpdateMoney(-cost);
 			}
 		}
@@ -552,8 +552,8 @@ void APlayer_Tool_Build::GenerateBuildDisplay(FVector StartPos, FVector EndPos)
 			GenerateFloorDisplay(StartPos, EndPos);
 			break;
 
-		case Window:
-			GenerateWindowDisplay(StartPos);
+		case Extra:
+			GenerateExtraDisplay(StartPos);
 			break;
 
 		default:
@@ -761,8 +761,8 @@ void APlayer_Tool_Build::GenerateFloorDisplay(FVector StartPosition, FVector End
 	}
 }
 
-// Called to generate a new window display
-void APlayer_Tool_Build::GenerateWindowDisplay(FVector StartPosition)
+// Called to generate a new Extra display
+void APlayer_Tool_Build::GenerateExtraDisplay(FVector StartPosition)
 {
 	// Move the BuildToolDisplay to the StartPosition
 	SetActorLocation(StartPosition);
@@ -776,7 +776,7 @@ void APlayer_Tool_Build::GenerateWindowDisplay(FVector StartPosition)
 	// Check that there is a SelectedMesh set
 	if (SelectedMesh) {
 		// If so, set SMCPool[0] to it if it hasn't already 
-		if (!SMCPool[0]->GetStaticMesh()) {
+		if (SMCPool[0]->GetStaticMesh() != SelectedMesh) {
 			SMCPool[0]->SetStaticMesh(SelectedMesh);
 		}
 

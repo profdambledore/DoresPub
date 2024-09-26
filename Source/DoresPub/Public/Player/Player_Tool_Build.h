@@ -110,8 +110,8 @@ protected:
 	// Called in OnTick when the Build Tool is selected and the sub-tool is in Floor mode
 	void BuildToolFloorModeTick();
 
-	// Called in OnTick when the Build Tool is selected and the sub-tool is in Window mode
-	void BuildToolWindowModeTick();
+	// Called in OnTick when the Build Tool is selected and the sub-tool is in Extra mode
+	void BuildToolExtraModeTick();
 
 	/// -- Tool Release Functions --
 	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Wall mode
@@ -120,8 +120,8 @@ protected:
 	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Floor mode
 	void BuildToolFloorModeReleased();
 
-	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Window mode
-	void BuildToolWindowModeReleased();
+	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Extra mode
+	void BuildToolExtraModeReleased();
 
 	/// -- Display Generation Functions --
 	// Called to generate a display of things to erase
@@ -133,8 +133,8 @@ protected:
 	// Called to generate a new floor display
 	void GenerateFloorDisplay(FVector StartPosition, FVector EndPosition);
 
-	// Called to generate a new window display
-	void GenerateWindowDisplay(FVector StartPosition);
+	// Called to generate a new Extra display
+	void GenerateExtraDisplay(FVector StartPosition);
 
 	// Called to create a line of static meshes along the X axis
 	// Start is the X of the start position, End is the X of the end position
