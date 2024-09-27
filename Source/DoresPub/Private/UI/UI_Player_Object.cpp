@@ -6,6 +6,7 @@
 #include "UI/UI_Player_Object_CatButton.h"
 #include "UI/UI_Player_Object_ItemButton.h"
 #include "UI/UI_Player_Master.h"
+#include "Player/Player_Tool_Object.h"
 
 #include "Engine/Texture2D.h"
 
@@ -37,23 +38,26 @@ void UUI_Player_Object::UpdateObjectTileView()
 	// Start by clearing the TileView
 	ObjectTileView->ClearListItems();
 
+	// Get the object data table from the Object Tool
+	UDataTable* ObjectsAvailable = ObjectTool->GetObjectDataTable();
+
 	// Store an array for all row names of the data table
-	TArray<FName> RowNames = ObjectDataTable->GetRowNames();
+	TArray<FName> RowNames = ObjectsAvailable->GetRowNames();
 
 	// Next, figure out what items should be shown.
 	// If no category is selected, show all items
 	if (CurrentSelectedObjectType == EObjectType::DefaultType) {
 		for (FName i : RowNames) {
-			AddItemToObjectTileView(*ObjectDataTable->FindRow<FObjectData>(i, ""), i);
+			AddItemToObjectTileView(*ObjectsAvailable->FindRow<FObjectData>(i, ""), i);
 		}
 	}
 
 	// If a category is selected, but a sub-category is not selected, show all of the category items only
 	else if (CurrentSelectedSubCategory == "") {
 		for (FName i : RowNames) {
-			FObjectData* Data = ObjectDataTable->FindRow<FObjectData>(i, "");
+			FObjectData* Data = ObjectsAvailable->FindRow<FObjectData>(i, "");
 			if (Data->Category == CurrentSelectedObjectType) {
-				AddItemToObjectTileView(*ObjectDataTable->FindRow<FObjectData>(i, ""), i);
+				AddItemToObjectTileView(*ObjectsAvailable->FindRow<FObjectData>(i, ""), i);
 			}
 		}
 	}
@@ -61,10 +65,10 @@ void UUI_Player_Object::UpdateObjectTileView()
 	// If both a Category and SubCategory are selected, then only show items of the sub-category
 	else {
 		for (FName i : RowNames) {
-			FObjectData* Data = ObjectDataTable->FindRow<FObjectData>(i, "");
+			FObjectData* Data = ObjectsAvailable->FindRow<FObjectData>(i, "");
 			if (Data->Category == CurrentSelectedObjectType) {
 				if (Data->SubCategory == CurrentSelectedSubCategory) {
-					AddItemToObjectTileView(*ObjectDataTable->FindRow<FObjectData>(i, ""), i);
+					AddItemToObjectTileView(*ObjectsAvailable->FindRow<FObjectData>(i, ""), i);
 				}
 			}
 		}
@@ -128,12 +132,10 @@ void UUI_Player_Object::UpdateSelectedSubCategory(FString NewSubCategory, class 
 
 void UUI_Player_Object::UpdateSelectedObject(FName ObjectID)
 {
-	//MUI->GetPlayerTools()->UpdateObjectMesh(ObjectDataTable->FindRow<FObjectData>(ObjectID, "")->Mesh);
+	ObjectTool->UpdateObjectMesh(ObjectID);
 }
 
 void UUI_Player_Object::OnRMButtonReleased()
 {
-	//if (MUI) {
-		//MUI->GetPlayerTools()->ToggleRotationMode();
-	//}
+	ObjectTool->ToggleRotationMode();
 }

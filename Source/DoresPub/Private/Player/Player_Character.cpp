@@ -9,6 +9,7 @@
 #include "Player/Player_Controller.h"
 #include "Player/Player_Tool_Parent.h"
 #include "Player/Player_Tool_Build.h"
+#include "Player/Player_Tool_Object.h"
 #include "World/World_BuildingLevel.h"
 
 #include "UI/UI_Player_Master.h"
@@ -70,6 +71,7 @@ void APlayer_Character::BeginPlay()
 	// Add the Default and Building Tools
 	GiveTool(Default);
 	GiveTool(Building);
+	GiveTool(Object);
 
 	// For testing purposes...
 	// Create a new WorldBounds
@@ -251,7 +253,9 @@ void APlayer_Character::GiveTool(TEnumAsByte<EToolType> NewToolToAdd)
 			AvailableTools.Add(Building, BuildTool);
 		}
 		else if (NewToolToAdd == Object) {
-
+			APlayer_Tool_Object* ObjectTool = GetWorld()->SpawnActor<APlayer_Tool_Object>(ObjectToolClass, FVector(), FRotator(), SpawnInfo);
+			ObjectTool->SetupTool(this);
+			AvailableTools.Add(Object, ObjectTool);
 		}
 	}
 }

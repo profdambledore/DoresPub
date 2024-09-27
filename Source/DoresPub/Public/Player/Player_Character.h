@@ -180,6 +180,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Tool Properties")
 	TSubclassOf<APlayer_Tool_Parent> BuildToolClass = nullptr;
 
+	// Object Tool Class
+	UPROPERTY(EditDefaultsOnly, Category = "Tool Properties")
+	TSubclassOf<APlayer_Tool_Parent> ObjectToolClass = nullptr;
+
 	// TEMP
 	// Pointer to the World Building Level
 	class AWorld_BuildingLevel* GroundFloor = nullptr;

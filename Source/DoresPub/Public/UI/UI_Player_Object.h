@@ -24,11 +24,11 @@ public:
 
 	virtual void SynchronizeProperties() override;
 
-protected:
-	/// -- State Functions --
 	// Called to update the objects shown in the ObjectTileView 
 	void UpdateObjectTileView();
 
+protected:
+	/// -- State Functions --
 	// Called to update the sub category buttons based on the selected category
 	void UpdateSubCategoryButtons();
 
@@ -78,12 +78,10 @@ public:
 	// Pointer back to the Player_Master UI class
 	class UUI_Player_Master* MUI = nullptr;
 
-protected:
-	/// -- Data Tables --
-	// Data Table of all objects
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Category Data")
-	UDataTable* ObjectDataTable = nullptr;
+	// Pointer to the Build Tool owned by the player
+	class APlayer_Tool_Object* ObjectTool = nullptr;
 
+protected:
 	/// -- Actives --
 	TEnumAsByte<EObjectType> CurrentSelectedObjectType;
 

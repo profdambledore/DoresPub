@@ -115,6 +115,9 @@ protected:
 
 	/// -- Tool Release Functions --
 	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Wall mode
+	void BuildToolEraseReleased();
+
+	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Wall mode
 	void BuildToolWallModeReleased();
 
 	//  Called in PrimaryReleased when the Build Tool is selected and the sub-tool is in Floor mode

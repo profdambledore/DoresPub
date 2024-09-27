@@ -77,23 +77,27 @@ void APlayer_Tool_Build::PrimaryActionPressed()
 
 void APlayer_Tool_Build::PrimaryActionReleased()
 {
-	switch (GetSubTool()) {
-	case Wall:
-		BuildToolWallModeReleased();
-		break;
-
-	case Floor:
-		BuildToolFloorModeReleased();
-		break;
-
-	case Extra:
-		BuildToolExtraModeReleased();
-		break;
-
-	default:
-		break;
+	if (bInEraseMode) {
+		BuildToolEraseReleased();
 	}
+	else {
+		switch (GetSubTool()) {
+		case Wall:
+			BuildToolWallModeReleased();
+			break;
 
+		case Floor:
+			BuildToolFloorModeReleased();
+			break;
+
+		case Extra:
+			BuildToolExtraModeReleased();
+			break;
+
+		default:
+			break;
+		}
+	}
 	ClickPosition = FVector(-1, -1, -1);
 	// Also clear the BTD 
 	ClearBuildDisplay();
@@ -257,6 +261,32 @@ void APlayer_Tool_Build::BuildToolEraseTick()
 		// If the ClickPosition is valid (not (-1, -1, -1), then update the BTD
 		if (ClickPosition != FVector(-1, -1, -1)) {
 			GenerateBuildDisplay(ClickPosition, LastPosition);
+
+			// If we are in erase mode, calculate the cost
+			int cost = 0;
+
+			// For each display data returned
+			for (FBuildToolData i : GetDisplayData()) {
+				// Check if the id of the data is valid.  If so...
+				// TO:DO - World_BuildingLevel gets a function to return the ID of the wall at a position and rotation
+				// Work in same way as GetWallObjectMeshAtPosition but returns FName/FString whatever is used in BuildData
+				// Dont use ID from i directly as this will not be correct
+				//if (i.ID != "") {
+					// Add to the total cost of the refund
+					//cost += WallDataTable->FindRow<FSelectableWallData>(i.ID, "")->Price * RefundMultiplier;
+				//}
+			}
+
+			// Update the BTW with the new price
+			BTW->UpdateDisplayedText(GetDisplaySize().first, GetDisplaySize().second, cost);
+
+			// Next, check if the MouseLocation is outside the zone.
+			if (!PC->GetIsPointInsideBound(MouseLocation)) {
+				UpdateDisplayValidity(false);
+			}
+			else {
+				UpdateDisplayValidity(true);
+			}
 		}
 	}
 }
@@ -283,56 +313,26 @@ void APlayer_Tool_Build::BuildToolWallModeTick()
 		if (ClickPosition != FVector(-1, -1, -1)) {
 			GenerateBuildDisplay(ClickPosition, LastPosition);
 
-			// Check if we are in erase mode
-			if (!bInEraseMode) {
-				// If we aren't in erase mode, check that there is a wall ID selected
-				if (SelectedID != "") {
-					// Calculate the cost
-					int cost;  cost = GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(SelectedID, "")->Price;
-
-					// Update the BTW with the new price
-					BTW->UpdateDisplayedText(GetDisplaySize().first, GetDisplaySize().second, cost);
-
-					// Check if it is valid (money)
-					if (cost <= PC->GetCurrentMoney()) {
-						// Next, check if the MouseLocation is outside the zone.
-						if (!PC->GetIsPointInsideBound(MouseLocation)) {
-							UpdateDisplayValidity(false);
-						}
-						else {
-							UpdateDisplayValidity(true);
-						}
-					}
-					else {
-						UpdateDisplayValidity(false);
-					}
-				}
-			}
-			else {
-				// If we are in erase mode, calculate the cost
-				int cost = 0;
-
-				// For each display data returned
-				for (FBuildToolData i : GetDisplayData()) {
-					// Check if the id of the data is valid.  If so...
-					// TO:DO - World_BuildingLevel gets a function to return the ID of the wall at a position and rotation
-					// Work in same way as GetWallObjectMeshAtPosition but returns FName/FString whatever is used in BuildData
-					// Dont use ID from i directly as this will not be correct
-					if (i.ID != "") {
-						// Add to the total cost of the refund
-						cost += WallDataTable->FindRow<FSelectableWallData>(i.ID, "")->Price * RefundMultiplier;
-					}
-				}
+			// If we aren't in erase mode, check that there is a wall ID selected
+			if (SelectedID != "") {
+				// Calculate the cost
+				int cost;  cost = GetDisplayWallsInUse() * WallDataTable->FindRow<FSelectableWallData>(SelectedID, "")->Price;
 
 				// Update the BTW with the new price
 				BTW->UpdateDisplayedText(GetDisplaySize().first, GetDisplaySize().second, cost);
 
-				// Next, check if the MouseLocation is outside the zone.
-				if (!PC->GetIsPointInsideBound(MouseLocation)) {
-					UpdateDisplayValidity(false);
+				// Check if it is valid (money)
+				if (cost <= PC->GetCurrentMoney()) {
+					// Next, check if the MouseLocation is outside the zone.
+					if (!PC->GetIsPointInsideBound(MouseLocation)) {
+						UpdateDisplayValidity(false);
+					}
+					else {
+						UpdateDisplayValidity(true);
+					}
 				}
 				else {
-					UpdateDisplayValidity(true);
+					UpdateDisplayValidity(false);
 				}
 			}
 		}
@@ -455,6 +455,28 @@ void APlayer_Tool_Build::BuildToolExtraModeTick()
 }
 
 /// -- Tool Release Functions --
+void APlayer_Tool_Build::BuildToolEraseReleased()
+{
+	// Check where the player has released is inside of the WorldBounds
+	FVector testClickPos = FireTraceToActor().Location;
+	if (PC->GetIsPointInsideBound(testClickPos)) {
+		// Get the display data
+		TArray<FBuildToolData> data = GetDisplayData();
+
+		// Check if there is some data in the display mode
+		if (data.Num() > 0) {
+
+			// Remove the Walls from the WorldBuildingLevel
+			TArray<FName> wallsToRefund = PC->GetCurrentBuildingLevel()->RemoveBuildingObjects(data);
+			int total = 0;
+			for (FName w : wallsToRefund) {
+				total += WallDataTable->FindRow<FSelectableWallData>(w, "")->Price * RefundMultiplier;
+			}
+			PC->UpdateMoney(total);
+		}
+	}
+}
+
 void APlayer_Tool_Build::BuildToolWallModeReleased()
 {
 	// Check where the player has released is inside of the WorldBounds
@@ -465,26 +487,14 @@ void APlayer_Tool_Build::BuildToolWallModeReleased()
 
 		// Check if there is some data in the display mode
 		if (data.Num() > 0) {
-			// Check what mode they are in
-			if (!bInEraseMode) {
-				// Get the cost of a single wall (as you can only ever place one type of wall at a time, just check the ID of the first index and get the cost)
-				int cost = WallDataTable->FindRow<FSelectableWallData>(data[0].ID, "")->Price;
-				// Check if they have enough money for the building
-				int total = GetDisplayWallsInUse() * cost;
-				if (total <= PC->GetCurrentMoney()) {
-					// If they do, then 
-					PC->GetCurrentBuildingLevel()->AddBuildingObjects(data);
-					PC->UpdateMoney(-total);
-				}
-			}
-			else {
-				// Remove the Walls from the WorldBuildingLevel
-				TArray<FName> wallsToRefund = PC->GetCurrentBuildingLevel()->RemoveBuildingObjects(data);
-				int total = 0;
-				for (FName w : wallsToRefund) {
-					total += WallDataTable->FindRow<FSelectableWallData>(w, "")->Price * RefundMultiplier;
-				}
-				PC->UpdateMoney(total);
+			// Get the cost of a single wall (as you can only ever place one type of wall at a time, just check the ID of the first index and get the cost)
+			int cost = WallDataTable->FindRow<FSelectableWallData>(data[0].ID, "")->Price;
+			// Check if they have enough money for the building
+			int total = GetDisplayWallsInUse() * cost;
+			if (total <= PC->GetCurrentMoney()) {
+				// If they do, then 
+				PC->GetCurrentBuildingLevel()->AddBuildingObjects(data);
+				PC->UpdateMoney(-total);
 			}
 		}
 	}
@@ -954,40 +964,24 @@ TArray<FBuildToolData> APlayer_Tool_Build::GetDisplayData()
 	// Init local variables
 	TArray<FBuildToolData> out; FBuildToolData curr;
 
-	// Continue based on the selected sub-tool
-	if (SelectedSubTool == Wall) {
-		// For each SMC in the StaticMeshComponent pool...
-		for (UStaticMeshComponent* i : SMCPool) {
-			// Check if the mesh is valid.  If so...
-			if (i->GetStaticMesh() != nullptr) {
-				// Set the curr FBuildToolData to the correct properties of the current SMC (Mesh, Location and Rotation)
-				curr.Mesh = i->GetStaticMesh();
-				curr.Location = i->GetComponentLocation();
-				curr.Rotation = i->GetComponentRotation();
-				curr.ID = SelectedID;
-
-				// And add it to the total array
-				out.Add(curr);
-			}
-		}
-	}
-	else if (SelectedSubTool == Floor) {
-		// For each SMC in the StaticMeshComponent pool...
-		for (UStaticMeshComponent* i : SMCPool) {
-			// Check if the mesh is valid.  If so...
-			if (i->GetStaticMesh() != nullptr) {
-				// Set the curr FBuildToolData to the correct properties of the current SMC (Mesh, Location and Rotation)
-				curr.Mesh = i->GetStaticMesh();
-				curr.Location = i->GetComponentLocation();
-				curr.Rotation = i->GetComponentRotation();
+	// For each SMC in the StaticMeshComponent pool...
+	for (UStaticMeshComponent* i : SMCPool) {
+		// Check if the mesh is valid.  If so...
+		if (i->GetStaticMesh() != nullptr) {
+			curr.Mesh = i->GetStaticMesh();
+			curr.Location = i->GetComponentLocation();
+			curr.Rotation = i->GetComponentRotation();
+			if (i->GetStaticMesh() == FloorTileMesh) {
 				curr.ID = "floor";
-
-				// And add it to the total array
-				out.Add(curr);
 			}
+			else {
+				curr.ID = SelectedID;
+			}
+
+			// And add it to the total array
+			out.Add(curr);
 		}
 	}
-
 
 	// Return the total array
 	return out;
