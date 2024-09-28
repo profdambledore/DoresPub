@@ -67,8 +67,8 @@ public:
 	UTileView* ObjectTileView = nullptr;
 
 	// Button to swap to/from rotation mode
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Rotation Mode")
-	UButton* RotationModeButton = nullptr;
+	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Rotation Mode")
+	//UButton* RotationModeButton = nullptr;
 
 	// TMap of all available sub categories
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Category Data")

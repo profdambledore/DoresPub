@@ -33,17 +33,46 @@ void APlayer_Tool_Object::Tick(float DeltaTime)
 
 void APlayer_Tool_Object::PrimaryActionPressed()
 {
+	// Check where the player has released is inside of the WorldBounds
+	FVector testClickPos = FireTraceToActor().Location;
+	if (PC->GetIsPointInsideBound(testClickPos)) {
+		// Check that the player can afford the item
+		if (ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price <= PC->GetCurrentMoney()) {
+			ToggleRotationMode();
+			bPlacing = true;
+		}
+	}
 }
 
 void APlayer_Tool_Object::PrimaryActionReleased()
 {
-	PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedObjectMeshComponent->GetStaticMesh(), SelectedObjectMeshComponent->GetComponentTransform());
+	if (bPlacing) {
+		// Take the money from the player
+		PC->UpdateMoney(-ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price);
+		PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedObjectMeshComponent->GetStaticMesh(), SelectedObjectMeshComponent->GetComponentTransform());
+		ToggleRotationMode();
+		bPlacing = false;
+	}
+
+}
+
+void APlayer_Tool_Object::SecondaryActionPressed()
+{
+	if (bPlacing) {
+		ToggleRotationMode();
+		bPlacing = false;
+	}
+}
+
+void APlayer_Tool_Object::SecondaryActionReleased()
+{
+
 }
 
 void APlayer_Tool_Object::ToolTick()
 {
 	// Check what mode the Object tool is in
-		// If they are in Normal Mode
+	// If they are in Normal Mode
 	if (!bInRotationMode) {
 		// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
 		// Also snap it to the building snapping distance (half of a wall size)
@@ -62,6 +91,9 @@ void APlayer_Tool_Object::ToolTick()
 	// Else, if they are in Rotation Mode
 	else {
 		FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(SelectedObjectMeshComponent->GetComponentLocation(), FireTraceToActor().Location);
+
+		// Add the rotation offset if any
+		ObjectRotation += FRotator(0.0f, -90.0f, 0.0f);
 
 		// Snap the rotation's yaw to the bounds, while also nullifying the roll and pitch
 		ObjectRotation.Yaw = GetNearestMultiple(ObjectRotation.Yaw, PC->GetCurrentRotationSnapValue());

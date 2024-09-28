@@ -25,7 +25,7 @@ void UUI_Player_Object::NativeConstruct()
 	}
 
 	// Bind button events
-	RotationModeButton->OnReleased.AddDynamic(this, &UUI_Player_Object::OnRMButtonReleased);
+	//RotationModeButton->OnReleased.AddDynamic(this, &UUI_Player_Object::OnRMButtonReleased);
 }
 
 void UUI_Player_Object::SynchronizeProperties()

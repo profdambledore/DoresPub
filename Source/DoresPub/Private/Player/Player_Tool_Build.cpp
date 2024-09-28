@@ -105,6 +105,15 @@ void APlayer_Tool_Build::PrimaryActionReleased()
 	BTW->UpdateTextVisibility(false);
 }
 
+void APlayer_Tool_Build::SecondaryActionPressed()
+{
+	ClickPosition = FVector(-1, -1, -1);
+	// Also clear the BTD 
+	ClearBuildDisplay();
+
+	BTW->UpdateTextVisibility(false);
+}
+
 void APlayer_Tool_Build::ToolTick()
 {
 	// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds

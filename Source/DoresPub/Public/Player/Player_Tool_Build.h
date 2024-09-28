@@ -32,6 +32,9 @@ public:
 	// Called when the primary tool action is released
 	virtual void PrimaryActionReleased() override;
 
+	// Called when the primary tool action is pressed
+	virtual void SecondaryActionPressed() override;
+
 	// Called when the tool action is ticked
 	virtual void ToolTick() override;
 

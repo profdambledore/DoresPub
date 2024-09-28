@@ -338,11 +338,23 @@ void AWorld_BuildingLevel::SetupDefaultMaterials(FWallData& WallDataToUpdate)
 // TO:DO - Update this to use Actors instead, not implemented yet so do that first
 void AWorld_BuildingLevel::AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Spawning a new object at %s"), *MeshTransform.GetLocation().ToString());
-	UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Object Mesh"))));
-	NewMeshComp->RegisterComponent();
-	NewMeshComp->SetStaticMesh(MeshToSpawn);
-	NewMeshComp->SetWorldTransform(MeshTransform);
+	// Start by calculating the amount of SMC's required for the current build + the new build data
+	int Required; int Current = 0;
+	for (UStaticMeshComponent* i : ObjectPool) {
+		if (i->GetStaticMesh() != nullptr) {
+			Current++;
+		}
+	}
+
+	Required = Current + 1;
+
+	// Spawn in any required SMC's
+	if (Required > ObjectPool.Num()) {
+		AddNewObjectComponent(Required);
+	}
+
+	ObjectPool[Current]->SetStaticMesh(MeshToSpawn);
+	ObjectPool[Current]->SetWorldTransform(MeshTransform);
 }
 
 /// -- Uitlity Functions --
@@ -401,6 +413,23 @@ void AWorld_BuildingLevel::AddNewStaticMeshComponent(int Target)
 
 	// Check if there is now enough component sets added.  If not, recurse
 	if (SMCPool.Num() < Target) {
+		AddNewStaticMeshComponent(Target);
+	}
+}
+
+void AWorld_BuildingLevel::AddNewObjectComponent(int Target)
+{
+	int NewNumber = ObjectPool.Num() + 1;
+
+	UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Wall Mesh %i"), NewNumber)));
+	NewMeshComp->RegisterComponent();
+	NewMeshComp->SetCollisionProfileName(FName("Building"));
+	ObjectPool.Add(NewMeshComp);
+
+	UE_LOG(LogTemp, Warning, TEXT("New Object"));
+
+	// Check if there is now enough component sets added.  If not, recurse
+	if (ObjectPool.Num() < Target) {
 		AddNewStaticMeshComponent(Target);
 	}
 }

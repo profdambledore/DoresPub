@@ -25,6 +25,12 @@ public:
 	// Called when the primary tool action is released
 	virtual void PrimaryActionReleased();
 
+	// Called when the primary tool action is pressed
+	virtual void SecondaryActionPressed();
+
+	// Called when the primary tool action is released
+	virtual void SecondaryActionReleased();
+
 	// Called when the tool action is ticked
 	virtual void ToolTick();
 

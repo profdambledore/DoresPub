@@ -177,8 +177,18 @@ void APlayer_Character::PrimaryAction()
 	}
 }
 
-void APlayer_Character::SecondaryActionTrace()
+void APlayer_Character::SecondaryAction()
 {
+	bSecondaryHeld = !bSecondaryHeld;
+
+	if (AvailableTools.Contains(CurrentTool)) {
+		if (bSecondaryHeld) {
+			GetCurrentTool()->SecondaryActionPressed();
+		}
+		else {
+			GetCurrentTool()->SecondaryActionReleased();
+		}
+	}
 }
 
 void APlayer_Character::ChangeGridSnapSize(bool bIncrement)

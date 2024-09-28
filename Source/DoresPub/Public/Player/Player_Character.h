@@ -53,7 +53,7 @@ public:
 	void PrimaryAction();
 
 	// Called to fire a Secondary Action Trace
-	void SecondaryActionTrace();
+	void SecondaryAction();
 
 	// Called to modify the current grid snap size
 	void ChangeGridSnapSize(bool bIncrement);
@@ -175,6 +175,9 @@ protected:
 
 	// Bool denoting if the PrimaryToolButton is currently being held
 	bool bPrimaryHeld = false;
+
+	// Bool denoting if the SecondaryToolButton is currently being held
+	bool bSecondaryHeld = false;
 
 	// Build Tool Class
 	UPROPERTY(EditDefaultsOnly, Category = "Tool Properties")

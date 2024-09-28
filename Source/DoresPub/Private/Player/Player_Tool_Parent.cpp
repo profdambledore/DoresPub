@@ -39,6 +39,14 @@ void APlayer_Tool_Parent::PrimaryActionReleased()
 {
 }
 
+void APlayer_Tool_Parent::SecondaryActionPressed()
+{
+}
+
+void APlayer_Tool_Parent::SecondaryActionReleased()
+{
+}
+
 void APlayer_Tool_Parent::ToolTick()
 {
 }

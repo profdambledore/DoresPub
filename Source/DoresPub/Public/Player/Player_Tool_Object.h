@@ -25,6 +25,12 @@ public:
 	// Called when the primary tool action is released
 	virtual void PrimaryActionReleased() override;
 
+	// Called when the primary tool action is pressed
+	virtual void SecondaryActionPressed() override;
+
+	// Called when the primary tool action is released
+	virtual void SecondaryActionReleased() override;
+
 	// Called when the tool action is ticked
 	virtual void ToolTick() override;
 
@@ -72,6 +78,9 @@ protected:
 	/// -- Object Tool Properties --
 	// bool denoting if the player is in rotation mode
 	bool bInRotationMode = false;
+
+	// Bool denoting that the tool is currently placing
+	bool bPlacing = false;
 
 	// Pointer to the Build State in the player's UI
 	class UUI_Player_Object* ObjectWidget = nullptr;

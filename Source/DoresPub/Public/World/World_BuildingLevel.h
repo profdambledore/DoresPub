@@ -62,8 +62,11 @@ protected:
 	virtual void BeginPlay() override;
 
 	/// -- Uitlity Functions --
-	// Called to add a new StaticMeshComponent to the BuildToolDisplay
+	// Called to add a new StaticMeshComponent to the SMCPool
 	void AddNewStaticMeshComponent(int Target);
+
+	// Called to add a new object StaticMeshComponent to the ObjectPool
+	void AddNewObjectComponent(int Target);
 
 private:
 	/// -- Building Functions --
@@ -85,6 +88,10 @@ protected:
 	/// -- Spawned Components --
 	// TArray of all spawned StaticMeshComponents, used for displaying the building before it is built
 	TArray<UStaticMeshComponent*> SMCPool;
+
+	// TArray of all spawned object StaticMeshComponents, used for displaying the building before it is built
+	// TO:DO - Replace with a custom class for objects, as some will have interactablility with units
+	TArray<UStaticMeshComponent*> ObjectPool;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Data")
 	TArray<FBuildData> BuildData;

@@ -127,7 +127,7 @@ void APlayer_Controller::SecondaryAction(const FInputActionValue& Value)
 {
 	// Check if the Character Pointer has been created successfully.  If so...
 	if (Character) {
-		Character->SecondaryActionTrace();
+		Character->SecondaryAction();
 	}
 }
 
