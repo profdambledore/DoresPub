@@ -3,6 +3,8 @@
 
 #include "World/World_BuildingLevel.h"
 
+#include "Object/Object_Parent.h"
+
 // Sets default values
 AWorld_BuildingLevel::AWorld_BuildingLevel()
 {
@@ -335,26 +337,20 @@ void AWorld_BuildingLevel::SetupDefaultMaterials(FWallData& WallDataToUpdate)
 
 /// -- Object Functions --
 // Called to add a new object at a position
-// TO:DO - Update this to use Actors instead, not implemented yet so do that first
-void AWorld_BuildingLevel::AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform)
+void AWorld_BuildingLevel::AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform)
 {
-	// Start by calculating the amount of SMC's required for the current build + the new build data
-	int Required; int Current = 0;
-	for (UStaticMeshComponent* i : ObjectPool) {
-		if (i->GetStaticMesh() != nullptr) {
-			Current++;
-		}
-	}
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	Required = Current + 1;
+	// Spawn a new FObject_Parent actor.  TODO - Replace with an induvidual class from FObjectData)
+	AObject_Parent* NewObject = GetWorld()->SpawnActor<AObject_Parent>(MeshTransform.GetLocation(), MeshTransform.GetRotation().Rotator(), SpawnInfo);
+	SpawnedObjects.Add(NewObject);
 
-	// Spawn in any required SMC's
-	if (Required > ObjectPool.Num()) {
-		AddNewObjectComponent(Required);
-	}
+	// Setup the object with the data from ObjectToSpawn
+	NewObject->SetupObject(ObjectID, ObjectToSpawn.Mesh);
 
-	ObjectPool[Current]->SetStaticMesh(MeshToSpawn);
-	ObjectPool[Current]->SetWorldTransform(MeshTransform);
+
+	//GetWorld()->SpawnActor<APlayer_Tool_Build>(BuildToolClass, FVector(), FRotator(), SpawnInfo);
 }
 
 /// -- Uitlity Functions --
@@ -419,19 +415,19 @@ void AWorld_BuildingLevel::AddNewStaticMeshComponent(int Target)
 
 void AWorld_BuildingLevel::AddNewObjectComponent(int Target)
 {
-	int NewNumber = ObjectPool.Num() + 1;
+	//int NewNumber = ObjectPool.Num() + 1;
 
-	UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Wall Mesh %i"), NewNumber)));
-	NewMeshComp->RegisterComponent();
-	NewMeshComp->SetCollisionProfileName(FName("Building"));
-	ObjectPool.Add(NewMeshComp);
+	//UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this, FName(*FString::Printf(TEXT("Wall Mesh %i"), NewNumber)));
+	//NewMeshComp->RegisterComponent();
+	//NewMeshComp->SetCollisionProfileName(FName("Building"));
+	//ObjectPool.Add(NewMeshComp);
 
-	UE_LOG(LogTemp, Warning, TEXT("New Object"));
+	//UE_LOG(LogTemp, Warning, TEXT("New Object"));
 
 	// Check if there is now enough component sets added.  If not, recurse
-	if (ObjectPool.Num() < Target) {
-		AddNewStaticMeshComponent(Target);
-	}
+	//if (ObjectPool.Num() < Target) {
+	//	AddNewStaticMeshComponent(Target);
+	//}
 }
 
 // Called to find the BuildData struct index based on an inputted FVector.

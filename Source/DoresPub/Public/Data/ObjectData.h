@@ -18,11 +18,11 @@ enum EObjectType
 	DefaultType UMETA(DisplayName = "Default"),
 	Seating UMETA(DisplayName = "Seating"),
 	Tables UMETA(DisplayName = "Tables"),
-	Count UMETA(Hidden),
+	ObjectTypeMax UMETA(Hidden),
 };
 
 // Allows the macro to be used with the EObjectType Enum
-ENUM_RANGE_BY_COUNT(EObjectType, EObjectType::Count)
+ENUM_RANGE_BY_COUNT(EObjectType, EObjectType::ObjectTypeMax)
 
 USTRUCT(BlueprintType)
 struct FObjectData : public FTableRowBase

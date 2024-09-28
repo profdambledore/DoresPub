@@ -15,12 +15,35 @@ public:
 	// Sets default values for this actor's properties
 	AObject_Parent();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	/// -- Object Functions --
+	// Called to update the mesh and ID of the object
+	void SetupObject(FName NewID, UStaticMesh* NewMesh);
+
+	/// -- Utility Functions --
+	// Called to get the ID of this object
+	FName GetID() { return ObjectID; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
+protected:
+	/// -- Object Components --
+	// SceneComponent acting as the tool's root
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parent Components")
+	USceneComponent* Root = nullptr;
+
+	// StaticMeshComponent of the object's mesh
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Object Components")
+	UStaticMeshComponent* ObjectMesh;
+
+	/// -- Object Properties --
+	// FName denoting the object's ID
+	FName ObjectID = "";
 
 };

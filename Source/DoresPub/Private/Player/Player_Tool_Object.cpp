@@ -49,7 +49,7 @@ void APlayer_Tool_Object::PrimaryActionReleased()
 	if (bPlacing) {
 		// Take the money from the player
 		PC->UpdateMoney(-ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price);
-		PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedObjectMeshComponent->GetStaticMesh(), SelectedObjectMeshComponent->GetComponentTransform());
+		PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedID, *ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false), SelectedObjectMeshComponent->GetComponentTransform());
 		ToggleRotationMode();
 		bPlacing = false;
 	}

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 
 #include "Data/BuildToolData.h"
+#include "Data/ObjectData.h"
 
 #include "World_BuildingLevel.generated.h"
 
@@ -42,7 +43,7 @@ public:
 	/// -- Object Functions --
 	// Called to add a new object at a position
 	// TO:DO - Update this to use Actors instead, not implemented yet so do that first
-	void AddObjectToLevel(UStaticMesh* MeshToSpawn, FTransform MeshTransform);
+	void AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform);
 
 	/// -- Uitlity Functions --
 	// Called to return the mesh of a static mesh component at a location and rotation
@@ -89,9 +90,8 @@ protected:
 	// TArray of all spawned StaticMeshComponents, used for displaying the building before it is built
 	TArray<UStaticMeshComponent*> SMCPool;
 
-	// TArray of all spawned object StaticMeshComponents, used for displaying the building before it is built
-	// TO:DO - Replace with a custom class for objects, as some will have interactablility with units
-	TArray<UStaticMeshComponent*> ObjectPool;
+	// TArray of all spawned object actors
+	TArray<class AObject_Parent*> SpawnedObjects;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Data")
 	TArray<FBuildData> BuildData;
