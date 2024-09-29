@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Player/Player_Tool_Parent.h"
+
+#include "Dataflow/DataflowEngineTypes.h"
+
 #include "Player_Tool_Object.generated.h"
 
 UCLASS()
@@ -88,5 +91,15 @@ protected:
 	// Data Table of all available objects
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* ObjectDataTable = nullptr;
+
+	// Pointer to the selected object
+	class AActor* SelectedObject = nullptr;
+
+	// FTransform of the selected object's original transform
+	FTransform SelectedObjectPrevious;
+
+	/// -- Selected Object Options --
+	// Bool denoting if the object can be placed on other objects
+	bool bPlacedOnObjects = false;
 
 };

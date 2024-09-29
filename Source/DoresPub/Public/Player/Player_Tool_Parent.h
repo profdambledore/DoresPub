@@ -53,7 +53,7 @@ protected:
 
 	/// -- Utility Functions --
 	// Called to fire a trace to hit an object, returning FHitResult from the trace
-	FHitResult FireTraceToActor();
+	FHitResult FireTraceToActor(AActor* ActorsToIgnore = nullptr);
 
 	// Called to round a float to the nearest multple, returning the output
 	float GetNearestMultiple(float Input, int Multiple);

@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+#include "Dataflow/DataflowEngineTypes.h"
+
 #include "Object_Parent.generated.h"
 
 UCLASS()
@@ -20,11 +23,14 @@ public:
 
 	/// -- Object Functions --
 	// Called to update the mesh and ID of the object
-	void SetupObject(FName NewID, UStaticMesh* NewMesh);
+	void SetupObject(FName NewID, UStaticMesh* NewMesh, TArray<FStringValuePair> NewTags);
 
 	/// -- Utility Functions --
 	// Called to get the ID of this object
 	FName GetID() { return ObjectID; }
+
+	// Called to get the objects tags
+	TArray<FStringValuePair> GetObjectTags() { return ObjectTags; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,4 +52,6 @@ protected:
 	// FName denoting the object's ID
 	FName ObjectID = "";
 
+	// TArray of FStrings of the objects Tags
+	TArray<FStringValuePair> ObjectTags;
 };

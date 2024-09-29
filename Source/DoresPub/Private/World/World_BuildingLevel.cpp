@@ -347,8 +347,7 @@ void AWorld_BuildingLevel::AddObjectToLevel(FName ObjectID, FObjectData ObjectTo
 	SpawnedObjects.Add(NewObject);
 
 	// Setup the object with the data from ObjectToSpawn
-	NewObject->SetupObject(ObjectID, ObjectToSpawn.Mesh);
-
+	NewObject->SetupObject(ObjectID, ObjectToSpawn.Mesh, ObjectToSpawn.ObjectTags);
 
 	//GetWorld()->SpawnActor<APlayer_Tool_Build>(BuildToolClass, FVector(), FRotator(), SpawnInfo);
 }

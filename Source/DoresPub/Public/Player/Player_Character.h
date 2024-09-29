@@ -137,14 +137,14 @@ protected:
 	FBox2D WorldBounds;
 
 	// Float denoting the index of the current grid snap value
-	float CurrentGridSnapValue = 0;
+	float CurrentGridSnapValue = 4;
 
 	// TArray of grid snap values
 	UPROPERTY(EditDefaultsOnly, Category = "World Properties")
 	TArray<int> GridSnapValues;
 
 	// Float denoting the index of the current grid snap value
-	float CurrentRotationSnapValue = 0;
+	float CurrentRotationSnapValue = 5;
 
 	// TArray of grid snap values
 	UPROPERTY(EditDefaultsOnly, Category = "World Properties")

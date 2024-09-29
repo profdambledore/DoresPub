@@ -1,0 +1,317 @@
+[
+	{
+		"Name": "sofa_greensofa",
+		"Description": "A green sofa",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa1.T_GreenSofa1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01.SM_Prop_Sofa_01'",
+		"Price": 10000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_long",
+		"Description": "A long green sofa",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_1.T_GreenSofa_1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Straight_01.SM_Prop_Sofa_01_Straight_01'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_short",
+		"Description": "A short green sofa",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_3.T_GreenSofa_3'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Straight_02.SM_Prop_Sofa_01_Straight_02'",
+		"Price": 7500,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner1",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C1.T_GreenSofa_C1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_01.SM_Prop_Sofa_01_Corner_01'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner2",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C2.T_GreenSofa_C2'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_02.SM_Prop_Sofa_01_Corner_02'",
+		"Price": 13000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner3",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C3.T_GreenSofa_C3'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_03.SM_Prop_Sofa_01_Corner_03'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner4",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C4.T_GreenSofa_C4'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_04.SM_Prop_Sofa_01_Corner_04'",
+		"Price": 13000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner5",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C5.T_GreenSofa_C5'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_05.SM_Prop_Sofa_01_Corner_05'",
+		"Price": 7500,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner6",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C6.T_GreenSofa_C6'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_06.SM_Prop_Sofa_01_Corner_06'",
+		"Price": 5000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_greensofa_corner7",
+		"Description": "A green sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Green Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_GreenSofa_C6.T_GreenSofa_C6'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_01_Corner_07.SM_Prop_Sofa_01_Corner_07'",
+		"Price": 5000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa",
+		"Description": "A pink sofa",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_1.T_PinkSofa_1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02.SM_Prop_Sofa_02'",
+		"Price": 10000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_long",
+		"Description": "A long pink sofa",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_2.T_PinkSofa_2'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Straight_01.SM_Prop_Sofa_02_Straight_01'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_short",
+		"Description": "A short pink sofa",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_3.T_PinkSofa_3'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Straight_02.SM_Prop_Sofa_02_Straight_02'",
+		"Price": 7500,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner1",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C1.T_PinkSofa_C1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_01.SM_Prop_Sofa_02_Corner_01'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner2",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C2.T_PinkSofa_C2'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_02.SM_Prop_Sofa_02_Corner_02'",
+		"Price": 13000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner3",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C3.T_PinkSofa_C3'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_03.SM_Prop_Sofa_02_Corner_03'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner4",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C4.T_PinkSofa_C4'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_04.SM_Prop_Sofa_02_Corner_04'",
+		"Price": 13000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner5",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C5.T_PinkSofa_C5'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_05.SM_Prop_Sofa_02_Corner_05'",
+		"Price": 7500,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner6",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C6.T_PinkSofa_C6'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_06.SM_Prop_Sofa_02_Corner_06'",
+		"Price": 5000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_pinksofa_corner7",
+		"Description": "A pink sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Pink Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_PinkSofa_C7.T_PinkSofa_C7'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_02_Corner_07.SM_Prop_Sofa_02_Corner_07'",
+		"Price": 5000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa",
+		"Description": "A blue sofa",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_1.T_BlueSofa_1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03.SM_Prop_Sofa_03'",
+		"Price": 10000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_long",
+		"Description": "A long blue sofa",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_2.T_BlueSofa_2'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Straight_01.SM_Prop_Sofa_03_Straight_01'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_short",
+		"Description": "A short blue sofa",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_3.T_BlueSofa_3'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Straight_02.SM_Prop_Sofa_03_Straight_02'",
+		"Price": 7500,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner1",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C1.T_BlueSofa_C1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_01.SM_Prop_Sofa_03_Corner_01'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner2",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C2.T_BlueSofa_C2'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_02.SM_Prop_Sofa_03_Corner_02'",
+		"Price": 13000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner3",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C3.T_BlueSofa_C3'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_03.SM_Prop_Sofa_03_Corner_03'",
+		"Price": 12000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner4",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C4.T_BlueSofa_C4'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_04.SM_Prop_Sofa_03_Corner_04'",
+		"Price": 13000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner5",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C5.T_BlueSofa_C5'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_05.SM_Prop_Sofa_03_Corner_05'",
+		"Price": 7500,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner6",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C6.T_BlueSofa_C6'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_06.SM_Prop_Sofa_03_Corner_06'",
+		"Price": 5000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "sofa_bluesofa_corner7",
+		"Description": "A blue sofa corner",
+		"Category": "Seating",
+		"SubCategory": "Blue Sofa",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Seating/T_BlueSofa_C7.T_BlueSofa_C7'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Props/SM_Prop_Sofa_03_Corner_07.SM_Prop_Sofa_03_Corner_07'",
+		"Price": 5000,
+		"ObjectTags": []
+	},
+	{
+		"Name": "testObject_Burger",
+		"Description": "A burger test object",
+		"Category": "TestObjects",
+		"SubCategory": "Burger",
+		"Icon": "/Script/Engine.Texture2D'/Engine/EngineResources/AICON-Green.AICON-Green'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Food/SM_Prop_Food_Burger_03.SM_Prop_Food_Burger_03'",
+		"Price": 0,
+		"ObjectTags": [
+			{
+				"Key": "placeableOnObjects",
+				"Value": "true"
+			}
+		]
+	}
+]

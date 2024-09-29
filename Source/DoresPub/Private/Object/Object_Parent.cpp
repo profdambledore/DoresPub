@@ -33,9 +33,10 @@ void AObject_Parent::Tick(float DeltaTime)
 
 }
 
-void AObject_Parent::SetupObject(FName NewID, UStaticMesh* NewMesh)
+void AObject_Parent::SetupObject(FName NewID, UStaticMesh* NewMesh, TArray<FStringValuePair> NewTags)
 {
 	ObjectID = NewID;
 	ObjectMesh->SetStaticMesh(NewMesh);
+	ObjectTags = NewTags;
 }
 

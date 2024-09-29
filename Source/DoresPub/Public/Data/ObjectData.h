@@ -7,6 +7,7 @@
 #include "Engine/DataTable.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
+#include "Dataflow/DataflowEngineTypes.h"
 
 #include "ObjectData.generated.h"
 
@@ -18,6 +19,7 @@ enum EObjectType
 	DefaultType UMETA(DisplayName = "Default"),
 	Seating UMETA(DisplayName = "Seating"),
 	Tables UMETA(DisplayName = "Tables"),
+	TestObjects UMETA(DisplayName = "TestObjects"),
 	ObjectTypeMax UMETA(Hidden),
 };
 
@@ -66,6 +68,10 @@ public:
 	// Int denoting the price of the object per unit placed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
+
+	// TArray of FString denoting objecy tags
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FStringValuePair> ObjectTags;
 };
 
 USTRUCT(BlueprintType)

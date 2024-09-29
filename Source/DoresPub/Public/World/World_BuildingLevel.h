@@ -7,6 +7,7 @@
 
 #include "Data/BuildToolData.h"
 #include "Data/ObjectData.h"
+#include "Dataflow/DataflowEngineTypes.h"
 
 #include "World_BuildingLevel.generated.h"
 

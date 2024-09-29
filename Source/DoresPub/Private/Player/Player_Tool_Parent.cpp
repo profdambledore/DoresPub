@@ -68,14 +68,18 @@ void APlayer_Tool_Parent::UpdateToolRotation()
 {
 }
 
-FHitResult APlayer_Tool_Parent::FireTraceToActor()
+FHitResult APlayer_Tool_Parent::FireTraceToActor(AActor* ActorsToIgnore)
 {
 	// Fire a line trace infront of this camera
 	FHitResult TraceHit;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(this);
 	TraceParams.AddIgnoredActor(PC);
-	//TraceParams.AddIgnoredActor(BTD);
+
+	// Add additional actors if nessassary
+	if (ActorsToIgnore) {
+		TraceParams.AddIgnoredActor(ActorsToIgnore);
+	}
 
 	// Mouse Location/Direction Vectors
 	FVector MouseDir, MouseLoc;
