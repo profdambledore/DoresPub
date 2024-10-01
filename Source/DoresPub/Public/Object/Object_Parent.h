@@ -32,6 +32,8 @@ public:
 	// Called to get the objects tags
 	TArray<FStringValuePair> GetObjectTags() { return ObjectTags; }
 
+	UStaticMesh* GetObjectMesh() { return ObjectMesh->GetStaticMesh(); }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

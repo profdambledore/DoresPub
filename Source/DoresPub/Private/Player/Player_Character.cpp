@@ -191,6 +191,14 @@ void APlayer_Character::SecondaryAction()
 	}
 }
 
+// Called to fire a Delete Action
+void APlayer_Character::DeleteAction()
+{
+	if (AvailableTools.Contains(CurrentTool)) {
+		GetCurrentTool()->DeleteAction();
+	}
+}
+
 void APlayer_Character::ChangeGridSnapSize(bool bIncrement)
 {
 	

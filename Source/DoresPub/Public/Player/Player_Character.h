@@ -52,8 +52,11 @@ public:
 	// Called to fire a Primary Action
 	void PrimaryAction();
 
-	// Called to fire a Secondary Action Trace
+	// Called to fire a Secondary Action
 	void SecondaryAction();
+
+	// Called to fire a Delete Action
+	void DeleteAction();
 
 	// Called to modify the current grid snap size
 	void ChangeGridSnapSize(bool bIncrement);

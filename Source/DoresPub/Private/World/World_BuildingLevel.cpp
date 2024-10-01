@@ -344,7 +344,7 @@ void AWorld_BuildingLevel::AddObjectToLevel(FName ObjectID, FObjectData ObjectTo
 
 	// Spawn a new FObject_Parent actor.  TODO - Replace with an induvidual class from FObjectData)
 	AObject_Parent* NewObject = GetWorld()->SpawnActor<AObject_Parent>(MeshTransform.GetLocation(), MeshTransform.GetRotation().Rotator(), SpawnInfo);
-	SpawnedObjects.Add(NewObject);
+	//SpawnedObjects.Add(NewObject);
 
 	// Setup the object with the data from ObjectToSpawn
 	NewObject->SetupObject(ObjectID, ObjectToSpawn.Mesh, ObjectToSpawn.ObjectTags);

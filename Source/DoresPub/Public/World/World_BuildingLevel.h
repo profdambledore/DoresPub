@@ -46,6 +46,9 @@ public:
 	// TO:DO - Update this to use Actors instead, not implemented yet so do that first
 	void AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform);
 
+	// Called to remove a object from the world
+	void RemoveObjectFromLevel(AActor* ActorToRemove);
+
 	/// -- Uitlity Functions --
 	// Called to return the mesh of a static mesh component at a location and rotation
 	// If returned nullptr, then none was found
@@ -92,7 +95,7 @@ protected:
 	TArray<UStaticMeshComponent*> SMCPool;
 
 	// TArray of all spawned object actors
-	TArray<class AObject_Parent*> SpawnedObjects;
+	//TArray<class AObject_Parent*> SpawnedObjects;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Data")
 	TArray<FBuildData> BuildData;

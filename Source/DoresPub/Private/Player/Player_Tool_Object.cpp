@@ -17,13 +17,49 @@ APlayer_Tool_Object::APlayer_Tool_Object()
 	// Object Tool Components
 	SelectedObjectMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Object Tool Mesh"));
 	SelectedObjectMeshComponent->SetupAttachment(Root, "");
-	SelectedObjectMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	SelectedObjectMeshComponent->SetCollisionProfileName(FName("BuildingTool"));
+	SelectedObjectMeshComponent->SetCollisionProfileName(FName("ObjectTool"));
+	SelectedObjectMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
 }
 
 void APlayer_Tool_Object::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Add the overlap functions for the SelectedObjectMeshComponent
+	SelectedObjectMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &APlayer_Tool_Object::OnSOMCBeginOverlap);
+	SelectedObjectMeshComponent->OnComponentEndOverlap.AddDynamic(this, &APlayer_Tool_Object::OnSOMCEndOverlap);
+}
+
+void APlayer_Tool_Object::OnSOMCBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// If the overlapped actor is valid, then...
+	if (OtherActor) {
+		// Add the actor to the OverlappedActors array
+		OverlappedActors.Add(OtherActor);
+
+		// If the array is now greater than 0 (overlapping at least one object), then change the material of the SelectedObject to the InvalidMaterial
+		if (OverlappedActors.Num() > 0) {
+			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+				SelectedObjectMeshComponent->SetMaterial(i, InvalidMaterial);
+			}
+			bPlaceableAtLocation = false;
+		}
+	}
+}
+
+void APlayer_Tool_Object::OnSOMCEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	// Remove the actor from the OverlappedActors array
+	OverlappedActors.Remove(OtherActor);
+
+	// If the array is now empty, then change the material of the SelectedObject back to it's original material
+	if (OverlappedActors.Num() == 0) {
+		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+		}
+		bPlaceableAtLocation = true;
+	}
 }
 
 
@@ -34,6 +70,11 @@ void APlayer_Tool_Object::Tick(float DeltaTime)
 
 void APlayer_Tool_Object::PrimaryActionPressed()
 {
+	// If the player doesn't have either an SelectedObject or a SelectedID, there is no possible way to be in RotationMode, so set it to be false
+	if (!SelectedObjectMeshComponent->GetStaticMesh()) {
+		bInRotationMode = false;
+	}
+
 	// Check if the player actually has an selected id.  If so, then
 	if (SelectedID != "") {
 		// Check where the player has released is inside of the WorldBounds
@@ -66,8 +107,25 @@ void APlayer_Tool_Object::PrimaryActionPressed()
 					SelectedObject = FindObjectTrace.GetActor();
 					bPlacedOnObjects = false;
 
+					// Hide the object
+					SelectedObject->SetActorHiddenInGame(true);
+					SelectedObject->SetActorEnableCollision(false);
+
+					// Cast to the hit object
+					AObject_Parent* HitObject = Cast<AObject_Parent>(FindObjectTrace.GetActor());
+
+					// Set the SOMC to the SelectedObject's mesh and match the rotation
+					SelectedObjectMeshComponent->SetStaticMesh(HitObject->GetObjectMesh());
+					SelectedObjectMeshComponent->SetWorldRotation(HitObject->GetActorRotation());
+
+					// Store the materials of the object
+					for (int i = 0; i < HitObject->GetObjectMesh()->GetStaticMaterials().Num(); i++) {
+						SelectedObjectMaterials.Add(HitObject->GetObjectMesh()->GetMaterial(i));
+						SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+					}
+
 					// Also check if the object 'picked up' can be placed on other objects
-					for (FStringValuePair i : Cast<AObject_Parent>(FindObjectTrace.GetActor())->GetObjectTags()) {
+					for (FStringValuePair i : HitObject->GetObjectTags()) {
 						if (i.Key == "placeableOnObjects") {
 							if (i.Value == "true") {
 								bPlacedOnObjects = true;
@@ -82,21 +140,40 @@ void APlayer_Tool_Object::PrimaryActionPressed()
 
 void APlayer_Tool_Object::PrimaryActionReleased()
 {
-	if (bPlacing) {
-		// Take the money from the player, then add the object to the world via the current BuildingLevel
-		PC->UpdateMoney(-ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price);
-		PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedID, *ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false), SelectedObjectMeshComponent->GetComponentTransform());
+	// If the object can be placed at the location
+	if (bPlaceableAtLocation) {
+		// Check if the player is currently in placing mode
+		if (bPlacing) {
+			// Take the money from the player, then add the object to the world via the current BuildingLevel
+			PC->UpdateMoney(-ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price);
+			PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedID, *ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false), SelectedObjectMeshComponent->GetComponentTransform());
 
-		// Then exit rotation mode
-		ToggleRotationMode();
-		bPlacing = false;
+			// Then exit rotation mode
+			ToggleRotationMode();
+			bPlacing = false;
+		}
+		// Check if the player is in rotation mode while having a selected object
+		else if (bInRotationMode && SelectedObject) {
+			// If they do, stop moving/rotating the object and clear the SelectedObjectPrevious
+			SelectedObject->SetActorHiddenInGame(false);
+			SelectedObject->SetActorEnableCollision(true);
+
+			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+				SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+			}
+
+			SelectedObject = nullptr;
+			SelectedObjectPrevious = FTransform();
+			SelectedObjectMaterials.Empty();
+
+			ToggleRotationMode();
+			SelectedObjectMeshComponent->SetStaticMesh(nullptr);
+		}
 	}
-	// Check if the player is in rotation mode while having a selected object
-	else if (bInRotationMode && SelectedObject) {
-		// If they do, stop moving/rotating the object and clear the SelectedObjectPrevious
-		SelectedObject = nullptr;
-		SelectedObjectPrevious = FTransform();
-		ToggleRotationMode();
+	// If the item cannot be placed at this location, stop rotating and placing
+	else {
+		bInRotationMode = false;
+		bPlacing = false;
 	}
 
 }
@@ -111,19 +188,50 @@ void APlayer_Tool_Object::SecondaryActionPressed()
 	// Next, check if the player is moving a placed object.  If they are, move it back to it's previous transform
 	if (SelectedObject) {
 		SelectedObject->SetActorTransform(SelectedObjectPrevious);
+
+		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+		}
+
+		// Unhide the object
+		SelectedObject->SetActorHiddenInGame(false);
+		SelectedObject->SetActorEnableCollision(true);
+		SelectedObjectMeshComponent->SetStaticMesh(nullptr);
 		SelectedObject = nullptr;
+		SelectedObjectMaterials.Empty();
 	}
 	// Finally, check if the player has a selected ID but isnt currently placing it.  If so, then clear the current selected ID
 	if (SelectedID != "" && !bPlacing) {
+		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+		}
+
 		SelectedMesh = nullptr;
 		SelectedID = "";
 		SelectedObjectMeshComponent->SetStaticMesh(nullptr);
+		SelectedObjectMaterials.Empty();
 	}
 }
 
 void APlayer_Tool_Object::SecondaryActionReleased()
 {
 
+}
+
+void APlayer_Tool_Object::DeleteAction()
+{
+	// If the player has picked up a placed item, get it's ID
+	if (SelectedObject) {
+		FName IDToRefund = Cast<AObject_Parent>(SelectedObject)->GetID();
+
+		// Find the data table row corrisponding with the ID and refund the player that amount * the refund multiplier
+		int RefundAmount = ObjectDataTable->FindRow<FObjectData>(IDToRefund, "")->Price * RefundMultiplier;
+		PC->UpdateMoney(RefundAmount);
+		SelectedObject->Destroy();
+
+		SelectedObjectMaterials.Empty();
+		SelectedObject = nullptr;
+	}
 }
 
 void APlayer_Tool_Object::ToolTick()
@@ -170,6 +278,7 @@ void APlayer_Tool_Object::ToolTick()
 
 			// Then rotate the mesh
 			SelectedObject->SetActorRotation(ObjectRotation);
+			SelectedObjectMeshComponent->SetWorldRotation(ObjectRotation);
 		}
 		else {
 			FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(SelectedObjectMeshComponent->GetComponentLocation(), FireTraceToActor().Location);
@@ -195,9 +304,14 @@ void APlayer_Tool_Object::OnEquip()
 void APlayer_Tool_Object::OnUnequip()
 {
 	// Clear any selected objects
+	for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+		SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+	}
+
 	SelectedMesh = nullptr;
 	SelectedID = "";
 	SelectedObjectMeshComponent->SetStaticMesh(nullptr);
+	SelectedObjectMaterials.Empty();
 
 	// If they are moving an object, place it back in its previous transform
 	if (SelectedObject) {
@@ -227,10 +341,14 @@ void APlayer_Tool_Object::UpdateObjectMesh(FName NewID)
 {
 	// If the NewID matches the current ID OR it is blank, clear the selected item
 	if (NewID == SelectedID || NewID == "") {
+		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+		}
+
 		SelectedMesh = nullptr;
 		SelectedID = "";
 		SelectedObjectMeshComponent->SetStaticMesh(nullptr);
-
+		SelectedObjectMaterials.Empty();
 	}
 	else {
 		// Find the item in the Data table, setting up the mesh and ID to the data found
@@ -239,6 +357,11 @@ void APlayer_Tool_Object::UpdateObjectMesh(FName NewID)
 		SelectedID = NewID;
 		SelectedObjectMeshComponent->SetStaticMesh(NewObject.Mesh);
 		bPlacedOnObjects = false;
+
+		// Store the material of the object
+		for (int i = 0; i < SelectedMesh->GetStaticMaterials().Num(); i++) {
+			SelectedObjectMaterials.Add(SelectedMesh->GetMaterial(i));
+		}
 
 		// Also check if the item has the tag placeableOnObjects
 		for (FStringValuePair i : NewObject.ObjectTags) {

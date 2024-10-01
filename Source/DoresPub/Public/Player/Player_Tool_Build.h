@@ -218,9 +218,6 @@ protected:
 
 private:
 	/// -- Building Tool Properties --
-	// Float denoting the multiplier of the refund
-	float RefundMultiplier = 0.8;
-
 	// Enum denoting the current selected sub tool (defaults to Wall)
 	TEnumAsByte<EBuildToolSubType> SelectedSubTool = EBuildToolSubType::Wall;
 

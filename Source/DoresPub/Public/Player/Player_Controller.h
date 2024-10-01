@@ -48,6 +48,9 @@ protected:
 	// Called to fire a secondary action input (rmb)
 	void SecondaryAction(const FInputActionValue& Value);
 
+	// Called to fire a delete action input (delete/backspace)
+	void DeleteAction(const FInputActionValue& Value);
+
 	// Called to change the current snapping value of the grid
 	void IncreaseGridSnap(const FInputActionValue& Value);
 

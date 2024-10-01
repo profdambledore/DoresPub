@@ -34,6 +34,9 @@ public:
 	// Called when the primary tool action is released
 	virtual void SecondaryActionReleased() override;
 
+	// Called when the delete tool action is released
+	virtual void DeleteAction() override;
+
 	// Called when the tool action is ticked
 	virtual void ToolTick() override;
 
@@ -64,13 +67,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/// -- Object Tool Properties --
-	// Pointer to the current selected mesh;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Object Tool Properties")
-	UStaticMesh* SelectedMesh = nullptr;
-
-	// FName of the ID of the selected object
-	FName SelectedID = "";
+	UFUNCTION()
+	void OnSOMCBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	void OnSOMCEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
 	/// -- Object Tool Components --
@@ -79,6 +80,13 @@ protected:
 	UStaticMeshComponent* SelectedObjectMeshComponent;
 
 	/// -- Object Tool Properties --
+	// Pointer to the current selected mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Object Tool Properties")
+	UStaticMesh* SelectedMesh = nullptr;
+
+	// FName of the ID of the selected object
+	FName SelectedID = "";
+
 	// bool denoting if the player is in rotation mode
 	bool bInRotationMode = false;
 
@@ -98,8 +106,21 @@ protected:
 	// FTransform of the selected object's original transform
 	FTransform SelectedObjectPrevious;
 
+	// UMaterial* denoting an invalid placement
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	UMaterial* InvalidMaterial = nullptr;
+
+	// UMaterial denoting the selected object's material
+	TArray<UMaterialInterface*> SelectedObjectMaterials;
+
+	// Bool denoting if the object can be placed at this location
+	bool bPlaceableAtLocation = true;
+
 	/// -- Selected Object Options --
 	// Bool denoting if the object can be placed on other objects
 	bool bPlacedOnObjects = false;
+
+	// TArray of AActors that the selected object is currently overlapping
+	TArray<AActor*> OverlappedActors;
 
 };

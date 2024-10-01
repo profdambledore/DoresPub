@@ -39,6 +39,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Action Inputs")
 	class UInputAction* SecondaryActionInput = nullptr;
 
+	// Pointer to the delete action player input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Action Inputs")
+	class UInputAction* DeleteActionInput = nullptr;
+
 	// Pointer to the modify grid snapping input
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grid Inputs")
 	class UInputAction* IncreaseGridSnapInput = nullptr;

@@ -25,11 +25,14 @@ public:
 	// Called when the primary tool action is released
 	virtual void PrimaryActionReleased();
 
-	// Called when the primary tool action is pressed
+	// Called when the secondary tool action is pressed
 	virtual void SecondaryActionPressed();
 
-	// Called when the primary tool action is released
+	// Called when the secondary tool action is released
 	virtual void SecondaryActionReleased();
+
+	// Called when the delete tool action is released
+	virtual void DeleteAction();
 
 	// Called when the tool action is ticked
 	virtual void ToolTick();
@@ -53,7 +56,7 @@ protected:
 
 	/// -- Utility Functions --
 	// Called to fire a trace to hit an object, returning FHitResult from the trace
-	FHitResult FireTraceToActor(AActor* ActorsToIgnore = nullptr);
+	FHitResult FireTraceToActor(AActor* ActorsToIgnore = nullptr, ECollisionChannel CollisionChannel = ECC_WorldDynamic);
 
 	// Called to round a float to the nearest multple, returning the output
 	float GetNearestMultiple(float Input, int Multiple);
@@ -77,4 +80,7 @@ protected:
 	// FVector denoting the click position
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector ClickPosition = FVector(-1, -1, -1);
+
+	// Float denoting the multiplier of the refund
+	float RefundMultiplier = 0.8;
 };

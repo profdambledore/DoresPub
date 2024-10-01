@@ -47,6 +47,10 @@ void APlayer_Tool_Parent::SecondaryActionReleased()
 {
 }
 
+void APlayer_Tool_Parent::DeleteAction()
+{
+}
+
 void APlayer_Tool_Parent::ToolTick()
 {
 }
@@ -68,7 +72,7 @@ void APlayer_Tool_Parent::UpdateToolRotation()
 {
 }
 
-FHitResult APlayer_Tool_Parent::FireTraceToActor(AActor* ActorsToIgnore)
+FHitResult APlayer_Tool_Parent::FireTraceToActor(AActor* ActorsToIgnore, ECollisionChannel CollisionChannel)
 {
 	// Fire a line trace infront of this camera
 	FHitResult TraceHit;
@@ -87,7 +91,7 @@ FHitResult APlayer_Tool_Parent::FireTraceToActor(AActor* ActorsToIgnore)
 	// Get the player's mouse location in world space
 	PC->GetPC()->DeprojectMousePositionToWorld(MouseLoc, MouseDir);
 
-	bool InteractTrace = GetWorld()->LineTraceSingleByChannel(TraceHit, MouseLoc, MouseLoc + (MouseDir * 4000), ECC_WorldDynamic, TraceParams);
+	bool InteractTrace = GetWorld()->LineTraceSingleByChannel(TraceHit, MouseLoc, MouseLoc + (MouseDir * 4000), CollisionChannel, TraceParams);
 	//DrawDebugLine(GetWorld(), MouseLoc, MouseLoc + (MouseDir * 2000), FColor::Red, false, 5, 2, 5);
 
 	return TraceHit;

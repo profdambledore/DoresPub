@@ -56,6 +56,7 @@ void APlayer_Controller::SetupInputComponent()
 		EnhancedInputComponent->BindAction(InputConfig->ZoomCamera, ETriggerEvent::Triggered, this, &APlayer_Controller::ZoomCamera);
 		EnhancedInputComponent->BindAction(InputConfig->PrimaryActionInput, ETriggerEvent::Triggered, this, &APlayer_Controller::PrimaryAction);
 		EnhancedInputComponent->BindAction(InputConfig->SecondaryActionInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SecondaryAction);
+		EnhancedInputComponent->BindAction(InputConfig->DeleteActionInput, ETriggerEvent::Triggered, this, &APlayer_Controller::DeleteAction);
 		EnhancedInputComponent->BindAction(InputConfig->IncreaseGridSnapInput, ETriggerEvent::Triggered, this, &APlayer_Controller::IncreaseGridSnap);
 		EnhancedInputComponent->BindAction(InputConfig->DecreaseGridSnapInput, ETriggerEvent::Triggered, this, &APlayer_Controller::DecreaseGridSnap);
 		EnhancedInputComponent->BindAction(InputConfig->DefaultToolInput, ETriggerEvent::Triggered, this, &APlayer_Controller::SwapToDefaultTool);
@@ -128,6 +129,15 @@ void APlayer_Controller::SecondaryAction(const FInputActionValue& Value)
 	// Check if the Character Pointer has been created successfully.  If so...
 	if (Character) {
 		Character->SecondaryAction();
+	}
+}
+
+// Called to fire a delete action input (delete/backspace)
+void APlayer_Controller::DeleteAction(const FInputActionValue& Value)
+{
+	// Check if the Character Pointer has been created successfully.  If so...
+	if (Character) {
+		Character->DeleteAction();
 	}
 }
 
