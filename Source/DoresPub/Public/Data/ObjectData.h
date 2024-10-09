@@ -27,6 +27,34 @@ enum EObjectType
 ENUM_RANGE_BY_COUNT(EObjectType, EObjectType::ObjectTypeMax)
 
 USTRUCT(BlueprintType)
+struct FObjectSnappingData
+{
+public:
+	GENERATED_BODY();
+
+	// Default Constructor/Deconstructor
+	FObjectSnappingData();
+	~FObjectSnappingData();
+
+public:
+	// FName denoting what type of snap position this is
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName SnapType;
+
+	// TArray of FName denoting what can connect to this position
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName SnapWith;
+
+	// FTransform of the snapping position
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FTransform Transform;
+
+	// FVector of the hover position offset to the snap position
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector HoverOffset;
+};
+
+USTRUCT(BlueprintType)
 struct FObjectData : public FTableRowBase
 {
 public:
@@ -54,8 +82,8 @@ public:
 	FString SubCategory;
 
 	// Class
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//TSubclassOf<class AParentFurnishing> Class;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AObject_Parent> Class;
 
 	// Texture denoting a picture of the object
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -72,6 +100,10 @@ public:
 	// TArray of FString denoting objecy tags
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FStringValuePair> ObjectTags;
+
+	// TMap of FName / FTransform denoting snap locations (if applicable)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FObjectSnappingData> SnapLocations;
 };
 
 USTRUCT(BlueprintType)

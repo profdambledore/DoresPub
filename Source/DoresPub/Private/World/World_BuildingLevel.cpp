@@ -337,7 +337,8 @@ void AWorld_BuildingLevel::SetupDefaultMaterials(FWallData& WallDataToUpdate)
 
 /// -- Object Functions --
 // Called to add a new object at a position
-void AWorld_BuildingLevel::AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform)
+// Returns the new object spawned
+AObject_Parent* AWorld_BuildingLevel::AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform)
 {
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -349,7 +350,8 @@ void AWorld_BuildingLevel::AddObjectToLevel(FName ObjectID, FObjectData ObjectTo
 	// Setup the object with the data from ObjectToSpawn
 	NewObject->SetupObject(ObjectID, ObjectToSpawn.Mesh, ObjectToSpawn.ObjectTags);
 
-	//GetWorld()->SpawnActor<APlayer_Tool_Build>(BuildToolClass, FVector(), FRotator(), SpawnInfo);
+	// Return the new object
+	return NewObject;
 }
 
 /// -- Uitlity Functions --

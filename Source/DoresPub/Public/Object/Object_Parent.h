@@ -30,7 +30,7 @@ public:
 	FName GetID() { return ObjectID; }
 
 	// Called to get the objects tags
-	TArray<FStringValuePair> GetObjectTags() { return ObjectTags; }
+	//TArray<FStringValuePair> GetObjectTags() { return ObjectTags; }
 
 	UStaticMesh* GetObjectMesh() { return ObjectMesh->GetStaticMesh(); }
 
@@ -55,5 +55,5 @@ protected:
 	FName ObjectID = "";
 
 	// TArray of FStrings of the objects Tags
-	TArray<FStringValuePair> ObjectTags;
+	//TArray<FStringValuePair> ObjectTags;
 };

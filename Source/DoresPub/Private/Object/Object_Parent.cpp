@@ -37,6 +37,6 @@ void AObject_Parent::SetupObject(FName NewID, UStaticMesh* NewMesh, TArray<FStri
 {
 	ObjectID = NewID;
 	ObjectMesh->SetStaticMesh(NewMesh);
-	ObjectTags = NewTags;
+	//ObjectTags = NewTags;
 }
 

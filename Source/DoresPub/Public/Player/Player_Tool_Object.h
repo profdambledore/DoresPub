@@ -73,6 +73,22 @@ protected:
 	UFUNCTION()
 	void OnSOMCEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+private:
+	// Called to access a data table row from the ObjectDataTable
+	struct FObjectData* GetObjectDataRow(FName ID) { return ObjectDataTable->FindRow<FObjectData>(ID, "", false); }
+
+	// Called to get if the placement is valid
+	bool GetPlacementIsValid() { return (bValidOverlap || bSnapping) && bValidPlacement; }
+
+public:
+	// Pointer to the last object hit by a trace
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Object Query")
+	class AObject_Parent* LastObjectHitByTrace = nullptr;
+
+	// Int Index to the last wall hit by a trace
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Object Query")
+	int LastWallHitByTrace = -1;
+
 protected:
 	/// -- Object Tool Components --
 	// StaticMeshComponent used to show the player where they're placing the new object
@@ -84,43 +100,59 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Object Tool Properties")
 	UStaticMesh* SelectedMesh = nullptr;
 
-	// FName of the ID of the selected object
-	FName SelectedID = "";
-
 	// bool denoting if the player is in rotation mode
 	bool bInRotationMode = false;
 
 	// Bool denoting that the tool is currently placing
 	bool bPlacing = false;
 
+	// Bool denoting that the tool is currently snapping
+	bool bSnapping = false;
+
 	// Pointer to the Build State in the player's UI
 	class UUI_Player_Object* ObjectWidget = nullptr;
+
+	// Float denoting the snapping distance (how far the trace needs to be from the snap point to use)
+	float SnapDistance = 50.0f;
 
 	// Data Table of all available objects
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* ObjectDataTable = nullptr;
 
-	// Pointer to the selected object
-	class AActor* SelectedObject = nullptr;
-
-	// FTransform of the selected object's original transform
-	FTransform SelectedObjectPrevious;
-
 	// UMaterial* denoting an invalid placement
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UMaterial* InvalidMaterial = nullptr;
 
+	/// -- Selected Object Properties --
+	// FName of the ID of the selected object
+	FName SelectedID = "";
+
+	// Pointer to the selected object
+	class AObject_Parent* SelectedObject = nullptr;
+
+	// FTransform of the selected object's original transform
+	FTransform SelectedObjectPrevious;
+
 	// UMaterial denoting the selected object's material
 	TArray<UMaterialInterface*> SelectedObjectMaterials;
 
-	// Bool denoting if the object can be placed at this location
-	bool bPlaceableAtLocation = true;
+	/// -- Object Tag Properties --
+	// FString denoting the objects placement type
+	FString ObjectPlacementType = "";
 
-	/// -- Selected Object Options --
-	// Bool denoting if the object can be placed on other objects
-	bool bPlacedOnObjects = false;
+	// FString denoting what objects the current object can snap to
+	FString ObjectSnapType = "";
 
+	// TArray of available snapping points
+	TArray<FObjectSnappingData> SnappingTransforms;
+
+	/// -- Object Query Properties --
 	// TArray of AActors that the selected object is currently overlapping
 	TArray<AActor*> OverlappedActors;
+
+	// Bool denoting if the placement would overlap other actors
+	bool bValidOverlap = true;
+
+	bool bValidPlacement = true;
 
 };

@@ -18,8 +18,7 @@ APlayer_Tool_Object::APlayer_Tool_Object()
 	SelectedObjectMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Object Tool Mesh"));
 	SelectedObjectMeshComponent->SetupAttachment(Root, "");
 	SelectedObjectMeshComponent->SetCollisionProfileName(FName("ObjectTool"));
-	SelectedObjectMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
+	SelectedObjectMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void APlayer_Tool_Object::BeginPlay()
@@ -40,10 +39,12 @@ void APlayer_Tool_Object::OnSOMCBeginOverlap(UPrimitiveComponent* OverlappedComp
 
 		// If the array is now greater than 0 (overlapping at least one object), then change the material of the SelectedObject to the InvalidMaterial
 		if (OverlappedActors.Num() > 0) {
-			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
-				SelectedObjectMeshComponent->SetMaterial(i, InvalidMaterial);
+			bValidOverlap = false;
+			if (!GetPlacementIsValid()) {
+				for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+					SelectedObjectMeshComponent->SetMaterial(i, InvalidMaterial);
+				}
 			}
-			bPlaceableAtLocation = false;
 		}
 	}
 }
@@ -55,13 +56,14 @@ void APlayer_Tool_Object::OnSOMCEndOverlap(UPrimitiveComponent* OverlappedComp, 
 
 	// If the array is now empty, then change the material of the SelectedObject back to it's original material
 	if (OverlappedActors.Num() == 0) {
-		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
-			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+		bValidOverlap = true;
+		if (GetPlacementIsValid()) {
+			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+				SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+			}
 		}
-		bPlaceableAtLocation = true;
 	}
 }
-
 
 void APlayer_Tool_Object::Tick(float DeltaTime)
 {
@@ -81,7 +83,7 @@ void APlayer_Tool_Object::PrimaryActionPressed()
 		FVector testClickPos = FireTraceToActor().Location;
 		if (PC->GetIsPointInsideBound(testClickPos)) {
 			// Check that the player can afford the item
-			if (ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price <= PC->GetCurrentMoney()) {
+			if (GetObjectDataRow(SelectedID)->Price <= PC->GetCurrentMoney()) {
 				ToggleRotationMode();
 				bPlacing = true;
 			}
@@ -104,32 +106,32 @@ void APlayer_Tool_Object::PrimaryActionPressed()
 				if (FindObjectTrace.GetActor()->IsA<AObject_Parent>()) {
 					// If so, then record it's last position and 'pick up' the object
 					SelectedObjectPrevious = FindObjectTrace.GetActor()->GetTransform();
-					SelectedObject = FindObjectTrace.GetActor();
-					bPlacedOnObjects = false;
+					SelectedObject = Cast<AObject_Parent>(FindObjectTrace.GetActor());
+					ObjectPlacementType = "";
+					ObjectSnapType = "";
 
 					// Hide the object
 					SelectedObject->SetActorHiddenInGame(true);
 					SelectedObject->SetActorEnableCollision(false);
 
-					// Cast to the hit object
-					AObject_Parent* HitObject = Cast<AObject_Parent>(FindObjectTrace.GetActor());
-
 					// Set the SOMC to the SelectedObject's mesh and match the rotation
-					SelectedObjectMeshComponent->SetStaticMesh(HitObject->GetObjectMesh());
-					SelectedObjectMeshComponent->SetWorldRotation(HitObject->GetActorRotation());
+					SelectedObjectMeshComponent->SetStaticMesh(SelectedObject->GetObjectMesh());
+					SelectedObjectMeshComponent->SetWorldRotation(SelectedObject->GetActorRotation());
 
 					// Store the materials of the object
-					for (int i = 0; i < HitObject->GetObjectMesh()->GetStaticMaterials().Num(); i++) {
-						SelectedObjectMaterials.Add(HitObject->GetObjectMesh()->GetMaterial(i));
+					for (int i = 0; i < SelectedObject->GetObjectMesh()->GetStaticMaterials().Num(); i++) {
+						SelectedObjectMaterials.Add(SelectedObject->GetObjectMesh()->GetMaterial(i));
 						SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
 					}
 
 					// Also check if the object 'picked up' can be placed on other objects
-					for (FStringValuePair i : HitObject->GetObjectTags()) {
-						if (i.Key == "placeableOnObjects") {
-							if (i.Value == "true") {
-								bPlacedOnObjects = true;
-							}
+					for (FStringValuePair i : GetObjectDataRow(SelectedObject->GetID())->ObjectTags) {
+						if (i.Key == "placementType") {
+							ObjectPlacementType = i.Value;
+						}
+						else if (i.Key == "snapType") {
+							ObjectSnapType = i.Value;
+							SnappingTransforms = GetObjectDataRow(SelectedObject->GetID())->SnapLocations;
 						}
 					}
 				}
@@ -141,12 +143,24 @@ void APlayer_Tool_Object::PrimaryActionPressed()
 void APlayer_Tool_Object::PrimaryActionReleased()
 {
 	// If the object can be placed at the location
-	if (bPlaceableAtLocation) {
+	if (GetPlacementIsValid()) {
 		// Check if the player is currently in placing mode
 		if (bPlacing) {
 			// Take the money from the player, then add the object to the world via the current BuildingLevel
-			PC->UpdateMoney(-ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false)->Price);
-			PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedID, *ObjectDataTable->FindRow<FObjectData>(SelectedID, "", false), SelectedObjectMeshComponent->GetComponentTransform());
+			PC->UpdateMoney(-GetObjectDataRow(SelectedID)->Price);
+			AObject_Parent* Object = PC->GetCurrentBuildingLevel()->AddObjectToLevel(SelectedID, *GetObjectDataRow(SelectedID), SelectedObjectMeshComponent->GetComponentTransform());
+
+			// If the object was placed on another object, attach it to that other object
+			if (ObjectPlacementType == "Object") {
+				AActor* HitActor = FireTraceToActor(Object).GetActor();
+				if (HitActor) {
+					Object->AttachToActor(HitActor, FAttachmentTransformRules::KeepWorldTransform);
+				}
+				// If the trace didn't hit anything, then unattach it
+				else {
+					Object->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				}
+			}
 
 			// Then exit rotation mode
 			ToggleRotationMode();
@@ -160,6 +174,17 @@ void APlayer_Tool_Object::PrimaryActionReleased()
 
 			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
 				SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+			}
+
+			// If the object was placed on another object, attach it to that other object
+			if (ObjectPlacementType == "Object") {
+				AActor* HitActor = FireTraceToActor(SelectedObject).GetActor();
+				if (HitActor) {
+					SelectedObject->AttachToActor(HitActor, FAttachmentTransformRules::KeepWorldTransform);
+				}
+				else {
+					SelectedObject->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				}
 			}
 
 			SelectedObject = nullptr;
@@ -225,10 +250,11 @@ void APlayer_Tool_Object::DeleteAction()
 		FName IDToRefund = Cast<AObject_Parent>(SelectedObject)->GetID();
 
 		// Find the data table row corrisponding with the ID and refund the player that amount * the refund multiplier
-		int RefundAmount = ObjectDataTable->FindRow<FObjectData>(IDToRefund, "")->Price * RefundMultiplier;
+		int RefundAmount = GetObjectDataRow(IDToRefund)->Price * RefundMultiplier;
 		PC->UpdateMoney(RefundAmount);
 		SelectedObject->Destroy();
 
+		SelectedObjectMeshComponent->SetStaticMesh(nullptr);
 		SelectedObjectMaterials.Empty();
 		SelectedObject = nullptr;
 	}
@@ -236,63 +262,175 @@ void APlayer_Tool_Object::DeleteAction()
 
 void APlayer_Tool_Object::ToolTick()
 {
-	// If they are in Normal Mode
-	if (!bInRotationMode) {
-		// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
-		// Also snap it to the building snapping distance (half of a wall size)
-		FVector MouseLocation = FireTraceToActor(SelectedObject).Location;
+	// If the player has either a SelectedID or a SelectedObject, continue
+	if (SelectedID != "" || SelectedObject) {
+		// If they are in Normal Mode
+		if (!bInRotationMode) {
+			// Fire a trace to the mouse's position, updating the tools location where the trace hits if it is inside of the WorldBounds
+			// Also snap it to the building snapping distance (half of a wall size)
+			FHitResult TraceFired = FireTraceToActor(SelectedObject);
+			FVector TargetLocation = TraceFired.Location;
+			FVector TargetAdditions = FVector(0, 0, 0);
 
-		MouseLocation.X = GetNearestMultiple(MouseLocation.X, PC->GetCurrentGridSnapValue());
-		MouseLocation.Y = GetNearestMultiple(MouseLocation.Y, PC->GetCurrentGridSnapValue());
+			TargetLocation.X = GetNearestMultiple(TargetLocation.X, PC->GetCurrentGridSnapValue());
+			TargetLocation.Y = GetNearestMultiple(TargetLocation.Y, PC->GetCurrentGridSnapValue());
 
-		// Check if the object can be placed on other object.  If it cant, set it to the BuildingLevel's Z position.  TODO - Currently, only one building level is used so it defaults to 1
-		if (!bPlacedOnObjects) {
-			MouseLocation.Z = 1.0f;
+			// First, check if the object can only be placed on walls
+			if (ObjectPlacementType == "Wall") {
+				// If the trace hit a placed wall, get it's index from the BuildingLevel
+				if (TraceFired.GetComponent()->GetOwner()->IsA<AWorld_BuildingLevel>()) {
+					LastWallHitByTrace = PC->GetCurrentBuildingLevel()->GetBuildDataAtLocation(TraceFired.GetComponent()->GetComponentLocation());
+				}
+				else {
+					LastWallHitByTrace = -1;
+				}
+
+				if (LastWallHitByTrace != -1) {
+					TargetLocation = PC->GetCurrentBuildingLevel()->GetWallObjectMeshAtPosition(TraceFired.GetComponent()->GetComponentLocation(), (TraceFired.GetComponent()->GetComponentRotation() == FRotator()) ? true : false)->GetComponentLocation();
+				}
+			}
+
+
+			// Next, check if the object can be placed on the floor or other objects.
+			if (ObjectPlacementType == "Floor" || "Object") {
+				if (ObjectPlacementType == "Floor") {
+					TargetLocation.Z = 1.0f;
+				}
+
+				// If the trace hit a placed object, cast to it and store it if it hasn't already been stored
+				if (TraceFired.GetActor()) {
+					if (!LastObjectHitByTrace) {
+						// If it is an object, then
+						if (TraceFired.GetActor()->IsA<AObject_Parent>()) {
+							LastObjectHitByTrace = Cast<AObject_Parent>(TraceFired.GetActor());
+						}
+					}
+					else if (TraceFired.GetActor()->GetName() != LastObjectHitByTrace->GetName()) {
+						if (TraceFired.GetActor()->IsA<AObject_Parent>()) {
+							LastObjectHitByTrace = Cast<AObject_Parent>(TraceFired.GetActor());
+						}
+						else {
+							LastObjectHitByTrace = nullptr;
+						}
+					}
+				}
+				else {
+					LastObjectHitByTrace = nullptr;
+				}
+
+				bool bSnapFound = false;
+				if (LastObjectHitByTrace) {
+					// Next, check if it has a object snap type.  If it does, and it matches the other object's snap type then move it to that object.
+					if (GetObjectDataRow(LastObjectHitByTrace->GetID())->ObjectTags.Contains(FStringValuePair("snapType", ObjectSnapType))) {
+						// Check each snap point, converting to world space, and see if it is within the snap distance
+						for (FObjectSnappingData i : GetObjectDataRow(LastObjectHitByTrace->GetID())->SnapLocations) {
+							if (FVector::Dist2D(TraceFired.Location, LastObjectHitByTrace->GetActorLocation() + (LastObjectHitByTrace->GetActorForwardVector() * (i.Transform.GetLocation().X + i.HoverOffset.X) + (LastObjectHitByTrace->GetActorRightVector() * (i.Transform.GetLocation().Y + i.HoverOffset.Y)))) <= SnapDistance) {
+								// Check if the current object contains a snap matching this point
+								for (FObjectSnappingData j : SnappingTransforms) {
+									if (j.SnapWith == i.SnapType) {
+										// If one does match, update the location and rotation
+										// Start with rotation, 
+										SelectedObjectMeshComponent->SetRelativeRotation(LastObjectHitByTrace->GetActorRotation());
+										SelectedObjectMeshComponent->AddRelativeRotation(i.Transform.GetRotation().Rotator());
+
+										FVector VecA = UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation() + i.Transform.GetRotation().Rotator());
+										VecA.Normalize();
+
+										FVector VecB = UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation() + j.Transform.GetRotation().Rotator());
+										VecB.Normalize();
+
+										float OutAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(VecA, VecB)));
+
+										if (FVector::CrossProduct(VecA, VecB).Z > 0)
+										{
+											OutAngle = -OutAngle;
+										}
+
+										SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, 180.0f, 0.0f));
+										SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, OutAngle, 0.0f));
+
+										TargetLocation = LastObjectHitByTrace->GetActorLocation();
+
+										FVector iVec = (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) * i.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation()) * i.Transform.GetLocation().Y);
+										FVector jVec = (UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().Y);
+
+										// Move the tool to the location
+										SetActorLocation(TargetLocation);
+										AddActorLocalOffset(iVec); //(i.Transform.GetLocation() * (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) + UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation())))
+										AddActorLocalOffset(jVec * -1);
+										
+										bSnapFound = true;
+									}
+								}
+							}
+						}
+						
+					}
+				}
+				bSnapping = bSnapFound;
+
+				// Update the materials TODO - Convert to function
+				if (!GetPlacementIsValid()) {
+					for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+						SelectedObjectMeshComponent->SetMaterial(i, InvalidMaterial);
+					}
+				}
+				else {
+					for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+						SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+					}
+				}
+			}
+
+			if (!bSnapping) {
+				// Move the tool to the location
+				SetActorLocation(TargetLocation);
+			}
+			
+			// Check if the tool has a selected object.  If so, then move it as well
+			if (SelectedObject) {
+				SelectedObject->SetActorLocation(TargetLocation);
+				SelectedObject->SetActorRotation(SelectedObjectMeshComponent->GetComponentRotation());
+			}
+
+			// Update the LastPosition and call any related functions
+			if (TargetLocation != LastPosition) {
+				LastPosition = TargetLocation;
+			}
 		}
-		
-		// Move the tool to the location
-		SetActorLocation(MouseLocation);
-
-		// Check if the tool has a selected object.  If so, then move it as well
-		if (SelectedObject) {
-			SelectedObject->SetActorLocation(MouseLocation);
-		}
-
-		// Update the LastPosition and call any related functions
-		if (MouseLocation != LastPosition) {
-			LastPosition = MouseLocation;
-		}
-	}
-	// Else, if they are in Rotation Mode
-	else {
-		if (SelectedObject) {
-			FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(SelectedObject->GetActorLocation(), FireTraceToActor().Location);
-
-			// Add the rotation offset if any
-			ObjectRotation += FRotator(0.0f, -90.0f, 0.0f);
-
-			// Snap the rotation's yaw to the bounds, while also nullifying the roll and pitch
-			ObjectRotation.Yaw = GetNearestMultiple(ObjectRotation.Yaw, PC->GetCurrentRotationSnapValue());
-			ObjectRotation.Pitch = 0.0f;
-			ObjectRotation.Roll = 0.0f;
-
-			// Then rotate the mesh
-			SelectedObject->SetActorRotation(ObjectRotation);
-			SelectedObjectMeshComponent->SetWorldRotation(ObjectRotation);
-		}
+		// Else, if they are in Rotation Mode
 		else {
-			FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(SelectedObjectMeshComponent->GetComponentLocation(), FireTraceToActor().Location);
+			if (!bSnapping) {
+				if (SelectedObject) {
+					FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(SelectedObject->GetActorLocation(), FireTraceToActor().Location);
 
-			// Add the rotation offset if any
-			ObjectRotation += FRotator(0.0f, -90.0f, 0.0f);
+					// Add the rotation offset if any
+					ObjectRotation += FRotator(0.0f, -90.0f, 0.0f);
 
-			// Snap the rotation's yaw to the bounds, while also nullifying the roll and pitch
-			ObjectRotation.Yaw = GetNearestMultiple(ObjectRotation.Yaw, PC->GetCurrentRotationSnapValue());
-			ObjectRotation.Pitch = 0.0f;
-			ObjectRotation.Roll = 0.0f;
+					// Snap the rotation's yaw to the bounds, while also nullifying the roll and pitch
+					ObjectRotation.Yaw = GetNearestMultiple(ObjectRotation.Yaw, PC->GetCurrentRotationSnapValue());
+					ObjectRotation.Pitch = 0.0f;
+					ObjectRotation.Roll = 0.0f;
 
-			// Then rotate the mesh
-			SelectedObjectMeshComponent->SetWorldRotation(ObjectRotation);
+					// Then rotate the mesh
+					SelectedObject->SetActorRotation(ObjectRotation);
+					SelectedObjectMeshComponent->SetWorldRotation(ObjectRotation);
+				}
+				else {
+					FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(SelectedObjectMeshComponent->GetComponentLocation(), FireTraceToActor().Location);
+
+					// Add the rotation offset if any
+					ObjectRotation += FRotator(0.0f, -90.0f, 0.0f);
+
+					// Snap the rotation's yaw to the bounds, while also nullifying the roll and pitch
+					ObjectRotation.Yaw = GetNearestMultiple(ObjectRotation.Yaw, PC->GetCurrentRotationSnapValue());
+					ObjectRotation.Pitch = 0.0f;
+					ObjectRotation.Roll = 0.0f;
+
+					// Then rotate the mesh
+					SelectedObjectMeshComponent->SetWorldRotation(ObjectRotation);
+				}
+			}
 		}
 	}
 }
@@ -339,6 +477,22 @@ void APlayer_Tool_Object::UpdateToolRotation()
 
 void APlayer_Tool_Object::UpdateObjectMesh(FName NewID)
 {
+	// If the player has picked up an item, place it back where it was
+	if (SelectedObject) {
+		SelectedObject->SetActorTransform(SelectedObjectPrevious);
+
+		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+		}
+
+		// Unhide the object
+		SelectedObject->SetActorHiddenInGame(false);
+		SelectedObject->SetActorEnableCollision(true);
+		SelectedObjectMeshComponent->SetStaticMesh(nullptr);
+		SelectedObject = nullptr;
+		SelectedObjectMaterials.Empty();
+	}
+
 	// If the NewID matches the current ID OR it is blank, clear the selected item
 	if (NewID == SelectedID || NewID == "") {
 		for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
@@ -352,23 +506,29 @@ void APlayer_Tool_Object::UpdateObjectMesh(FName NewID)
 	}
 	else {
 		// Find the item in the Data table, setting up the mesh and ID to the data found
-		FObjectData NewObject = *ObjectDataTable->FindRow<FObjectData>(NewID, "");
+		FObjectData NewObject = *GetObjectDataRow(NewID);
 		SelectedMesh = NewObject.Mesh;
 		SelectedID = NewID;
 		SelectedObjectMeshComponent->SetStaticMesh(NewObject.Mesh);
-		bPlacedOnObjects = false;
+		ObjectPlacementType = "";
+		ObjectSnapType = "";
+		SelectedObjectMaterials.Empty();
 
 		// Store the material of the object
-		for (int i = 0; i < SelectedMesh->GetStaticMaterials().Num(); i++) {
+		for (int i = 0; i < NewObject.Mesh->GetStaticMaterials().Num(); i++) {
 			SelectedObjectMaterials.Add(SelectedMesh->GetMaterial(i));
+			SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
 		}
 
-		// Also check if the item has the tag placeableOnObjects
+		// Also query important tags
 		for (FStringValuePair i : NewObject.ObjectTags) {
-			if (i.Key == "placeableOnObjects") {
-				if (i.Value == "true") {
-					bPlacedOnObjects = true;
-				}
+			// Check if the item has the tag placeableOnObjects
+			if (i.Key == "placementType") {
+				ObjectPlacementType = i.Value;
+			}
+			else if (i.Key == "snapType") {
+				ObjectSnapType = i.Value;
+				SnappingTransforms = NewObject.SnapLocations;
 			}
 		}
 	}

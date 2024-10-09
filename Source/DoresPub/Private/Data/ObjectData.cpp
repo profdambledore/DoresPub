@@ -6,6 +6,7 @@
 // Default Constructor
 FObjectData::FObjectData()
 {
+	ObjectTags.Add(FStringValuePair("placementType", "object"));
 }
 
 // Default Deconstructor
@@ -21,5 +22,13 @@ FSubCats::FSubCats()
 
 // Default Deconstructor
 FSubCats::~FSubCats()
+{
+}
+
+FObjectSnappingData::FObjectSnappingData()
+{
+}
+
+FObjectSnappingData::~FObjectSnappingData()
 {
 }

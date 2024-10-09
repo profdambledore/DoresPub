@@ -44,10 +44,7 @@ public:
 	/// -- Object Functions --
 	// Called to add a new object at a position
 	// TO:DO - Update this to use Actors instead, not implemented yet so do that first
-	void AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform);
-
-	// Called to remove a object from the world
-	void RemoveObjectFromLevel(AActor* ActorToRemove);
+	AObject_Parent* AddObjectToLevel(FName ObjectID, FObjectData ObjectToSpawn, FTransform MeshTransform);
 
 	/// -- Uitlity Functions --
 	// Called to return the mesh of a static mesh component at a location and rotation

@@ -1,0 +1,11 @@
+meshModifications
+
+To make collisions between meshes more accurate, you must build the simple collision for each mesh
+
+1 - Open the mesh
+2 - Remove the collision (Collision -> Remove)
+3 - Open Auto Convex Collision
+4 - Tweak settings
+  Hull Count - 1
+  Max Hull Verts - Default (Could Change)
+  Hull Precision - 600000 (Could Change, but this is pretty accurate)

@@ -78,7 +78,7 @@ void APlayer_Character::BeginPlay()
 	UpdateWorldBounds(3000.0f, 3000.0f);
 
 	// Give the player 500 big ones
-	UpdateMoney(100050);
+	UpdateMoney(1000050);
 
 	// TEMP -- Find the ground floor and store a pointer to it
 	GroundFloor = Cast<AWorld_BuildingLevel>(UGameplayStatics::GetActorOfClass(GetWorld(), AWorld_BuildingLevel::StaticClass()));
