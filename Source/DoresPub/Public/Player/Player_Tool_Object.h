@@ -115,6 +115,9 @@ protected:
 	// Float denoting the snapping distance (how far the trace needs to be from the snap point to use)
 	float SnapDistance = 50.0f;
 
+	// FName denoting the name of the current snap
+	FName CurrentSnap = "";
+
 	// Data Table of all available objects
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* ObjectDataTable = nullptr;

@@ -328,38 +328,44 @@ void APlayer_Tool_Object::ToolTick()
 								// Check if the current object contains a snap matching this point
 								for (FObjectSnappingData j : SnappingTransforms) {
 									if (j.SnapWith == i.SnapType) {
-										// If one does match, update the location and rotation
-										// Start with rotation, 
-										SelectedObjectMeshComponent->SetRelativeRotation(LastObjectHitByTrace->GetActorRotation());
-										SelectedObjectMeshComponent->AddRelativeRotation(i.Transform.GetRotation().Rotator());
+										// Finally, check if the math has already been calculated
+										if (CurrentSnap != i.SnapType) {
+											// If one does match, update the location and rotation
+											// Start with rotation, 
+											SelectedObjectMeshComponent->SetRelativeRotation(LastObjectHitByTrace->GetActorRotation());
+											SelectedObjectMeshComponent->AddRelativeRotation(i.Transform.GetRotation().Rotator());
 
-										FVector VecA = UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation() + i.Transform.GetRotation().Rotator());
-										VecA.Normalize();
+											FVector VecA = UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation() + i.Transform.GetRotation().Rotator());
+											VecA.Normalize();
 
-										FVector VecB = UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation() + j.Transform.GetRotation().Rotator());
-										VecB.Normalize();
+											FVector VecB = UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation() + j.Transform.GetRotation().Rotator());
+											VecB.Normalize();
 
-										float OutAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(VecA, VecB)));
+											float OutAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(VecA, VecB)));
 
-										if (FVector::CrossProduct(VecA, VecB).Z > 0)
-										{
-											OutAngle = -OutAngle;
+											if (FVector::CrossProduct(VecA, VecB).Z > 0)
+											{
+												OutAngle = -OutAngle;
+											}
+
+											SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, 180.0f, 0.0f));
+											SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, OutAngle, 0.0f));
+
+											TargetLocation = LastObjectHitByTrace->GetActorLocation();
+
+											FVector iVec = (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) * i.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation()) * i.Transform.GetLocation().Y);
+											FVector jVec = (UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().Y);
+
+											// Move the tool to the location
+											SetActorLocation(TargetLocation);
+											AddActorLocalOffset(iVec); //(i.Transform.GetLocation() * (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) + UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation())))
+											AddActorLocalOffset(jVec * -1);
+
+											bSnapFound = true;
+											CurrentSnap = i.SnapType;
 										}
 
-										SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, 180.0f, 0.0f));
-										SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, OutAngle, 0.0f));
-
-										TargetLocation = LastObjectHitByTrace->GetActorLocation();
-
-										FVector iVec = (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) * i.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation()) * i.Transform.GetLocation().Y);
-										FVector jVec = (UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().Y);
-
-										// Move the tool to the location
-										SetActorLocation(TargetLocation);
-										AddActorLocalOffset(iVec); //(i.Transform.GetLocation() * (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) + UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation())))
-										AddActorLocalOffset(jVec * -1);
 										
-										bSnapFound = true;
 									}
 								}
 							}
@@ -368,6 +374,11 @@ void APlayer_Tool_Object::ToolTick()
 					}
 				}
 				bSnapping = bSnapFound;
+				
+				// If a snap wasn't found, clear the CurrentSnap
+				if (bSnapping) {
+					CurrentSnap = "";
+				}
 
 				// Update the materials TODO - Convert to function
 				if (!GetPlacementIsValid()) {
