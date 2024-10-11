@@ -78,7 +78,7 @@ private:
 	struct FObjectData* GetObjectDataRow(FName ID) { return ObjectDataTable->FindRow<FObjectData>(ID, "", false); }
 
 	// Called to get if the placement is valid
-	bool GetPlacementIsValid() { return (bValidOverlap) && bValidPlacement; }
+	bool GetPlacementIsValid() { return (bValidOverlap || bSnapping) && bValidPlacement; }
 
 public:
 	// Pointer to the last object hit by a trace
@@ -152,9 +152,6 @@ protected:
 	/// -- Object Query Properties --
 	// TArray of AActors that the selected object is currently overlapping
 	TArray<AActor*> OverlappedActors;
-
-	// Int denoting the max amount of overlaps (usually 0, but when snapping one can occur)
-	int MaxOverlaps = 0;
 
 	// Bool denoting if the placement would overlap other actors
 	bool bValidOverlap = true;

@@ -38,7 +38,7 @@ void APlayer_Tool_Object::OnSOMCBeginOverlap(UPrimitiveComponent* OverlappedComp
 		OverlappedActors.Add(OtherActor);
 
 		// If the array is now greater than 0 (overlapping at least one object), then change the material of the SelectedObject to the InvalidMaterial
-		if (OverlappedActors.Num() > MaxOverlaps) {
+		if (OverlappedActors.Num() > 0) {
 			bValidOverlap = false;
 			if (!GetPlacementIsValid()) {
 				for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
@@ -55,7 +55,7 @@ void APlayer_Tool_Object::OnSOMCEndOverlap(UPrimitiveComponent* OverlappedComp, 
 	OverlappedActors.Remove(OtherActor);
 
 	// If the array is now empty, then change the material of the SelectedObject back to it's original material
-	if (OverlappedActors.Num() <= MaxOverlaps) {
+	if (OverlappedActors.Num() == 0) {
 		bValidOverlap = true;
 		if (GetPlacementIsValid()) {
 			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
@@ -363,7 +363,6 @@ void APlayer_Tool_Object::ToolTick()
 
 											bSnapFound = true;
 											CurrentSnap = i.SnapType;
-											MaxOverlaps = 1;
 										}
 
 										
@@ -379,7 +378,6 @@ void APlayer_Tool_Object::ToolTick()
 				// If a snap wasn't found, clear the CurrentSnap
 				if (bSnapping) {
 					CurrentSnap = "";
-					MaxOverlaps = 0;
 				}
 
 				// Update the materials TODO - Convert to function
