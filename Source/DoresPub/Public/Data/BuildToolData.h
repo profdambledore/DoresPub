@@ -8,6 +8,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
 #include "Components/StaticMeshComponent.h"
+#include "Data/ObjectData.h"
 
 #include "BuildToolData.generated.h"
 
@@ -140,13 +141,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
 
-	// TArray of FString denoting item tags
+	// TArray of FString denoting item tags // TODO Come up with a naming system for the tags system across object/wall
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FString> Tags;
+	TArray<FStringValuePair> Tags;
 
-	// bool denoting if the wall's materials can be updated (true if they can)
+	// TArray of FObjetSnappingData denoting snap locations (if applicable)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bMaterialUpdatable = true;
+	TArray<FObjectSnappingData> SnapLocations;
+
+	// bool denoting if the wall's materials can be updated (true if they can) // TODO - Depricate to Tag
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//bool bMaterialUpdatable = true;
 };
 
 USTRUCT(BlueprintType, Category = "Build Tool")

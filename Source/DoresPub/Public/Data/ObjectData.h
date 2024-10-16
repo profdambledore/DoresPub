@@ -19,6 +19,7 @@ enum EObjectType
 	DefaultType UMETA(DisplayName = "Default"),
 	Seating UMETA(DisplayName = "Seating"),
 	Tables UMETA(DisplayName = "Tables"),
+	Doors UMETA(DisplayName = "Doors"),
 	TestObjects UMETA(DisplayName = "TestObjects"),
 	ObjectTypeMax UMETA(Hidden),
 };
@@ -101,7 +102,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FStringValuePair> ObjectTags;
 
-	// TMap of FName / FTransform denoting snap locations (if applicable)
+	// TArray of FObjetSnappingData denoting snap locations (if applicable)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FObjectSnappingData> SnapLocations;
 };

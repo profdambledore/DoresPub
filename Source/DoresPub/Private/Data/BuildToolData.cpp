@@ -42,6 +42,7 @@ bool FBuildData::GetLocationMatchesOrigin(FVector Location)
 // Default Constructor
 FSelectableWallData::FSelectableWallData()
 {
+	Tags.Add(FStringValuePair("wallType", "wall"));
 }
 
 // Default Deconstructor

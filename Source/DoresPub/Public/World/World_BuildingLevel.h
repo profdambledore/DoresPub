@@ -59,6 +59,10 @@ public:
 	// Returns an empty struct if one doesn't exist
 	int GetBuildDataAtLocation(FVector Location);
 
+	// Called to return a BuildData at a supplied index
+	// Returns a pointer to the FBuildData at the index
+	FBuildData* GetBuildDataFromIndex(int IndexToUse) { return &BuildData[IndexToUse]; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

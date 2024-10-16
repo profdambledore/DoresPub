@@ -177,7 +177,7 @@ void APlayer_Tool_Object::PrimaryActionReleased()
 			}
 
 			// If the object was placed on another object, attach it to that other object
-			if (ObjectPlacementType == "Object") {
+			if (ObjectPlacementType == "object") {
 				AActor* HitActor = FireTraceToActor(SelectedObject).GetActor();
 				if (HitActor) {
 					SelectedObject->AttachToActor(HitActor, FAttachmentTransformRules::KeepWorldTransform);
@@ -276,24 +276,91 @@ void APlayer_Tool_Object::ToolTick()
 			TargetLocation.Y = GetNearestMultiple(TargetLocation.Y, PC->GetCurrentGridSnapValue());
 
 			// First, check if the object can only be placed on walls
-			if (ObjectPlacementType == "Wall") {
+			if (ObjectPlacementType == "wall" || ObjectPlacementType == "fill") {
 				// If the trace hit a placed wall, get it's index from the BuildingLevel
 				if (TraceFired.GetComponent()->GetOwner()->IsA<AWorld_BuildingLevel>()) {
 					LastWallHitByTrace = PC->GetCurrentBuildingLevel()->GetBuildDataAtLocation(TraceFired.GetComponent()->GetComponentLocation());
 				}
 				else {
 					LastWallHitByTrace = -1;
+					bValidPlacement = false;
+					bSnapping = false;
+					CurrentSnap = "";
 				}
 
-				if (LastWallHitByTrace != -1) {
-					TargetLocation = PC->GetCurrentBuildingLevel()->GetWallObjectMeshAtPosition(TraceFired.GetComponent()->GetComponentLocation(), (TraceFired.GetComponent()->GetComponentRotation() == FRotator()) ? true : false)->GetComponentLocation();
+				if (LastWallHitByTrace != -1) {	
+					bool bSnapFound = false;
+					if (ObjectPlacementType == "fill") {
+						// Also get a pointer to the cell of the wall
+						FName HitWallID = (TraceFired.GetComponent()->GetComponentRotation() == FRotator(0.0f, 0.0f, 0.0f)) ? PC->GetCurrentBuildingLevel()->GetBuildDataFromIndex(LastWallHitByTrace)->XWallData.ID : PC->GetCurrentBuildingLevel()->GetBuildDataFromIndex(LastWallHitByTrace)->YWallData.ID;
+
+						// Next, check if the wall has a object snap type.  If it does, and it matches the other object's snap type then move it to that object.
+						if (WallDataTable->FindRow<FSelectableWallData>(HitWallID, "", false)->Tags.Contains(FStringValuePair("snapType", ObjectSnapType))) { //ObjectDataTable->FindRow<FObjectData>(ID, "", false)
+							// Check each snap point, converting to world space, and see if it is within the snap distance
+							for (FObjectSnappingData i : WallDataTable->FindRow<FSelectableWallData>(HitWallID, "", false)->SnapLocations) {
+								if (FVector::Dist2D(TraceFired.Location, TraceFired.GetComponent()->GetComponentLocation() + (TraceFired.GetComponent()->GetForwardVector() * (i.Transform.GetLocation().X + i.HoverOffset.X) + (TraceFired.GetComponent()->GetRightVector() * (i.Transform.GetLocation().Y + i.HoverOffset.Y)))) <= SnapDistance) {
+									// Check if the current object contains a snap matching this point
+									for (FObjectSnappingData j : SnappingTransforms) {
+										if (j.SnapWith == i.SnapType) {
+											// Finally, check if the math has already been calculated
+											if (CurrentSnap != i.SnapType) {
+												// If one does match, update the location and rotation
+												// Start with rotation, 
+												SelectedObjectMeshComponent->SetRelativeRotation(TraceFired.GetComponent()->GetComponentRotation());
+												SelectedObjectMeshComponent->AddRelativeRotation(i.Transform.GetRotation().Rotator());
+
+												FVector VecA = UKismetMathLibrary::GetForwardVector(TraceFired.GetComponent()->GetComponentRotation() + i.Transform.GetRotation().Rotator());
+												VecA.Normalize();
+
+												FVector VecB = UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation() + j.Transform.GetRotation().Rotator());
+												VecB.Normalize();
+
+												float OutAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(VecA, VecB)));
+
+												if (FVector::CrossProduct(VecA, VecB).Z > 0)
+												{
+													OutAngle = -OutAngle;
+												}
+
+												//SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, 180.0f, 0.0f));
+												SelectedObjectMeshComponent->AddLocalRotation(FRotator(0.0f, OutAngle, 0.0f));
+
+												TargetLocation = TraceFired.GetComponent()->GetComponentLocation();
+
+												FVector iVec = (UKismetMathLibrary::GetForwardVector(TraceFired.GetComponent()->GetComponentRotation()) * i.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(TraceFired.GetComponent()->GetComponentRotation()) * i.Transform.GetLocation().Y);
+												FVector jVec = (UKismetMathLibrary::GetForwardVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().X) + (UKismetMathLibrary::GetRightVector(SelectedObjectMeshComponent->GetComponentRotation()) * j.Transform.GetLocation().Y);
+
+												// Move the tool to the location
+												SetActorLocation(TargetLocation);
+
+												UE_LOG(LogTemp, Warning, TEXT("iVec = %s"), *iVec.ToString());
+												AddActorLocalOffset(iVec);
+												//AddActorLocalOffset(jVec * -1);
+
+												CurrentSnap = i.SnapType;
+												MaxOverlaps = 1;
+											}
+											bSnapFound = true;
+											bValidPlacement = true;
+										}
+									}
+								}
+							}
+						}
+					}
+					else{
+						bValidPlacement = true;
+					}
+					bSnapping = bSnapFound;
 				}
 			}
 
 
 			// Next, check if the object can be placed on the floor or other objects.
-			if (ObjectPlacementType == "Floor" || "Object") {
-				if (ObjectPlacementType == "Floor") {
+			else if (ObjectPlacementType == "floor" || ObjectPlacementType == "object") {
+				bValidPlacement = true;
+
+				if (ObjectPlacementType == "floor") {
 					TargetLocation.Z = 1.0f;
 				}
 
@@ -360,13 +427,11 @@ void APlayer_Tool_Object::ToolTick()
 											SetActorLocation(TargetLocation);
 											AddActorLocalOffset(iVec); //(i.Transform.GetLocation() * (UKismetMathLibrary::GetForwardVector(LastObjectHitByTrace->GetActorRotation()) + UKismetMathLibrary::GetRightVector(LastObjectHitByTrace->GetActorRotation())))
 											AddActorLocalOffset(jVec * -1);
-
-											bSnapFound = true;
+											
 											CurrentSnap = i.SnapType;
 											MaxOverlaps = 1;
 										}
-
-										
+										bSnapFound = true;
 									}
 								}
 							}
@@ -375,34 +440,30 @@ void APlayer_Tool_Object::ToolTick()
 					}
 				}
 				bSnapping = bSnapFound;
-				
-				// If a snap wasn't found, clear the CurrentSnap
-				if (bSnapping) {
-					CurrentSnap = "";
-					MaxOverlaps = 0;
-				}
-
-				// Update the materials TODO - Convert to function
-				if (!GetPlacementIsValid()) {
-					for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
-						SelectedObjectMeshComponent->SetMaterial(i, InvalidMaterial);
-					}
-				}
-				else {
-					for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
-						SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
-					}
-				}
 			}
 
+			// If a snap wasn't found, clear the CurrentSnap
 			if (!bSnapping) {
-				// Move the tool to the location
+				CurrentSnap = "";
+				MaxOverlaps = 0;
 				SetActorLocation(TargetLocation);
+			}
+
+			// Update the materials TODO - Convert to function
+			if (!GetPlacementIsValid()) {
+				for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+					SelectedObjectMeshComponent->SetMaterial(i, InvalidMaterial);
+				}
+			}
+			else {
+				for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
+					SelectedObjectMeshComponent->SetMaterial(i, SelectedObjectMaterials[i]);
+				}
 			}
 			
 			// Check if the tool has a selected object.  If so, then move it as well
 			if (SelectedObject) {
-				SelectedObject->SetActorLocation(TargetLocation);
+				SelectedObject->SetActorLocation(SelectedObjectMeshComponent->GetComponentLocation());
 				SelectedObject->SetActorRotation(SelectedObjectMeshComponent->GetComponentRotation());
 			}
 

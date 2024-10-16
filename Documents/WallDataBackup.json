@@ -1,0 +1,200 @@
+[
+	{
+		"Name": "wall_default",
+		"Description": "A default wall",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Walls/T_Wall_Default.T_Wall_Default'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Base_Buildings/SM_Bld_Base_Wall_01.SM_Bld_Base_Wall_01'",
+		"Price": 1500,
+		"Tags": [
+			"selectable_wall"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "wall_half",
+		"Description": "A default wall, just half the size",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Walls/T_Wall_Half.T_Wall_Half'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Base_Buildings/SM_Bld_Base_Wall_Half_01.SM_Bld_Base_Wall_Half_01'",
+		"Price": 750,
+		"Tags": [
+			"selectable_wall"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "wall_balcony",
+		"Description": "A railing useful for securing balconies",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Walls/T_Wall_Balcony.T_Wall_Balcony'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Balcony_Railing_01.SM_Bld_Balcony_Railing_01'",
+		"Price": 1000,
+		"Tags": [
+			"selectable_wall"
+		],
+		"bMaterialUpdatable": false
+	},
+	{
+		"Name": "wall_fence",
+		"Description": "A metal fence fixture.  Good for outside",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Walls/T_Wall_Fence.T_Wall_Fence'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Metal_Fence_01.SM_Bld_Metal_Fence_01'",
+		"Price": 750,
+		"Tags": [
+			"selectable_wall"
+		],
+		"bMaterialUpdatable": false
+	},
+	{
+		"Name": "wall_window1",
+		"Description": "A glass window wall, with a supporting crossbar",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Walls/T_WindowWall1.T_WindowWall1'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Glass_01.SM_Bld_Base_Wall_Glass_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_wall"
+		],
+		"bMaterialUpdatable": false
+	},
+	{
+		"Name": "wall_window2",
+		"Description": "A glass window wall.",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Walls/T_WindowWall2.T_WindowWall2'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Glass_Blank_01.SM_Bld_Base_Wall_Glass_Blank_01'",
+		"Price": 2500,
+		"Tags": [
+			"selectable_wall"
+		],
+		"bMaterialUpdatable": false
+	},
+	{
+		"Name": "window_square",
+		"Description": "A simple square window, placed in the center of the wall",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_Square.T_Window_Square'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Base_Buildings/SM_Bld_Base_Wall_Window_01.SM_Bld_Base_Wall_Window_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "window_rec",
+		"Description": "A rectangle window, spaning nearly the whole wall",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_Rec.T_Window_Rec'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Wall_Window_Grid_01.SM_Bld_Wall_Window_Grid_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "window_wide",
+		"Description": "A wide window, spanning nearly the whole wall",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_Wide.T_Window_Wide'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Base_Buildings/SM_Bld_Base_Wall_Window_Double_01.SM_Bld_Base_Wall_Window_Double_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "window_old",
+		"Description": "A old-style window",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_Old.T_Window_Old'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Wall_Window_Old_01.SM_Bld_Wall_Window_Old_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "window_bars",
+		"Description": "A barred up window.  Harder to break through",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_Bars.T_Window_Bars'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Base_Buildings/SM_Bld_Base_Wall_Window_Bars_02.SM_Bld_Base_Wall_Window_Bars_02'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "window_high",
+		"Description": "A high up window.  Gotta jump to see through",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_High.T_Window_High'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Buildings/SM_Bld_Base_Wall_Window_Bars_01.SM_Bld_Base_Wall_Window_Bars_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "window_low",
+		"Description": "A low down window.  You can see people's feet",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Windows/T_Window_Low.T_Window_Low'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonNightClubs/Meshes/Base_Buildings/SM_Bld_Base_Wall_Window_Low_01.SM_Bld_Base_Wall_Window_Low_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "doorway_default",
+		"Description": "A standard doorway.  Fits one standard door",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Doorways/T_Doorway_Standard.T_Doorway_Standard'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Door_01.SM_Bld_Base_Wall_Door_01'",
+		"Price": 0,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "doorway_tall",
+		"Description": "A taller frame doorway.  Fits one tall door",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Doorways/T_Doorway_Tall.T_Doorway_Tall'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Door_Large_01.SM_Bld_Base_Wall_Door_Large_01'",
+		"Price": 20,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "doorway_wide",
+		"Description": "A wide doorway.  Fits two standard doors",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Doorways/T_Doorway_Wide.T_Doorway_Wide'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Door_Double_01.SM_Bld_Base_Wall_Door_Double_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "doorway_large",
+		"Description": "A wide and tall doorway.  Fits two large doors",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Doorways/T_Doorway_Large.T_Doorway_Large'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Door_Double_Large_01.SM_Bld_Base_Wall_Door_Double_Large_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	},
+	{
+		"Name": "doorway_glass",
+		"Description": "A glass framed doorway.  Fits one standard door",
+		"Icon": "/Script/Engine.Texture2D'/Game/Icons/Doorways/T_Doorway_Glass.T_Doorway_Glass'",
+		"Mesh": "/Script/Engine.StaticMesh'/Game/PolygonShops/Meshes/Buildings/SM_Bld_Base_Wall_Glass_Door_01.SM_Bld_Base_Wall_Glass_Door_01'",
+		"Price": 2000,
+		"Tags": [
+			"selectable_extra"
+		],
+		"bMaterialUpdatable": true
+	}
+]

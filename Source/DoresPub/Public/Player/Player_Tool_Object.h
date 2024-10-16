@@ -122,6 +122,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UDataTable* ObjectDataTable = nullptr;
 
+	// Data Table of all available walls
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
+	UDataTable* WallDataTable = nullptr;
+
 	// UMaterial* denoting an invalid placement
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UMaterial* InvalidMaterial = nullptr;

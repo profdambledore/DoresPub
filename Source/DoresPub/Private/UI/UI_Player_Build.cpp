@@ -45,7 +45,7 @@ void UUI_Player_Build::AddSelectableExtraToList(FName ID, FSelectableWallData Wa
 void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallButton* NewSelectedButton)
 {
 	if (BuildTool) {
-		if (SelectedID == ObjectID) {
+		if (SelectedID == ObjectID || ObjectID == "") {
 			SelectedID = "";
 			SelectedItemButton->ClearSelectedCategory();
 			SelectedItemButton = nullptr;
@@ -66,7 +66,7 @@ void UUI_Player_Build::UpdateSelectedWall(FName ObjectID, UUI_Player_Build_WallB
 void UUI_Player_Build::UpdateSelectedExtra(FName ExtraID, UUI_Player_Build_WallButton* NewSelectedButton)
 {
 	if (BuildTool) {
-		if (SelectedID == ExtraID) {
+		if (SelectedID == ExtraID || ExtraID == "") {
 			SelectedID = "";
 			SelectedItemButton->ClearSelectedCategory();
 			SelectedItemButton = nullptr;

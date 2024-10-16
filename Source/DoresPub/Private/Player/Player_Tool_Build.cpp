@@ -53,6 +53,7 @@ void APlayer_Tool_Build::PrimaryActionPressed()
 			testClickPos.Z = 1.0f;
 			ClickPosition = testClickPos;
 			GenerateBuildDisplay(ClickPosition, ClickPosition);
+			bDisplayVisible = true;
 		}
 	}
 	else
@@ -70,6 +71,7 @@ void APlayer_Tool_Build::PrimaryActionPressed()
 				GenerateBuildDisplay(ClickPosition, ClickPosition);
 
 				BTW->UpdateTextVisibility(true);
+				bDisplayVisible = true;
 			}
 		}
 	}
@@ -103,15 +105,30 @@ void APlayer_Tool_Build::PrimaryActionReleased()
 	ClearBuildDisplay();
 
 	BTW->UpdateTextVisibility(false);
+	bDisplayVisible = false;
 }
 
 void APlayer_Tool_Build::SecondaryActionPressed()
 {
-	ClickPosition = FVector(-1, -1, -1);
-	// Also clear the BTD 
-	ClearBuildDisplay();
+	// If nothing is being drawn, but a wall is selected, unselect it
+	if (!bDisplayVisible && SelectedID != "") {
+		if (SelectedSubTool == Wall) {
+			BuildWidget->UpdateSelectedWall("", nullptr);
+		}
+		else if (SelectedSubTool == Extra) {
+			BuildWidget->UpdateSelectedExtra("", nullptr);
+		}
+	}
+	// If something is currently being drawn by the build tool, clear it
+	else if (bDisplayVisible) {
+		ClickPosition = FVector(-1, -1, -1);
+		// Also clear the BTD 
+		ClearBuildDisplay();
 
-	BTW->UpdateTextVisibility(false);
+		BTW->UpdateTextVisibility(false);
+	}
+
+	
 }
 
 void APlayer_Tool_Build::ToolTick()
@@ -175,10 +192,10 @@ void APlayer_Tool_Build::SetupTool(APlayer_Character* NewPC)
 	// Update the SelectableWallTileView
 	for (FName i : WallDataTable->GetRowNames()) {
 		FSelectableWallData* d = WallDataTable->FindRow<FSelectableWallData>(i, "");
-		if (d->Tags.Contains<FString>("selectable_wall")) {
+		if (d->Tags.Contains(FStringValuePair("wallType", "wall"))) {
 			BuildWidget->AddSelectableWallToList(i, *d);
 		}
-		else if (d->Tags.Contains<FString>("selectable_extra")) {
+		else if (d->Tags.Contains(FStringValuePair("wallType", "extra"))) {
 			BuildWidget->AddSelectableExtraToList(i, *d);
 		}
 	}
@@ -532,10 +549,10 @@ void APlayer_Tool_Build::BuildToolFloorModeReleased()
 
 void APlayer_Tool_Build::BuildToolExtraModeReleased()
 {
-	int cost = WallDataTable->FindRow<FSelectableWallData>(SelectedID, "")->Price;
-	if (cost <= PC->GetCurrentMoney()) {
-		// Check that there is valid LastHitSMC
-		if (LastHitSMC) {
+	// Check that there is valid LastHitSMC
+	if (LastHitSMC) {
+		int cost = WallDataTable->FindRow<FSelectableWallData>(SelectedID, "")->Price;
+		if (cost <= PC->GetCurrentMoney()) {
 			// Check if a wall has been changed already
 			if (LastHitSMC->GetStaticMesh() == SelectedMesh) {
 				// Update the wall ID in the BuildData of the mesh that has been changed
