@@ -156,7 +156,6 @@ protected:
 	/// -- Object Query Properties --
 	// TArray of AActors that the selected object is currently overlapping
 	TArray<AActor*> OverlappedActors;
-	int AmountOfOverlaps = 0;
 
 	// Int denoting the max amount of overlaps (usually 0, but when snapping one can occur)
 	int MaxOverlaps = 0;

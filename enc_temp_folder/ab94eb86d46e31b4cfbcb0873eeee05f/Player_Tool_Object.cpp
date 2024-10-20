@@ -35,12 +35,10 @@ void APlayer_Tool_Object::OnSOMCBeginOverlap(UPrimitiveComponent* OverlappedComp
 	// If the overlapped actor is valid, then...
 	if (OtherActor) {
 		// Add the actor to the OverlappedActors array
-		AmountOfOverlaps++;
-
-		UE_LOG(LogTemp, Warning, TEXT("add %i"), OverlappedActors.Num());
+		OverlappedActors.Add(OtherActor);
 
 		// If the array is now greater than 0 (overlapping at least one object), then change the material of the SelectedObject to the InvalidMaterial
-		if (AmountOfOverlaps > MaxOverlaps) {
+		if (OverlappedActors.Num() > MaxOverlaps) {
 			bValidOverlap = false;
 			if (!GetPlacementIsValid()) {
 				for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
@@ -54,12 +52,10 @@ void APlayer_Tool_Object::OnSOMCBeginOverlap(UPrimitiveComponent* OverlappedComp
 void APlayer_Tool_Object::OnSOMCEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	// Remove the actor from the OverlappedActors array
-	AmountOfOverlaps--;
-
-	UE_LOG(LogTemp, Warning, TEXT("%i"), OverlappedActors.Num());
+	OverlappedActors.Remove(OtherActor);
 
 	// If the array is now empty, then change the material of the SelectedObject back to it's original material
-	if (AmountOfOverlaps <= MaxOverlaps) {
+	if (OverlappedActors.Num() <= MaxOverlaps) {
 		bValidOverlap = true;
 		if (GetPlacementIsValid()) {
 			for (int i = 0; i < SelectedObjectMaterials.Num(); i++) {
@@ -342,10 +338,10 @@ void APlayer_Tool_Object::ToolTick()
 												//AddActorLocalOffset(jVec * -1);
 
 												CurrentSnap = i.SnapType;
+												MaxOverlaps = 1;
 											}
 											bSnapFound = true;
 											bValidPlacement = true;
-											MaxOverlaps = 1;
 										}
 									}
 								}
@@ -379,7 +375,6 @@ void APlayer_Tool_Object::ToolTick()
 					else if (TraceFired.GetActor()->GetName() != LastObjectHitByTrace->GetName()) {
 						if (TraceFired.GetActor()->IsA<AObject_Parent>()) {
 							LastObjectHitByTrace = Cast<AObject_Parent>(TraceFired.GetActor());
-							MaxOverlaps = 0;
 						}
 						else {
 							LastObjectHitByTrace = nullptr;
@@ -434,9 +429,9 @@ void APlayer_Tool_Object::ToolTick()
 											AddActorLocalOffset(jVec * -1);
 											
 											CurrentSnap = i.SnapType;
+											MaxOverlaps = 1;
 										}
 										bSnapFound = true;
-										MaxOverlaps = 1;
 									}
 								}
 							}
